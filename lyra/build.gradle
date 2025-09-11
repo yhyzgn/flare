@@ -1,0 +1,129 @@
+import java.text.SimpleDateFormat
+
+plugins {
+    id "java-library"
+}
+
+def rootConfig = rootProject.ext
+def libVersion = rootConfig.lib
+
+group rootConfig.group
+version rootConfig.lyra.version
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+dependencies {
+    api platform("com.squareup.okhttp3:okhttp-bom:${libVersion.okhttp3}")
+
+    api "org.slf4j:slf4j-api:${libVersion.slf4j}"
+    api "com.squareup.okhttp3:okhttp:${libVersion.okhttp3}"
+    api "com.squareup.okhttp3:okhttp-jvm:${libVersion.okhttp3}"
+    api "com.fasterxml.jackson.core:jackson-core:${libVersion.jackson}"
+    api "com.fasterxml.jackson.core:jackson-databind:${libVersion.jackson}"
+    api "com.google.code.gson:gson:${libVersion.gson}"
+    api "com.google.guava:guava:${libVersion.guava}"
+    api "org.jetbrains:annotations:${libVersion.jetbrains}"
+    api "com.alibaba:transmittable-thread-local:${libVersion.ttl}"
+    api "org.apache.commons:commons-collections4:${libVersion.commonsCollections4}"
+    api "org.apache.commons:commons-compress:${libVersion.commonsCompress}"
+    api "org.apache.commons:commons-text:${libVersion.commonsText}"
+    api "org.apache.commons:commons-lang3:${libVersion.commonsLang3}"
+    api "commons-codec:commons-codec:${libVersion.commonsCodec}"
+    api "commons-io:commons-io:${libVersion.commonsIo}"
+    api "org.projectlombok:lombok:${libVersion.lombok}"
+
+    annotationProcessor "org.projectlombok:lombok:${libVersion.lombok}"
+
+    testImplementation platform("org.junit:junit-bom:${libVersion.junit}")
+    testImplementation "org.junit.jupiter:junit-jupiter"
+    testImplementation "org.slf4j:slf4j-simple:${libVersion.slf4j}"
+    testImplementation "com.squareup.okhttp3:mockwebserver3:${libVersion.okhttp3}"
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.warnings = false
+    options.deprecation = true
+    options.compilerArgs += ["-parameters"]
+}
+
+tasks.withType(GenerateModuleMetadata).configureEach {
+    enabled = false
+}
+
+// https://docs.spring.io/spring-boot/docs/current/gradle-plugin/reference/htmlsingle/#packaging-executable.and-plain-archives
+jar {
+    enabled true
+    archiveClassifier = ''
+    afterEvaluate {
+        manifest {
+            attributes 'Implementation-Version': archiveVersion
+            attributes 'Built-Gradle': gradle.gradleVersion
+            attributes 'Bundle-DocURL': 'https://github.com/yhyzgn/'
+            attributes 'Build-OS': System.getProperty("os.name")
+            attributes 'Built-By': System.getProperty("user.name")
+            attributes 'Build-Jdk': System.getProperty("java.version")
+            attributes 'Build-Timestamp': new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())
+        }
+    }
+}
+
+javadoc {
+    description = "生成jar格式的javadoc。"
+    // 只显示 protected 和 public 的类和成员
+    options.memberLevel = JavadocMemberLevel.PROTECTED
+    options.author = true
+    options.version = true
+    options.header = project.name
+    // 静默javadoc检查（比如不支持@date会报错等），jdk 8+
+    options.addStringOption('Xdoclint:none', '-quiet')
+    // 防止本地打开中文乱码
+    options.addStringOption("charset", "UTF-8")
+    // suppress warnings due to cross-module @see and @link references;
+    // note that global 'api' task does display all warnings.
+    logging.captureStandardError LogLevel.INFO
+    // suppress "## warnings" message
+    logging.captureStandardOutput LogLevel.INFO
+    // 编码一定要配置否则直接出错
+    options.encoding = "UTF-8"
+    options.charSet = "UTF-8"
+    // java9+
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+    // java8
+    if (JavaVersion.current().isJava8Compatible()) {
+        tasks.withType(Javadoc).tap {
+            configureEach {
+                // disable the crazy super-strict doclint tool in Java 8
+                // noinspection SpellCheckingInspection
+                options.addStringOption('Xdoclint:none', '-quiet')
+            }
+        }
+    }
+}
+
+tasks.register('replaceVersion') {
+    ant.replaceregexp(
+            file: "./src/main/java/com/yhy/http/lyra/utils/Utils.java",
+            match: "public final static String VERSION = \"(.+)\"",
+            replace: "public final static String VERSION = \"${rootConfig.lyra.version}\"",
+            flags: 'g',
+            byline: "true"
+    )
+}
+
+tasks.register('sourceJar', Jar) {
+    archiveClassifier = 'sources'
+    from sourceSets.main.allJava
+}
+
+tasks.register('javadocJar', Jar) {
+    dependsOn javadoc
+    archiveClassifier = 'javadoc'
+    from javadoc.destinationDir
+}

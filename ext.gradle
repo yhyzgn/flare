@@ -1,0 +1,59 @@
+ext {
+    group = "com.yhyzgn.http"
+    version = "0.1.0"
+    url = "github.com/yhyzgn/lyra" as Object
+    repository = [
+            release : "https://oss.sonatype.org/service/local/staging/deploy/maven2/",
+            snapshot: "https://oss.sonatype.org/content/repositories/snapshots/"
+    ] as LinkedHashMap
+    lib = [
+            jetbrains          : "26.0.2",
+            caffeine           : "3.2.2",
+            commonsCodec       : "1.19.0",
+            commonsCollections4: "4.5.0",
+            commonsCompress    : "1.28.0",
+            commonsIo          : "2.20.0",
+            commonsLang3       : "3.18.0",
+            commonsText        : "1.14.0",
+            spring             : "6.2.10",
+            jackson            : "2.20.0",
+            okhttp3            : "5.1.0",
+            slf4j              : "2.0.17",
+            logback            : "1.5.18",
+            ttl                : "2.14.5",
+            gson               : "2.13.1",
+            guava              : "33.4.0-jre",
+            lombok             : "1.18.40",
+            junit              : "5.13.4",
+    ]
+    lyra = [
+            artifact   : "lyra",
+            version    : "${version}",
+            description: "Java http client with OkHttp3."
+    ] as LinkedHashMap
+    spring = [
+            artifact   : "lyra-spring",
+            version    : "${version}",
+            description: "Spring supported."
+    ] as LinkedHashMap
+    starterAbstract = [
+            artifact   : "lyra-spring-starter-abstract",
+            version    : "${version}",
+            description: "Spring boot supported abstractly."
+    ] as LinkedHashMap
+    starter = [
+            artifact   : "lyra-spring-boot-starter",
+            version    : "${version}",
+            description: "Spring boot starter."
+    ] as LinkedHashMap
+    starterSimple = [
+            artifact   : "lyra-spring-boot-starter-simple",
+            version    : "${version}",
+            description: "Spring boot starter simple."
+    ] as LinkedHashMap
+    starterSimpleApi = [
+            artifact   : "lyra-spring-boot-starter-simple-api",
+            version    : "${version}",
+            description: "Spring boot starter simple api."
+    ] as LinkedHashMap
+}
