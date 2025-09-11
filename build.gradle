@@ -1,0 +1,83 @@
+import com.vanniktech.maven.publish.JavaLibrary
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.SonatypeHost
+
+plugins {
+    id "org.zeroturnaround.gradle.jrebel" version "1.2.0" apply false
+    id 'org.springframework.boot' version '3.4.5' apply false
+    id 'io.spring.dependency-management' version '1.1.7' apply false
+    id "com.vanniktech.maven.publish" version "0.31.0" apply false
+    id 'java-library'
+}
+
+apply from: 'ext.gradle'
+
+allprojects {
+    java {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+
+    configurations.configureEach {
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    }
+
+    // 编译 JAVA 文件时采用 UTF-8
+    tasks.withType(JavaCompile).tap {
+        configureEach {
+            options.encoding = "UTF-8"
+        }
+    }
+
+    apply plugin: 'org.zeroturnaround.gradle.jrebel'
+}
+
+subprojects {
+    def rootConfig = rootProject.ext
+
+    group rootConfig.group
+    version rootConfig.lyra.version
+    def artifactId = it.name
+
+    // lyra, lyra-spring, lyra-spring-starter-abstract, lyra-spring-boot-starter 这几个子模块可发布到 maven 仓库
+    if (it.name in ['lyra', 'lyra-spring', 'lyra-spring-starter-abstract', 'lyra-spring-boot-starter']) {
+        apply plugin: "java-library"
+        apply plugin: "com.vanniktech.maven.publish"
+
+        mavenPublishing {
+            configure(new JavaLibrary(new JavadocJar.Javadoc(), true))
+            // or when publishing to https://central.sonatype.com/
+            publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+
+            signAllPublications()
+
+            coordinates("${group}", "${artifactId}", "${version}")
+
+            pom {
+                name = "${it.name}"
+                description = "Http client based on OkHttp and Jackson."
+                inceptionYear = "2020"
+                url = "https://github.com/yhyzgn/lyra/"
+                licenses {
+                    license {
+                        name = "The Apache License, Version 2.0"
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                        distribution = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "yhyzgn"
+                        name = "yhyzgn"
+                        url = "https://github.com/yhyzgn/"
+                    }
+                }
+                scm {
+                    url = "https://github.com/yhyzgn/lyra/"
+                    connection = "scm:git:git://github.com/yhyzgn/lyra.git"
+                    developerConnection = "scm:git:ssh://git@github.com/yhyzgn/lyra.git"
+                }
+            }
+        }
+    }
+}

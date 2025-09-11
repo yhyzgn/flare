@@ -1,0 +1,38 @@
+import org.gradle.api.initialization.resolve.RepositoriesMode
+
+pluginManagement {
+    println "aliyun pluginManagement"
+
+    // Use aliyun maven repository (replace 'https://plugins.gradle.org/m2')
+    System.setProperty('org.gradle.internal.plugins.portal.url.override', 'https://maven.aliyun.com/repository/gradle-plugin')
+
+    repositories {
+        mavenLocal()
+        maven { url 'https://maven.aliyun.com/repository/public/' }
+        maven { url "https://mirrors.cloud.tencent.com/nexus/repository/maven-public/" }
+        maven { url "https://maven.aliyun.com/repository/gradle-plugin" }
+        maven { url "https://maven.aliyun.com/repository/spring-plugin" }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    println "aliyun dependencyResolutionManagement"
+    repositories {
+        mavenLocal()
+        maven { url 'https://maven.aliyun.com/repository/public/' }
+        maven { url "https://mirrors.cloud.tencent.com/nexus/repository/maven-public/" }
+        maven { url 'https://maven.aliyun.com/repository/central/' }
+        maven { url 'https://maven.aliyun.com/repository/spring/' }
+        maven { url 'https://maven.aliyun.com/repository/apache-snapshots/' }
+        maven { url 'https://maven.aliyun.com/repository/google/' }
+        mavenCentral()
+        google()
+    }
+}
+
+rootProject.name = 'lyra'
+
+include ':lyra'
