@@ -1,7 +1,7 @@
 ext {
     group = "com.yhyzgn.http"
     version = "0.1.0"
-    url = "github.com/yhyzgn/lyra" as Object
+    url = "github.com/yhyzgn/flare" as Object
     repository = [
             release : "https://oss.sonatype.org/service/local/staging/deploy/maven2/",
             snapshot: "https://oss.sonatype.org/content/repositories/snapshots/"
@@ -26,33 +26,33 @@ ext {
             lombok             : "1.18.40",
             junit              : "5.13.4",
     ]
-    lyra = [
-            artifact   : "lyra",
+    flare = [
+            artifact   : "flare",
             version    : "${version}",
             description: "Java http client with OkHttp3."
     ] as LinkedHashMap
     spring = [
-            artifact   : "lyra-spring",
+            artifact   : "flare-spring",
             version    : "${version}",
             description: "Spring supported."
     ] as LinkedHashMap
     starterAbstract = [
-            artifact   : "lyra-spring-starter-abstract",
+            artifact   : "flare-spring-starter-abstract",
             version    : "${version}",
             description: "Spring boot supported abstractly."
     ] as LinkedHashMap
     starter = [
-            artifact   : "lyra-spring-boot-starter",
+            artifact   : "flare-spring-boot-starter",
             version    : "${version}",
             description: "Spring boot starter."
     ] as LinkedHashMap
     starterSimple = [
-            artifact   : "lyra-spring-boot-starter-simple",
+            artifact   : "flare-spring-boot-starter-simple",
             version    : "${version}",
             description: "Spring boot starter simple."
     ] as LinkedHashMap
     starterSimpleApi = [
-            artifact   : "lyra-spring-boot-starter-simple-api",
+            artifact   : "flare-spring-boot-starter-simple-api",
             version    : "${version}",
             description: "Spring boot starter simple api."
     ] as LinkedHashMap

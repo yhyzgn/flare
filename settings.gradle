@@ -33,6 +33,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = 'lyra'
+rootProject.name = 'flare'
 
-include ':lyra'
+include ':flare'

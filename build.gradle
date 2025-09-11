@@ -36,11 +36,11 @@ subprojects {
     def rootConfig = rootProject.ext
 
     group rootConfig.group
-    version rootConfig.lyra.version
+    version rootConfig.flare.version
     def artifactId = it.name
 
-    // lyra, lyra-spring, lyra-spring-starter-abstract, lyra-spring-boot-starter 这几个子模块可发布到 maven 仓库
-    if (it.name in ['lyra', 'lyra-spring', 'lyra-spring-starter-abstract', 'lyra-spring-boot-starter']) {
+    // flare, flare-spring, flare-spring-starter-abstract, flare-spring-boot-starter 这几个子模块可发布到 maven 仓库
+    if (it.name in ['flare', 'flare-spring', 'flare-spring-starter-abstract', 'flare-spring-boot-starter']) {
         apply plugin: "java-library"
         apply plugin: "com.vanniktech.maven.publish"
 
@@ -57,7 +57,7 @@ subprojects {
                 name = "${it.name}"
                 description = "Http client based on OkHttp and Jackson."
                 inceptionYear = "2020"
-                url = "https://github.com/yhyzgn/lyra/"
+                url = "https://github.com/yhyzgn/flare/"
                 licenses {
                     license {
                         name = "The Apache License, Version 2.0"
@@ -73,9 +73,9 @@ subprojects {
                     }
                 }
                 scm {
-                    url = "https://github.com/yhyzgn/lyra/"
-                    connection = "scm:git:git://github.com/yhyzgn/lyra.git"
-                    developerConnection = "scm:git:ssh://git@github.com/yhyzgn/lyra.git"
+                    url = "https://github.com/yhyzgn/flare/"
+                    connection = "scm:git:git://github.com/yhyzgn/flare.git"
+                    developerConnection = "scm:git:ssh://git@github.com/yhyzgn/flare.git"
                 }
             }
         }
