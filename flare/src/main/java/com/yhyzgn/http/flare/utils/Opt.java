@@ -1,5 +1,8 @@
 package com.yhyzgn.http.flare.utils;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -295,7 +298,7 @@ public final class Opt<T> {
      * @param <U>    新类型
      * @return Opt 实例
      */
-    public <U> Opt<U> map(Function<? super T, ? extends U> mapper) {
+    public <U> Opt<U> map(NonNullFunction<? super T, ? extends U> mapper) {
         Objects.requireNonNull(mapper);
         if (isInvalid()) {
             return empty();
@@ -366,5 +369,12 @@ public final class Opt<T> {
         return value != null
                 ? ("Opt[" + value + "]")
                 : "Opt.empty";
+    }
+
+    @FunctionalInterface
+    public interface NonNullFunction<T, R> {
+
+        @Nullable
+        R apply(@NotNull T t);
     }
 }

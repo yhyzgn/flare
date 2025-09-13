@@ -3,8 +3,8 @@ package com.yhyzgn.http.flare.utils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Function;
@@ -864,24 +864,31 @@ public abstract class Assert {
      *
      * @param wrapper  包裹器
      * @param function 异常处理函数
+     * @param <R>      返回值类型
      * @param <E>      异常类型
      */
-    public static <E extends RuntimeException> void wrap(ThrowableWrapper wrapper, Function<Throwable, E> function) {
+    public static <R, E extends RuntimeException> R wrap(ThrowableWrapper<R> wrapper, Function<Throwable, E> function) {
         try {
-            wrapper.wrap();
+            return wrapper.wrap();
         } catch (Throwable e) {
             throw function.apply(e);
         }
     }
 
+    /**
+     * 异常包裹器接口
+     *
+     * @param <R> 返回值类型
+     */
     @FunctionalInterface
-    public interface ThrowableWrapper {
+    public interface ThrowableWrapper<R> {
 
         /**
          * 包裹异常
          *
+         * @return 结果
          * @throws Throwable 异常
          */
-        void wrap() throws Throwable;
+        R wrap() throws Throwable;
     }
 }

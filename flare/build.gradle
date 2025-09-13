@@ -20,6 +20,8 @@ dependencies {
     api platform("com.squareup.okhttp3:okhttp-bom:${libVersion.okhttp3}")
 
     api "org.slf4j:slf4j-api:${libVersion.slf4j}"
+    api "com.github.ben-manes.caffeine:caffeine:${libVersion.caffeine}"
+    api "com.github.ben-manes.caffeine:guava:${libVersion.caffeine}"
     api "com.squareup.okhttp3:okhttp:${libVersion.okhttp3}"
     api "com.squareup.okhttp3:okhttp-jvm:${libVersion.okhttp3}"
     api "com.fasterxml.jackson.core:jackson-core:${libVersion.jackson}"
@@ -109,9 +111,9 @@ javadoc {
 
 tasks.register('replaceVersion') {
     ant.replaceregexp(
-            file: "./src/main/java/com/yhy/http/flare/utils/Utils.java",
-            match: "public final static String VERSION = \"(.+)\"",
-            replace: "public final static String VERSION = \"${rootConfig.flare.version}\"",
+            file: "./src/main/java/com/yhy/http/flare/utils/Version.java",
+            match: "String VERSION = \"(.+)\"",
+            replace: "String VERSION = \"${rootConfig.flare.version}\"",
             flags: 'g',
             byline: "true"
     )

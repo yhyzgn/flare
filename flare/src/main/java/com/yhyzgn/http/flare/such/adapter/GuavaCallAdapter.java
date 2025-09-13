@@ -33,7 +33,7 @@ public class GuavaCallAdapter implements CallAdapter.Factory {
         return new ResponseCallAdapter<>(responseType);
     }
 
-    private record BodyCallAdapter<R>(Type returnType) implements CallAdapter<R, R> {
+    private record BodyCallAdapter<R>(Type responseType) implements CallAdapter<R, R> {
 
         @Override
         public R adapt(Caller<R> caller, Object[] args) throws Exception {
@@ -66,7 +66,7 @@ public class GuavaCallAdapter implements CallAdapter.Factory {
         }
     }
 
-    private record ResponseCallAdapter<R>(Type returnType) implements CallAdapter<R, InternalResponse<R>> {
+    private record ResponseCallAdapter<R>(Type responseType) implements CallAdapter<R, InternalResponse<R>> {
 
         @Override
         public InternalResponse<R> adapt(Caller<R> caller, Object[] args) throws Exception {

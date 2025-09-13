@@ -23,7 +23,7 @@ public interface CallAdapter<R, T> {
      *
      * @return 返回类型
      */
-    Type returnType();
+    Type responseType();
 
     /**
      * 适配请求
@@ -45,7 +45,7 @@ public interface CallAdapter<R, T> {
          *
          * @param returnType  返回类型
          * @param annotations 注解
-         * @param flare        Flare实例
+         * @param flare       Flare实例
          * @return 适配器
          */
         CallAdapter<?, ?> get(Type returnType, Annotation[] annotations, Flare flare);
