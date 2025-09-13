@@ -1,5 +1,7 @@
 package com.yhyzgn.http.flare.model;
 
+import com.yhyzgn.http.flare.utils.StringUtils;
+
 /**
  * 用于传递 HTTP 头信息的类
  * <p>
@@ -12,6 +14,15 @@ package com.yhyzgn.http.flare.model;
  * @since 1.0.0
  */
 public record HttpHeader(String name, String value) {
+
+    /**
+     * 是否有效
+     *
+     * @return true 有效，false 无效
+     */
+    public boolean isValid() {
+        return StringUtils.hasText(name) && StringUtils.hasText(value);
+    }
 
     /**
      * 静态构造器

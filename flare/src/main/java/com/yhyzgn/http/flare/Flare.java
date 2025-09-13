@@ -1,14 +1,17 @@
 package com.yhyzgn.http.flare;
 
 import com.yhyzgn.http.flare.annotation.Header;
+import com.yhyzgn.http.flare.cache.HandlerCache;
 import com.yhyzgn.http.flare.call.CallAdapter;
 import com.yhyzgn.http.flare.convert.Converter;
 import com.yhyzgn.http.flare.delegate.DynamicHeaderDelegate;
 import com.yhyzgn.http.flare.delegate.InterceptorDelegate;
 import com.yhyzgn.http.flare.delegate.MethodAnnotationDelegate;
+import com.yhyzgn.http.flare.http.HttpHandler;
+import com.yhyzgn.http.flare.http.HttpHandlerAdapter;
 import com.yhyzgn.http.flare.such.adapter.GuavaCallAdapter;
 import com.yhyzgn.http.flare.such.convert.JacksonConverter;
-import com.yhyzgn.http.flare.such.logging.HttpLoggerInterceptor;
+import com.yhyzgn.http.flare.such.interceptor.HttpLoggerInterceptor;
 import com.yhyzgn.http.flare.utils.Assert;
 import com.yhyzgn.http.flare.utils.Opt;
 import okhttp3.*;
@@ -41,19 +44,15 @@ public class Flare {
     private final List<Interceptor> interceptors;
     private final Map<String, String> headers;
     private final List<Header.Dynamic> dynamicHeaders;
-    private final Dispatcher dispatcher;
     private final DynamicHeaderDelegate dynamicHeaderDelegate;
     private final InterceptorDelegate interceptorDelegate;
     private final MethodAnnotationDelegate methodAnnotationDelegate;
-    private final OkHttpClient.Builder client;
-    private final Boolean logEnabled;
-    private final Interceptor loggerInterceptor;
+    private final OkHttpClient.Builder clientBuilder;
     private final CallAdapter.Factory callAdapterFactory;
     private final Converter.Factory converterFactory;
     private final SSLSocketFactory sslSocketFactory;
     private final X509TrustManager sslTrustManager;
     private final HostnameVerifier sslHostnameVerifier;
-    private final Duration timeout;
 
     private Flare(Builder builder) {
         this.baseUrl = builder.baseUrl;
@@ -61,19 +60,15 @@ public class Flare {
         this.interceptors = builder.interceptors;
         this.headers = builder.headers;
         this.dynamicHeaders = builder.dynamicHeaders;
-        this.dispatcher = builder.dispatcher;
         this.dynamicHeaderDelegate = builder.dynamicHeaderDelegate;
         this.interceptorDelegate = builder.interceptorDelegate;
         this.methodAnnotationDelegate = builder.methodAnnotationDelegate;
-        this.client = builder.client;
-        this.logEnabled = builder.logEnabled;
-        this.loggerInterceptor = builder.loggerInterceptor;
+        this.clientBuilder = builder.clientBuilder;
         this.callAdapterFactory = builder.callAdapterFactory;
         this.converterFactory = builder.converterFactory;
         this.sslSocketFactory = builder.sslSocketFactory;
         this.sslTrustManager = builder.sslTrustManager;
         this.sslHostnameVerifier = builder.sslHostnameVerifier;
-        this.timeout = builder.timeout;
     }
 
     @NotNull
@@ -113,6 +108,18 @@ public class Flare {
         return methodAnnotationDelegate;
     }
 
+    public Opt<SSLSocketFactory> sslSocketFactory() {
+        return Opt.ofNullable(sslSocketFactory);
+    }
+
+    public Opt<X509TrustManager> sslTrustManager() {
+        return Opt.ofNullable(sslTrustManager);
+    }
+
+    public Opt<HostnameVerifier> sslHostnameVerifier() {
+        return Opt.ofNullable(sslHostnameVerifier);
+    }
+
     public CallAdapter<?, ?> callAdapter(Type returnType, Annotation[] annotations) {
         return callAdapterFactory.get(returnType, annotations, this);
     }
@@ -132,10 +139,11 @@ public class Flare {
         return (Converter<ResponseBody, T>) converterFactory.responseBodyConverter(responseType, annotations, this);
     }
 
-    public OkHttpClient.Builder client() {
-        return newBuilder();
+    public OkHttpClient.Builder clientBuilder() {
+        return clientBuilder;
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T create(Class<T> api) {
         Objects.requireNonNull(api, "api can not be null.");
         validateInterface(api);
@@ -154,49 +162,19 @@ public class Flare {
         if (api.getTypeParameters().length != 0) {
             throw new IllegalArgumentException("[" + api.getCanonicalName() + "] can not contains any typeParameter.");
         }
-        for (Method method : api.getDeclaredMethods()) {
-            if (Modifier.isStatic(method.getModifiers())) {
-                loadHttpMethod(method);
-            }
-        }
+        Arrays.stream(api.getDeclaredMethods()).filter(method -> !Modifier.isStatic(method.getModifiers())).forEach(this::loadHttpMethod);
     }
 
-    private OkHttpClient.Builder newBuilder() {
-        OkHttpClient ok = client.build();
-        OkHttpClient.Builder builder = new OkHttpClient.Builder()
-                .dispatcher(ok.dispatcher())
-                .connectionPool(ok.connectionPool())
-                .eventListenerFactory(ok.eventListenerFactory())
-                .retryOnConnectionFailure(ok.retryOnConnectionFailure())
-                .authenticator(ok.authenticator())
-                .followRedirects(ok.followRedirects())
-                .followSslRedirects(ok.followSslRedirects())
-                .cookieJar(ok.cookieJar())
-                .cache(ok.cache())
-                .dns(ok.dns())
-                .proxy(ok.proxy())
-                .proxySelector(ok.proxySelector())
-                .proxyAuthenticator(ok.proxyAuthenticator())
-                .socketFactory(ok.socketFactory())
-                .connectionSpecs(ok.connectionSpecs())
-                .protocols(ok.protocols())
-                .hostnameVerifier(ok.hostnameVerifier())
-                .certificatePinner(ok.certificatePinner())
-                .callTimeout(Duration.ofMillis(ok.callTimeoutMillis()))
-                .connectTimeout(Duration.ofMillis(ok.connectTimeoutMillis()))
-                .readTimeout(Duration.ofMillis(ok.readTimeoutMillis()))
-                .writeTimeout(Duration.ofMillis(ok.writeTimeoutMillis()))
-                .pingInterval(Duration.ofMillis(ok.pingIntervalMillis()))
-                .certificatePinner(ok.certificatePinner());
-
-        // 配置 ssl
-        if (null != sslSocketFactory && null != sslTrustManager && null != sslHostnameVerifier) {
-            builder.sslSocketFactory(sslSocketFactory, sslTrustManager).hostnameVerifier(sslHostnameVerifier);
+    private HttpHandler<?> loadHttpMethod(Method method) {
+        HttpHandler<?> result = HandlerCache.get(method);
+        if (null != result) {
+            return result;
         }
-
-        return builder;
+        // 解析方法注解
+        result = HttpHandlerAdapter.parseAnnotations(this, method);
+        HandlerCache.put(method, result);
+        return result;
     }
-
 
     public static class Builder {
         private final List<Interceptor> netInterceptors = new ArrayList<>();
@@ -209,7 +187,7 @@ public class Flare {
         private DynamicHeaderDelegate dynamicHeaderDelegate;
         private InterceptorDelegate interceptorDelegate;
         private MethodAnnotationDelegate methodAnnotationDelegate;
-        private OkHttpClient.Builder client;
+        private OkHttpClient.Builder clientBuilder;
         private Boolean logEnabled;
         private Interceptor loggerInterceptor;
         private CallAdapter.Factory callAdapterFactory;
@@ -300,8 +278,8 @@ public class Flare {
             return this;
         }
 
-        public Builder client(OkHttpClient.Builder client) {
-            this.client = client;
+        public Builder clientBuilder(OkHttpClient.Builder client) {
+            this.clientBuilder = client;
             return this;
         }
 
@@ -331,14 +309,14 @@ public class Flare {
             callAdapterFactory = Opt.ofNullable(callAdapterFactory).orElse(new GuavaCallAdapter());
             converterFactory = Opt.ofNullable(converterFactory).orElse(new JacksonConverter());
 
-            client = Opt.ofNullable(client).orElse(new OkHttpClient.Builder());
+            clientBuilder = Opt.ofNullable(clientBuilder).orElse(new OkHttpClient.Builder());
 
             // 配置分发器
-            client.dispatcher(Opt.ofNullable(dispatcher).orElse(virtualDispatcher()));
+            clientBuilder.dispatcher(Opt.ofNullable(dispatcher).orElse(virtualDispatcher()));
 
             // 配置 ssl
             if (null != sslSocketFactory && null != sslTrustManager && null != sslHostnameVerifier) {
-                client.sslSocketFactory(sslSocketFactory, sslTrustManager).hostnameVerifier(sslHostnameVerifier);
+                clientBuilder.sslSocketFactory(sslSocketFactory, sslTrustManager).hostnameVerifier(sslHostnameVerifier);
             }
 
             if (Objects.equals(logEnabled, true)) {
@@ -347,11 +325,11 @@ public class Flare {
             }
 
             // 配置全局拦截器
-            netInterceptors.forEach(client::addNetworkInterceptor);
-            interceptors.forEach(client::addInterceptor);
+            netInterceptors.forEach(clientBuilder::addNetworkInterceptor);
+            interceptors.forEach(clientBuilder::addInterceptor);
 
             // 配置超时
-            Opt.ofNullable(timeout).ifValid(t -> client.connectTimeout(t).callTimeout(t).readTimeout(t).writeTimeout(t));
+            Opt.ofNullable(timeout).ifValid(t -> clientBuilder.connectTimeout(t).callTimeout(t).readTimeout(t).writeTimeout(t));
 
             // 创建 Flare 实例
             return new Flare(this);
