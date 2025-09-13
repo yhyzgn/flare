@@ -112,8 +112,8 @@ javadoc {
 tasks.register('replaceVersion') {
     ant.replaceregexp(
             file: "./src/main/java/com/yhy/http/flare/utils/Version.java",
-            match: "String VERSION = \"(.+)\"",
-            replace: "String VERSION = \"${rootConfig.flare.version}\"",
+            match: "String NAME = \"(.+)\"",
+            replace: "String NAME = \"${rootConfig.flare.version}\"",
             flags: 'g',
             byline: "true"
     )
