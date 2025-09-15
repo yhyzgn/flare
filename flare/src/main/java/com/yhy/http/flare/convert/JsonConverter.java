@@ -19,7 +19,7 @@ import java.lang.reflect.Type;
  * @version 1.0.0
  * @since 1.0.0
  */
-public interface Converter<F, T> {
+public interface JsonConverter<F, T> {
 
     /**
      * 转换
@@ -40,29 +40,19 @@ public interface Converter<F, T> {
          *
          * @param type        类型
          * @param annotations 注解
-         * @param flare        Flare
+         * @param flare       Flare
          * @return 请求体转换器
          */
-        Converter<?, RequestBody> requestBodyConverter(Type type, Annotation[] annotations, Flare flare);
+        JsonConverter<?, RequestBody> requestBodyConverter(Type type, Annotation[] annotations, Flare flare);
 
         /**
          * 响应体转换器
          *
          * @param type        类型
          * @param annotations 注解
-         * @param flare        Flare
+         * @param flare       Flare
          * @return 响应体转换器
          */
-        Converter<ResponseBody, ?> responseBodyConverter(Type type, Annotation[] annotations, Flare flare);
-
-        /**
-         * 字符串转换器
-         *
-         * @param type        类型
-         * @param annotations 注解
-         * @param flare        Flare
-         * @return 字符串转换器
-         */
-        Converter<?, String> stringConverter(Type type, Annotation[] annotations, Flare flare);
+        JsonConverter<ResponseBody, ?> responseBodyConverter(Type type, Annotation[] annotations, Flare flare);
     }
 }

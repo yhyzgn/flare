@@ -3,14 +3,21 @@ package com.yhy.http.flare;
 import com.yhy.http.flare.annotation.Header;
 import com.yhy.http.flare.cache.HandlerCache;
 import com.yhy.http.flare.call.CallAdapter;
-import com.yhy.http.flare.convert.Converter;
+import com.yhy.http.flare.convert.FormFieldConverter;
+import com.yhy.http.flare.convert.JsonConverter;
+import com.yhy.http.flare.convert.StringConverter;
 import com.yhy.http.flare.delegate.DynamicHeaderDelegate;
 import com.yhy.http.flare.delegate.InterceptorDelegate;
 import com.yhy.http.flare.delegate.MethodAnnotationDelegate;
 import com.yhy.http.flare.http.HttpHandler;
 import com.yhy.http.flare.http.HttpHandlerAdapter;
 import com.yhy.http.flare.such.adapter.GuavaCallAdapter;
-import com.yhy.http.flare.such.convert.JacksonConverter;
+import com.yhy.http.flare.such.convert.FormFieldConverterFactory;
+import com.yhy.http.flare.such.convert.JacksonConverterFactory;
+import com.yhy.http.flare.such.convert.StringConverterFactory;
+import com.yhy.http.flare.such.delegate.ConstructorDynamicHeaderDelegate;
+import com.yhy.http.flare.such.delegate.ConstructorInterceptorDelegate;
+import com.yhy.http.flare.such.delegate.ConstructorMethodAnnotationDelegate;
 import com.yhy.http.flare.such.interceptor.HttpLoggerInterceptor;
 import com.yhy.http.flare.utils.Assert;
 import com.yhy.http.flare.utils.Opt;
@@ -49,7 +56,9 @@ public class Flare {
     private final MethodAnnotationDelegate methodAnnotationDelegate;
     private final OkHttpClient.Builder clientBuilder;
     private final CallAdapter.Factory callAdapterFactory;
-    private final Converter.Factory converterFactory;
+    private final JsonConverter.Factory jsonConverterFactory;
+    private final StringConverter.Factory stringConverterFactory;
+    private final FormFieldConverter.Factory formFieldConverterFactory;
     private final SSLSocketFactory sslSocketFactory;
     private final X509TrustManager sslTrustManager;
     private final HostnameVerifier sslHostnameVerifier;
@@ -65,7 +74,9 @@ public class Flare {
         this.methodAnnotationDelegate = builder.methodAnnotationDelegate;
         this.clientBuilder = builder.clientBuilder;
         this.callAdapterFactory = builder.callAdapterFactory;
-        this.converterFactory = builder.converterFactory;
+        this.jsonConverterFactory = builder.jsonConverterFactory;
+        this.stringConverterFactory = builder.stringConverterFactory;
+        this.formFieldConverterFactory = builder.formFieldConverterFactory;
         this.sslSocketFactory = builder.sslSocketFactory;
         this.sslTrustManager = builder.sslTrustManager;
         this.sslHostnameVerifier = builder.sslHostnameVerifier;
@@ -125,18 +136,23 @@ public class Flare {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> Converter<T, String> stringConverter(Type type, Annotation[] annotations) {
-        return (Converter<T, String>) converterFactory.stringConverter(type, annotations, this);
+    public <T> StringConverter<T> stringConverter(Type type, Annotation[] annotations) {
+        return (StringConverter<T>) stringConverterFactory.converter(type, annotations, this);
     }
 
     @SuppressWarnings("unchecked")
-    public <T> Converter<T, RequestBody> requestConverter(Type type, Annotation[] parameterAnnotations) {
-        return (Converter<T, RequestBody>) converterFactory.requestBodyConverter(type, parameterAnnotations, this);
+    public <T> JsonConverter<T, RequestBody> requestConverter(Type type, Annotation[] parameterAnnotations) {
+        return (JsonConverter<T, RequestBody>) jsonConverterFactory.requestBodyConverter(type, parameterAnnotations, this);
     }
 
     @SuppressWarnings("unchecked")
-    public <T> Converter<ResponseBody, T> responseConverter(Type responseType, Annotation[] annotations) {
-        return (Converter<ResponseBody, T>) converterFactory.responseBodyConverter(responseType, annotations, this);
+    public <T> JsonConverter<ResponseBody, T> responseConverter(Type responseType, Annotation[] annotations) {
+        return (JsonConverter<ResponseBody, T>) jsonConverterFactory.responseBodyConverter(responseType, annotations, this);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> FormFieldConverter<T> formFieldConverter(Type type, Annotation[] annotations) {
+        return (FormFieldConverter<T>) formFieldConverterFactory.converter(type, annotations, this);
     }
 
     public OkHttpClient.Builder clientBuilder() {
@@ -191,7 +207,9 @@ public class Flare {
         private Boolean logEnabled;
         private Interceptor loggerInterceptor;
         private CallAdapter.Factory callAdapterFactory;
-        private Converter.Factory converterFactory;
+        private JsonConverter.Factory jsonConverterFactory;
+        private StringConverter.Factory stringConverterFactory;
+        private FormFieldConverter.Factory formFieldConverterFactory;
         private SSLSocketFactory sslSocketFactory;
         private X509TrustManager sslTrustManager;
         private HostnameVerifier sslHostnameVerifier;
@@ -266,8 +284,18 @@ public class Flare {
             return this;
         }
 
-        public Builder converterFactory(Converter.Factory factory) {
-            this.converterFactory = factory;
+        public Builder converterFactory(JsonConverter.Factory factory) {
+            this.jsonConverterFactory = factory;
+            return this;
+        }
+
+        public Builder stringConverterFactory(StringConverter.Factory factory) {
+            this.stringConverterFactory = factory;
+            return this;
+        }
+
+        public Builder formFieldConverterFactory(FormFieldConverter.Factory factory) {
+            this.formFieldConverterFactory = factory;
             return this;
         }
 
@@ -307,7 +335,13 @@ public class Flare {
             Assert.notNull(baseUrl, "baseUrl cannot be null");
 
             callAdapterFactory = Opt.ofNullable(callAdapterFactory).orElse(new GuavaCallAdapter());
-            converterFactory = Opt.ofNullable(converterFactory).orElse(new JacksonConverter());
+            jsonConverterFactory = Opt.ofNullable(jsonConverterFactory).orElse(new JacksonConverterFactory());
+            stringConverterFactory = Opt.ofNullable(stringConverterFactory).orElse(new StringConverterFactory());
+            formFieldConverterFactory = Opt.ofNullable(formFieldConverterFactory).orElse(new FormFieldConverterFactory());
+
+            dynamicHeaderDelegate = Opt.ofNullable(dynamicHeaderDelegate).orElse(ConstructorDynamicHeaderDelegate.create());
+            interceptorDelegate = Opt.ofNullable(interceptorDelegate).orElse(ConstructorInterceptorDelegate.create());
+            methodAnnotationDelegate = Opt.ofNullable(methodAnnotationDelegate).orElse(ConstructorMethodAnnotationDelegate.create());
 
             clientBuilder = Opt.ofNullable(clientBuilder).orElse(new OkHttpClient.Builder());
 
@@ -341,7 +375,7 @@ public class Flare {
          * @return 分发器
          */
         private static Dispatcher virtualDispatcher() {
-            return new Dispatcher(Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("flare-virtual-thread-", 0).factory()));
+            return new Dispatcher(Executors.newThreadPerTaskExecutor(Thread.ofVirtual().factory()));
         }
     }
 }

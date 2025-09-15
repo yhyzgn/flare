@@ -3,9 +3,10 @@ package com.yhy.http.flare.such.call;
 import com.yhy.http.flare.Flare;
 import com.yhy.http.flare.call.Callback;
 import com.yhy.http.flare.call.Caller;
-import com.yhy.http.flare.convert.Converter;
+import com.yhy.http.flare.convert.JsonConverter;
 import com.yhy.http.flare.http.request.RequestFactory;
 import com.yhy.http.flare.model.InternalResponse;
+import com.yhy.http.flare.such.ssl.VoidSSLX509TrustManager;
 import com.yhy.http.flare.utils.BufferUtils;
 import com.yhy.http.flare.utils.Opt;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +38,7 @@ import java.util.Objects;
 public class OkCaller<T> implements Caller<T> {
     private final Flare flare;
     private final RequestFactory requestFactory;
-    private final Converter<ResponseBody, T> responseConverter;
+    private final JsonConverter<ResponseBody, T> responseConverter;
     private final Object[] args;
 
     private volatile boolean canceled;
@@ -47,7 +48,7 @@ public class OkCaller<T> implements Caller<T> {
     private Throwable failureHandler;
     private boolean executed;
 
-    public OkCaller(RequestFactory requestFactory, Flare flare, Converter<ResponseBody, T> responseConverter, Object[] args) {
+    public OkCaller(RequestFactory requestFactory, Flare flare, JsonConverter<ResponseBody, T> responseConverter, Object[] args) {
         this.requestFactory = requestFactory;
         this.flare = flare;
         this.responseConverter = responseConverter;
@@ -207,7 +208,7 @@ public class OkCaller<T> implements Caller<T> {
         try {
             Request request = requestFactory.create(builder, args);
             return builder.build().newCall(request);
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("", e);
             throw new RuntimeException(e);
         }
@@ -218,6 +219,7 @@ public class OkCaller<T> implements Caller<T> {
         OkHttpClient ok = flare.clientBuilder().build();
         // Copy the OkHttpClient's configuration to the builder.
         return new OkHttpClient.Builder()
+                .taskRunner$okhttp(ok.getTaskRunner$okhttp())
                 .dispatcher(ok.dispatcher())
                 .connectionPool(ok.connectionPool())
                 .eventListenerFactory(ok.eventListenerFactory())
@@ -234,7 +236,7 @@ public class OkCaller<T> implements Caller<T> {
                 .socketFactory(ok.socketFactory())
                 .connectionSpecs(ok.connectionSpecs())
                 .protocols(ok.protocols())
-                .sslSocketFactory(ok.sslSocketFactory(), Opt.ofNullable(ok.x509TrustManager()).or(flare::sslTrustManager).get())
+                .sslSocketFactory(ok.sslSocketFactory(), Opt.ofNullable(ok.x509TrustManager()).orElse(flare.sslTrustManager().orElse(new VoidSSLX509TrustManager())))
                 .hostnameVerifier(ok.hostnameVerifier())
                 .certificatePinner(ok.certificatePinner())
                 .callTimeout(Duration.ofMillis(ok.callTimeoutMillis()))

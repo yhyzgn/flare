@@ -1,14 +1,17 @@
 package com.yhy.http.flare.http.request;
 
 import com.google.gson.internal.LinkedTreeMap;
+import com.yhy.http.flare.model.FormField;
 import com.yhy.http.flare.utils.Opt;
 import com.yhy.http.flare.utils.StringUtils;
 import okhttp3.*;
+import okhttp3.internal.http.HttpMethod;
 import okio.BufferedSink;
 import org.apache.commons.collections4.MapUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -33,7 +36,7 @@ public class RequestBuilder {
 
     private final Map<String, String> pathParamMap;
     private final Map<String, List<String>> queryParamMap;
-    private final Map<String, List<String>> fieldParamMap;
+    private final Map<String, List<FormField<?>>> formFieldParamMap;
 
     private String relativeUrl;
     private MediaType contentType;
@@ -41,24 +44,24 @@ public class RequestBuilder {
     private MultipartBody.Builder multipartBuilder;
     private FormBody.Builder formBuilder;
 
-    RequestBuilder(String method, HttpUrl baseUrl, @Nullable String relativeUrl, @Nullable Headers headers, @Nullable MediaType contentType, boolean isForm, boolean isMultipart, boolean isX3WFormUrlEncoded) {
+    RequestBuilder(String method, HttpUrl baseUrl, @Nullable String relativeUrl, @Nullable Headers headers, @Nullable MediaType contentType, boolean isFormData, boolean isX3WFormUrlEncoded) {
         this.baseUrl = baseUrl;
         this.method = method;
         this.relativeUrl = relativeUrl;
         this.requestBuilder = new Request.Builder();
         this.contentType = Opt.ofNullable(contentType).orElse(MediaType.parse("application/json; charset=utf-8"));
         this.headersBuilder = Opt.ofNullable(headers).map(Headers::newBuilder).orElse(new Headers.Builder());
-        // Form 和 Multipart 设置 body
-        if (isForm || isX3WFormUrlEncoded) {
+        // form-data 和 x-www-form-urlencoded 设置 body
+        if (isX3WFormUrlEncoded) {
             this.formBuilder = new FormBody.Builder();
-        } else if (isMultipart) {
+        } else if (isFormData) {
             this.multipartBuilder = new MultipartBody.Builder();
             this.multipartBuilder.setType(MultipartBody.FORM);
         }
         // 临时记录各种参数
         this.pathParamMap = new LinkedTreeMap<>();
         this.queryParamMap = new LinkedTreeMap<>();
-        this.fieldParamMap = new LinkedTreeMap<>();
+        this.formFieldParamMap = new LinkedTreeMap<>();
     }
 
     public void setRelativeUrl(Object url) {
@@ -84,8 +87,8 @@ public class RequestBuilder {
         queryParamMap.computeIfAbsent(name, k -> new ArrayList<>()).add(dispatchEncode(value, encoded));
     }
 
-    public void addFiled(String name, String value, boolean encoded) {
-        fieldParamMap.computeIfAbsent(name, k -> new ArrayList<>()).add(dispatchEncode(value, encoded));
+    public void addFiled(String name, FormField<?> formField) {
+        formFieldParamMap.computeIfAbsent(name, k -> new ArrayList<>()).add(formField);
     }
 
     public void addPart(Headers headers, RequestBody body) {
@@ -124,8 +127,25 @@ public class RequestBuilder {
         }
         HttpUrl url = urlBuilder.build();
 
-        if (null != formBuilder && MapUtils.isNotEmpty(fieldParamMap)) {
-            fieldParamMap.forEach((name, values) -> values.forEach(val -> formBuilder.addEncoded(name, val)));
+        if (MapUtils.isNotEmpty(formFieldParamMap)) {
+            formFieldParamMap.forEach((name, values) -> values.forEach(val -> {
+                if (val instanceof FormField.ValueFormField valueFormField) {
+                    if (null != formBuilder) {
+                        formBuilder.addEncoded(name, valueFormField.getValue());
+                    }
+                    if (null != multipartBuilder) {
+                        multipartBuilder.addFormDataPart(name, valueFormField.getValue());
+                    }
+                } else if (val instanceof FormField.FileFormField fileFormField) {
+                    if (null != multipartBuilder) {
+                        File file = fileFormField.getValue();
+                        RequestBody fileBody = RequestBody.create(file, MediaType.parse("application/octet-stream"));
+                        multipartBuilder.addFormDataPart(name, file.getName(), fileBody);
+                    }
+                } else {
+                    throw new IllegalArgumentException("Unsupported form field type: " + val.getClass());
+                }
+            }));
         }
 
         if (null == body) {
@@ -133,12 +153,12 @@ public class RequestBuilder {
                 body = formBuilder.build();
             } else if (null != multipartBuilder) {
                 body = multipartBuilder.build();
-            } else {
+            } else if (HttpMethod.requiresRequestBody(method)) {
                 // 如果强行有body，则设置个空body
                 body = RequestBody.create(new byte[0], MediaType.parse("application/json"));
             }
         }
-        body = new ContentTypeOverridingRequestBody(body, contentType);
+        body = Opt.ofNullable(body).map(b -> new ContentTypeOverridingRequestBody(b, contentType)).orElse(null);
 
         if (null != contentType) {
             headersBuilder.set("Content-Type", contentType.toString());

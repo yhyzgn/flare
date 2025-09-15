@@ -9,7 +9,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.yhy.http.flare.Flare;
-import com.yhy.http.flare.convert.Converter;
+import com.yhy.http.flare.convert.JsonConverter;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -25,7 +25,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
- * 基于 Gson 实现的 Converter
+ * 基于 Gson 实现的 JsonConverter
  * <p>
  * Created on 2025-09-11 09:41
  *
@@ -33,35 +33,30 @@ import java.nio.charset.StandardCharsets;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class GsonConverter implements Converter.Factory {
+public class GsonConverterFactory implements JsonConverter.Factory {
     private final Gson gson;
 
-    public GsonConverter() {
+    public GsonConverterFactory() {
         this(new Gson());
     }
 
-    public GsonConverter(Gson gson) {
+    public GsonConverterFactory(Gson gson) {
         this.gson = gson;
     }
 
     @Override
-    public Converter<?, RequestBody> requestBodyConverter(Type type, Annotation[] annotations, Flare flare) {
+    public JsonConverter<?, RequestBody> requestBodyConverter(Type type, Annotation[] annotations, Flare flare) {
         TypeAdapter<?> adapter = gson.getAdapter(TypeToken.get(type));
-        return new GsonRequestBodyConverter<>(gson, adapter);
+        return new GsonRequestBodyJsonConverter<>(gson, adapter);
     }
 
     @Override
-    public Converter<ResponseBody, ?> responseBodyConverter(Type type, Annotation[] annotations, Flare flare) {
+    public JsonConverter<ResponseBody, ?> responseBodyConverter(Type type, Annotation[] annotations, Flare flare) {
         TypeAdapter<?> adapter = gson.getAdapter(TypeToken.get(type));
-        return new GsonResponseBodyConverter<>(gson, adapter);
+        return new GsonResponseBodyJsonConverter<>(gson, adapter);
     }
 
-    @Override
-    public Converter<?, String> stringConverter(Type type, Annotation[] annotations, Flare flare) {
-        return new StringConverter<>();
-    }
-
-    private record GsonRequestBodyConverter<T>(Gson gson, TypeAdapter<T> adapter) implements Converter<T, RequestBody> {
+    private record GsonRequestBodyJsonConverter<T>(Gson gson, TypeAdapter<T> adapter) implements JsonConverter<T, RequestBody> {
         private static final MediaType MEDIA_TYPE = MediaType.get("application/json; charset=UTF-8");
         private static final Charset UTF_8 = StandardCharsets.UTF_8;
 
@@ -93,7 +88,7 @@ public class GsonConverter implements Converter.Factory {
         }
     }
 
-    private record GsonResponseBodyConverter<T>(Gson gson, TypeAdapter<T> adapter) implements Converter<ResponseBody, T> {
+    private record GsonResponseBodyJsonConverter<T>(Gson gson, TypeAdapter<T> adapter) implements JsonConverter<ResponseBody, T> {
 
         @Nullable
         @Override
@@ -107,15 +102,6 @@ public class GsonConverter implements Converter.Factory {
                 }
                 return result;
             }
-        }
-    }
-
-    private static final class StringConverter<T> implements Converter<T, String> {
-
-        @Nullable
-        @Override
-        public String convert(T from) {
-            return from.toString();
         }
     }
 }
