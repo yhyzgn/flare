@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yhy.http.flare.Flare;
-import com.yhy.http.flare.convert.Converter;
+import com.yhy.http.flare.convert.JsonConverter;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -22,7 +22,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
- * 基于 Jackson 实现的 Converter
+ * 基于 Jackson 实现的 JsonConverter
  * <p>
  * Created on 2025-09-11 09:47
  *
@@ -30,14 +30,14 @@ import java.nio.charset.StandardCharsets;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class JacksonConverter implements Converter.Factory {
+public class JacksonConverterFactory implements JsonConverter.Factory {
     private final ObjectMapper mapper;
 
-    public JacksonConverter() {
+    public JacksonConverterFactory() {
         this(new ObjectMapper());
     }
 
-    public JacksonConverter(ObjectMapper mapper) {
+    public JacksonConverterFactory(ObjectMapper mapper) {
         // 排除json字符串中实体类没有的字段
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         mapper.findAndRegisterModules();
@@ -45,23 +45,18 @@ public class JacksonConverter implements Converter.Factory {
     }
 
     @Override
-    public @Nullable Converter<?, RequestBody> requestBodyConverter(Type type, Annotation[] parameterAnnotations, Flare flare) {
+    public @Nullable JsonConverter<?, RequestBody> requestBodyConverter(Type type, Annotation[] parameterAnnotations, Flare flare) {
         JavaType javaType = mapper.getTypeFactory().constructType(type);
-        return new JacksonRequestBodyConverter<>(mapper, javaType);
+        return new JacksonRequestBodyJsonConverter<>(mapper, javaType);
     }
 
     @Override
-    public @Nullable Converter<ResponseBody, ?> responseBodyConverter(Type type, Annotation[] annotations, Flare flare) {
+    public @Nullable JsonConverter<ResponseBody, ?> responseBodyConverter(Type type, Annotation[] annotations, Flare flare) {
         JavaType javaType = mapper.getTypeFactory().constructType(type);
-        return new JacksonResponseBodyConverter<>(mapper, javaType);
+        return new JacksonResponseBodyJsonConverter<>(mapper, javaType);
     }
 
-    @Override
-    public @Nullable Converter<?, String> stringConverter(Type type, Annotation[] annotations, Flare flare) {
-        return new StringConverter<>();
-    }
-
-    private record JacksonRequestBodyConverter<T>(ObjectMapper mapper, JavaType type) implements Converter<T, RequestBody> {
+    private record JacksonRequestBodyJsonConverter<T>(ObjectMapper mapper, JavaType type) implements JsonConverter<T, RequestBody> {
         private static final MediaType MEDIA_TYPE = MediaType.get("application/json; charset=UTF-8");
         private static final Charset UTF_8 = StandardCharsets.UTF_8;
 
@@ -93,7 +88,7 @@ public class JacksonConverter implements Converter.Factory {
         }
     }
 
-    private record JacksonResponseBodyConverter<T>(ObjectMapper mapper, JavaType type) implements Converter<ResponseBody, T> {
+    private record JacksonResponseBodyJsonConverter<T>(ObjectMapper mapper, JavaType type) implements JsonConverter<ResponseBody, T> {
 
         @SuppressWarnings("unchecked")
         @Nullable
@@ -104,15 +99,6 @@ public class JacksonConverter implements Converter.Factory {
                 return (T) from.string();
             }
             return mapper.readValue(from.byteStream(), type);
-        }
-    }
-
-    private static final class StringConverter<T> implements Converter<T, String> {
-
-        @Nullable
-        @Override
-        public String convert(T from) {
-            return from.toString();
         }
     }
 }

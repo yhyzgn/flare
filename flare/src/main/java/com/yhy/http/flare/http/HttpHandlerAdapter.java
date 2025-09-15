@@ -3,7 +3,7 @@ package com.yhy.http.flare.http;
 import com.yhy.http.flare.Flare;
 import com.yhy.http.flare.call.CallAdapter;
 import com.yhy.http.flare.call.Caller;
-import com.yhy.http.flare.convert.Converter;
+import com.yhy.http.flare.convert.JsonConverter;
 import com.yhy.http.flare.http.request.RequestFactory;
 import com.yhy.http.flare.such.call.OkCaller;
 import com.yhy.http.flare.utils.Assert;
@@ -26,9 +26,9 @@ import java.lang.reflect.Type;
 public abstract class HttpHandlerAdapter<R, T> implements HttpHandler<T> {
     private final RequestFactory requestFactory;
     private final Flare flare;
-    private final Converter<ResponseBody, R> responseConverter;
+    private final JsonConverter<ResponseBody, R> responseConverter;
 
-    private HttpHandlerAdapter(RequestFactory requestFactory, Flare flare, Converter<ResponseBody, R> responseConverter) {
+    private HttpHandlerAdapter(RequestFactory requestFactory, Flare flare, JsonConverter<ResponseBody, R> responseConverter) {
         this.requestFactory = requestFactory;
         this.flare = flare;
         this.responseConverter = responseConverter;
@@ -54,12 +54,12 @@ public abstract class HttpHandlerAdapter<R, T> implements HttpHandler<T> {
         Annotation[] annotations = method.getAnnotations();
         CallAdapter<R, T> callAdapter = createCallAdapter(pigeon, annotations, returnType);
         Type responseType = callAdapter.responseType();
-        Converter<ResponseBody, R> responseConverter = createResponseConverter(pigeon, annotations, responseType);
+        JsonConverter<ResponseBody, R> responseConverter = createResponseConverter(pigeon, annotations, responseType);
 
         return new AdaptedCaller<>(factory, pigeon, responseConverter, callAdapter);
     }
 
-    private static <R> Converter<ResponseBody, R> createResponseConverter(Flare pigeon, Annotation[] annotations, Type responseType) {
+    private static <R> JsonConverter<ResponseBody, R> createResponseConverter(Flare pigeon, Annotation[] annotations, Type responseType) {
         return pigeon.responseConverter(responseType, annotations);
     }
 
@@ -71,7 +71,7 @@ public abstract class HttpHandlerAdapter<R, T> implements HttpHandler<T> {
     public static class AdaptedCaller<R, T> extends HttpHandlerAdapter<R, T> {
         private final CallAdapter<R, T> callAdapter;
 
-        AdaptedCaller(RequestFactory requestFactory, Flare pigeon, Converter<ResponseBody, R> responseConverter, CallAdapter<R, T> callAdapter) {
+        AdaptedCaller(RequestFactory requestFactory, Flare pigeon, JsonConverter<ResponseBody, R> responseConverter, CallAdapter<R, T> callAdapter) {
             super(requestFactory, pigeon, responseConverter);
             this.callAdapter = callAdapter;
         }

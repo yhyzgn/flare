@@ -7,7 +7,9 @@ import com.yhy.http.flare.annotation.Headers;
 import com.yhy.http.flare.annotation.Interceptor;
 import com.yhy.http.flare.annotation.method.*;
 import com.yhy.http.flare.annotation.param.*;
-import com.yhy.http.flare.convert.Converter;
+import com.yhy.http.flare.convert.FormFieldConverter;
+import com.yhy.http.flare.convert.JsonConverter;
+import com.yhy.http.flare.convert.StringConverter;
 import com.yhy.http.flare.delegate.DynamicHeaderDelegate;
 import com.yhy.http.flare.delegate.InterceptorDelegate;
 import com.yhy.http.flare.delegate.MethodAnnotationDelegate;
@@ -21,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -50,8 +51,7 @@ public class RequestFactory {
     private final String relativeUrl;
     private final okhttp3.Headers headers;
     private final MediaType contentType;
-    private final boolean isForm;
-    private final boolean isMultipart;
+    private final boolean isFormData;
     private final boolean isX3WFormUrlEncoded;
     private final List<List<ParameterHandler<?>>> parameterHandlers;
     private final List<okhttp3.Interceptor> netInterceptors;
@@ -66,8 +66,7 @@ public class RequestFactory {
         relativeUrl = builder.relativeUrl;
         headers = builder.headers;
         contentType = builder.contentType;
-        isForm = builder.isForm;
-        isMultipart = builder.isMultipart;
+        isFormData = builder.isFormData;
         isX3WFormUrlEncoded = builder.isX3WFormUrlEncoded;
         parameterHandlers = builder.parameterHandlers;
         methodAnnotationDelegate = builder.methodAnnotationDelegate;
@@ -96,7 +95,7 @@ public class RequestFactory {
         return new Builder(pigeon, method).build();
     }
 
-    public Request create(OkHttpClient.Builder clientBuilder, Object[] args) throws IOException {
+    public Request create(OkHttpClient.Builder clientBuilder, Object[] args) throws Exception {
         // 自定义设置拦截器
         if (!netInterceptors.isEmpty()) {
             netInterceptors.forEach(clientBuilder::addNetworkInterceptor);
@@ -117,7 +116,7 @@ public class RequestFactory {
         if (host.uri().getPath().endsWith("/") && relUrl.startsWith("/")) {
             relUrl = relUrl.substring(1);
         }
-        RequestBuilder builder = new RequestBuilder(httpMethod, host, relUrl, headers, contentType, isForm, isMultipart, isX3WFormUrlEncoded);
+        RequestBuilder builder = new RequestBuilder(httpMethod, host, relUrl, headers, contentType, isFormData, isX3WFormUrlEncoded);
 
         List<Object> argsList = new ArrayList<>(argsCount);
         for (int i = 0; i < argsCount; i++) {
@@ -164,8 +163,7 @@ public class RequestFactory {
         private final okhttp3.Headers.Builder headersBuilder;
         private okhttp3.Headers headers;
         private MediaType contentType;
-        private boolean isForm;
-        private boolean isMultipart;
+        private boolean isFormData;
         private boolean isX3WFormUrlEncoded;
         private HttpUrl baseUrl;
         private String relativeUrl;
@@ -230,13 +228,13 @@ public class RequestFactory {
                 String name = Opt.ofNullable(path.value()).orElse(parameter.getName());
                 validatePathName(paramIndex, name);
 
-                Converter<?, String> converter = pigeon.stringConverter(type, annotations);
+                StringConverter<?> converter = pigeon.stringConverter(type, annotations);
                 return new ParameterHandler.Path<>(method, paramIndex, name, path.defaultValue(), path.encoded(), converter);
             } else if (annotation instanceof Query query) {
                 String name = Opt.ofNullable(query.value()).orElse(parameter.getName());
                 return parseParameterQuery(type, name, query.defaultValue(), query.encoded(), paramIndex, annotations);
             } else if (annotation instanceof Field field) {
-                Assert.isTrue(isForm || isX3WFormUrlEncoded, ReflectUtils.parameterError(method, paramIndex, "@Field can only be used with form encoding."));
+                Assert.isTrue(isFormData || isX3WFormUrlEncoded, ReflectUtils.parameterError(method, paramIndex, "@Field can only be used with form encoding."));
                 String name = Opt.ofNullable(field.value()).orElse(parameter.getName());
                 boolean encoded = field.encoded();
 
@@ -246,11 +244,11 @@ public class RequestFactory {
                         throw ReflectUtils.parameterError(method, paramIndex, rawType.getSimpleName() + " must include generic type (e.g., " + rawType.getSimpleName() + "<String>)");
                     }
                     Type iterableType = ReflectUtils.getParameterUpperBound(0, parameterizedType);
-                    Converter<?, String> converter = pigeon.stringConverter(iterableType, annotations);
+                    FormFieldConverter<?> converter = pigeon.formFieldConverter(iterableType, annotations);
                     return new ParameterHandler.Field<>(name, field.defaultValue(), encoded, converter).iterable();
                 } else if (rawType.isArray()) {
                     Class<?> arrayComponentType = boxIfPrimitive(rawType.getComponentType());
-                    Converter<?, String> converter = pigeon.stringConverter(arrayComponentType, annotations);
+                    FormFieldConverter<?> converter = pigeon.formFieldConverter(arrayComponentType, annotations);
                     return new ParameterHandler.Field<>(name, field.defaultValue(), encoded, converter).array();
                 } else if (Map.class.isAssignableFrom(rawType)) {
                     Class<?> rawParameterType = ReflectUtils.getRawType(type);
@@ -267,10 +265,10 @@ public class RequestFactory {
                         throw ReflectUtils.parameterError(method, paramIndex, "@Field Map keys must be of type String: " + keyType);
                     }
                     Type valueType = ReflectUtils.getParameterUpperBound(1, parameterizedType);
-                    Converter<?, String> converter = pigeon.stringConverter(valueType, annotations);
+                    FormFieldConverter<?> converter = pigeon.formFieldConverter(valueType, annotations);
                     return new ParameterHandler.FieldMap<>(method, paramIndex, converter, encoded);
                 } else {
-                    Converter<?, String> converter = pigeon.stringConverter(type, annotations);
+                    FormFieldConverter<?> converter = pigeon.formFieldConverter(type, annotations);
                     return new ParameterHandler.Field<>(name, field.defaultValue(), encoded, converter);
                 }
             } else if (annotation instanceof Header header) {
@@ -282,13 +280,13 @@ public class RequestFactory {
                         throw ReflectUtils.parameterError(method, paramIndex, rawType.getSimpleName() + " must include generic type (e.g., " + rawType.getSimpleName() + "<String>)");
                     }
                     Type iterableType = ReflectUtils.getParameterUpperBound(0, parameterizedType);
-                    Converter<?, String> converter = pigeon.stringConverter(iterableType, annotations);
+                    StringConverter<?> converter = pigeon.stringConverter(iterableType, annotations);
                     return new ParameterHandler.Header<>(name, converter).iterable();
-                } else if(okhttp3.Headers.class.isAssignableFrom(rawType)) {
+                } else if (okhttp3.Headers.class.isAssignableFrom(rawType)) {
                     return new ParameterHandler.Headers(method, paramIndex);
                 } else if (rawType.isArray()) {
                     Class<?> arrayComponentType = boxIfPrimitive(rawType.getComponentType());
-                    Converter<?, String> converter = pigeon.stringConverter(arrayComponentType, annotations);
+                    StringConverter<?> converter = pigeon.stringConverter(arrayComponentType, annotations);
                     return new ParameterHandler.Header<>(name, converter).array();
                 } else if (Map.class.isAssignableFrom(rawType)) {
                     Class<?> rawParameterType = ReflectUtils.getRawType(type);
@@ -305,114 +303,20 @@ public class RequestFactory {
                         throw ReflectUtils.parameterError(method, paramIndex, "@Header Map keys must be of type String: " + keyType);
                     }
                     Type valueType = ReflectUtils.getParameterUpperBound(1, parameterizedType);
-                    Converter<?, String> converter = pigeon.stringConverter(valueType, annotations);
+                    StringConverter<?> converter = pigeon.stringConverter(valueType, annotations);
                     return new ParameterHandler.HeaderMap<>(method, paramIndex, converter);
                 } else {
-                    Converter<?, String> converter = pigeon.stringConverter(type, annotations);
+                    StringConverter<?> converter = pigeon.stringConverter(type, annotations);
                     return new ParameterHandler.Header<>(name, converter);
                 }
-            } else if (annotation instanceof Part part) {
-                Assert.isTrue(isMultipart, ReflectUtils.parameterError(method, paramIndex, "@Part parameters can only be used with multipart encoding."));
-
-                String name = part.value();
-                String encoding = part.encoding();
-
-                Class<?> rawType = ReflectUtils.getRawType(type);
-                if (StringUtils.isEmpty(name)) {
-                    // 未指定name
-                    if (Iterable.class.isAssignableFrom(rawType)) {
-                        if (!(type instanceof ParameterizedType parameterizedType)) {
-                            throw ReflectUtils.parameterError(method, paramIndex, rawType.getSimpleName() + " must include generic type (e.g., " + rawType.getSimpleName() + "<String>)");
-                        }
-                        Type iterableType = ReflectUtils.getParameterUpperBound(0, parameterizedType);
-                        if (!MultipartBody.Part.class.isAssignableFrom(ReflectUtils.getRawType(iterableType))) {
-                            throw ReflectUtils.parameterError(method, paramIndex, "@Part annotation must supply a name or use MultipartBody.Part parameter type.");
-                        }
-                        return ParameterHandler.RawPart.INSTANCE.iterable();
-                    } else if (rawType.isArray()) {
-                        Class<?> arrayComponentType = rawType.getComponentType();
-                        if (!MultipartBody.Part.class.isAssignableFrom(arrayComponentType)) {
-                            throw ReflectUtils.parameterError(method, paramIndex, "@Part annotation must supply a name or use MultipartBody.Part parameter type.");
-                        }
-                        return ParameterHandler.RawPart.INSTANCE.array();
-                    } else if (MultipartBody.Part.class.isAssignableFrom(rawType)) {
-                        return ParameterHandler.RawPart.INSTANCE;
-                    } else if (Map.class.isAssignableFrom(rawType)) {
-                        Class<?> rawParameterType = ReflectUtils.getRawType(type);
-                        if (!Map.class.isAssignableFrom(rawParameterType)) {
-                            throw ReflectUtils.parameterError(method, paramIndex, "@Part Map parameter type must be Map.");
-                        }
-                        Type mapType = ReflectUtils.getSupertype(type, rawParameterType, Map.class);
-                        if (!(mapType instanceof ParameterizedType parameterizedType)) {
-                            throw ReflectUtils.parameterError(method, paramIndex, "Map must include generic types (e.g., Map<String, Object>)");
-                        }
-
-                        Type keyType = ReflectUtils.getParameterUpperBound(0, parameterizedType);
-                        if (String.class != keyType) {
-                            throw ReflectUtils.parameterError(method, paramIndex, "@Part Map keys must be of type String: " + keyType);
-                        }
-                        Type valueType = ReflectUtils.getParameterUpperBound(1, parameterizedType);
-                        if (MultipartBody.Part.class.isAssignableFrom(ReflectUtils.getRawType(valueType))) {
-                            throw ReflectUtils.parameterError(method, paramIndex, "@Part Map values cannot be MultipartBody.Part. Use @Part List<Part> or a different value type instead.");
-                        }
-
-                        Converter<?, RequestBody> valueConverter = pigeon.requestConverter(valueType, annotations);
-                        return new ParameterHandler.PartMap<>(method, paramIndex, valueConverter, encoding);
-                    } else {
-                        throw ReflectUtils.parameterError(method, paramIndex, "@Part annotation must supply a name or use MultipartBody.Part parameter type.");
-                    }
-                } else {
-                    okhttp3.Headers headers = okhttp3.Headers.of("Content-Disposition", "form-data; name=\"" + name + "\"", "Content-Transfer-Encoding", part.encoding());
-                    if (Iterable.class.isAssignableFrom(rawType)) {
-                        if (!(type instanceof ParameterizedType parameterizedType)) {
-                            throw ReflectUtils.parameterError(method, paramIndex, rawType.getSimpleName() + " must include generic type (e.g., " + rawType.getSimpleName() + "<String>)");
-                        }
-                        Type iterableType = ReflectUtils.getParameterUpperBound(0, parameterizedType);
-                        if (MultipartBody.Part.class.isAssignableFrom(ReflectUtils.getRawType(iterableType))) {
-                            throw ReflectUtils.parameterError(method, paramIndex, "@Part parameters using the MultipartBody.Part must not include a part name in the annotation.");
-                        }
-                        Converter<?, RequestBody> converter = pigeon.requestConverter(iterableType, annotations);
-                        return new ParameterHandler.Part<>(method, paramIndex, headers, converter).iterable();
-                    } else if (rawType.isArray()) {
-                        Class<?> arrayComponentType = boxIfPrimitive(rawType.getComponentType());
-                        if (MultipartBody.Part.class.isAssignableFrom(arrayComponentType)) {
-                            throw ReflectUtils.parameterError(method, paramIndex, "@Part parameters using the MultipartBody.Part must not include a part name in the annotation.");
-                        }
-                        Converter<?, RequestBody> converter = pigeon.requestConverter(arrayComponentType, annotations);
-                        return new ParameterHandler.Part<>(method, paramIndex, headers, converter).array();
-                    } else if (MultipartBody.Part.class.isAssignableFrom(rawType)) {
-                        throw ReflectUtils.parameterError(method, paramIndex, "@Part parameters using the MultipartBody.Part must not include a part name in the annotation.");
-                    } else if (Map.class.isAssignableFrom(rawType)) {
-                        Class<?> rawParameterType = ReflectUtils.getRawType(type);
-                        if (!Map.class.isAssignableFrom(rawParameterType)) {
-                            throw ReflectUtils.parameterError(method, paramIndex, "@Part Map parameter type must be Map.");
-                        }
-                        Type mapType = ReflectUtils.getSupertype(type, rawParameterType, Map.class);
-                        if (!(mapType instanceof ParameterizedType parameterizedType)) {
-                            throw ReflectUtils.parameterError(method, paramIndex, "Map must include generic types (e.g., Map<String, Object>)");
-                        }
-
-                        Type keyType = ReflectUtils.getParameterUpperBound(0, parameterizedType);
-                        if (String.class != keyType) {
-                            throw ReflectUtils.parameterError(method, paramIndex, "@Part Map keys must be of type String: " + keyType);
-                        }
-                        Type valueType = ReflectUtils.getParameterUpperBound(1, parameterizedType);
-                        if (MultipartBody.Part.class.isAssignableFrom(ReflectUtils.getRawType(valueType))) {
-                            throw ReflectUtils.parameterError(method, paramIndex, "@Part Map values cannot be MultipartBody.Part. Use @Part List<Part> or a different value type instead.");
-                        }
-
-                        Converter<?, RequestBody> valueConverter = pigeon.requestConverter(valueType, annotations);
-                        return new ParameterHandler.PartMap<>(method, paramIndex, valueConverter, encoding);
-                    } else {
-                        Converter<?, RequestBody> converter = pigeon.requestConverter(type, annotations);
-                        return new ParameterHandler.Part<>(method, paramIndex, headers, converter);
-                    }
-                }
+            } else if (annotation instanceof Binary) {
+                Assert.isFalse(isFormData || isX3WFormUrlEncoded, ReflectUtils.parameterError(method, paramIndex, "@Binary parameters can only be used with multipart encoding."));
+                contentType = MediaType.parse("application/octet-stream");
+                new ParameterHandler.Binary<>(method, paramIndex);
             } else if (annotation instanceof Body) {
-                if (isForm || isMultipart) {
-                    throw ReflectUtils.parameterError(method, paramIndex, "@Body parameters cannot be used with form or multi-part encoding.");
-                }
-                Converter<?, RequestBody> converter = pigeon.requestConverter(type, annotations);
+                Assert.isFalse(isFormData || isX3WFormUrlEncoded, ReflectUtils.parameterError(method, paramIndex, "@Body parameters cannot be used with form or multi-multipart encoding."));
+                contentType = MediaType.parse("application/json; charset=utf-8");
+                JsonConverter<?, RequestBody> converter = pigeon.requestConverter(type, annotations);
                 return new ParameterHandler.Body<>(method, paramIndex, converter);
             } else if (annotation instanceof Tag) {
                 Class<?> tagType = ReflectUtils.getRawType(type);
@@ -436,11 +340,11 @@ public class RequestFactory {
                     throw ReflectUtils.parameterError(method, paramIndex, rawType.getSimpleName() + " must include generic type (e.g., " + rawType.getSimpleName() + "<String>)");
                 }
                 Type iterableType = ReflectUtils.getParameterUpperBound(0, parameterizedType);
-                Converter<?, String> converter = pigeon.stringConverter(iterableType, annotations);
+                StringConverter<?> converter = pigeon.stringConverter(iterableType, annotations);
                 return new ParameterHandler.Query<>(name, defaultValue, encoded, converter).iterable();
             } else if (rawType.isArray()) {
                 Class<?> arrayComponentType = boxIfPrimitive(rawType.getComponentType());
-                Converter<?, String> converter = pigeon.stringConverter(arrayComponentType, annotations);
+                StringConverter<?> converter = pigeon.stringConverter(arrayComponentType, annotations);
                 return new ParameterHandler.Query<>(name, defaultValue, encoded, converter).array();
             } else if (Map.class.isAssignableFrom(rawType)) {
                 Type mapType = ReflectUtils.getSupertype(type, rawType, Map.class);
@@ -452,10 +356,10 @@ public class RequestFactory {
                     throw ReflectUtils.parameterError(method, paramIndex, "@Query Map keys must be of type String: " + keyType);
                 }
                 Type valueType = ReflectUtils.getParameterUpperBound(1, parameterizedType);
-                Converter<?, String> converter = pigeon.stringConverter(valueType, annotations);
+                StringConverter<?> converter = pigeon.stringConverter(valueType, annotations);
                 return new ParameterHandler.QueryMap<>(method, paramIndex, converter, encoded);
             } else {
-                Converter<?, String> converter = pigeon.stringConverter(type, annotations);
+                StringConverter<?> converter = pigeon.stringConverter(type, annotations);
                 return new ParameterHandler.Query<>(name, defaultValue, encoded, converter);
             }
         }
@@ -498,24 +402,17 @@ public class RequestFactory {
                 parseHeader(annotation.value());
             });
 
-            methodAnnotationDelegate.apply(method, Multipart.class).forEach(annotation -> {
-                // form 表单上传
-                Assert.isFalse(isForm || isX3WFormUrlEncoded, ReflectUtils.methodError(method, "Only one encoding annotation is allowed."));
-                isMultipart = true;
-                contentType = MediaType.parse("multipart/form-data");
-            });
-
             methodAnnotationDelegate.apply(method, X3WFormUrlEncoded.class).forEach(annotation -> {
                 // x-www-form-urlencoded 表单上传
-                Assert.isFalse(isForm || isMultipart, ReflectUtils.methodError(method, "Only one encoding annotation is allowed."));
+                Assert.isFalse(isFormData, ReflectUtils.methodError(method, "Only one encoding annotation is allowed."));
                 isX3WFormUrlEncoded = true;
                 contentType = MediaType.parse("application/x-www-form-urlencoded");
             });
 
             methodAnnotationDelegate.apply(method, FormData.class).forEach(annotation -> {
                 // form 表单上传
-                Assert.isFalse(isMultipart || isX3WFormUrlEncoded, ReflectUtils.methodError(method, "Only one encoding annotation is allowed."));
-                isForm = true;
+                Assert.isFalse(isX3WFormUrlEncoded, ReflectUtils.methodError(method, "Only one encoding annotation is allowed."));
+                isFormData = true;
                 contentType = MediaType.parse("multipart/form-data");
             });
 
@@ -577,7 +474,7 @@ public class RequestFactory {
                         }
                         continue;
                     } catch (Exception e) {
-                        throw new IllegalArgumentException("The dynamic header class must implements Header.Dynamic and provide a empty argument constructor or a HeaderProvider.");
+                        throw new IllegalArgumentException(e);
                     }
                 } else {
                     // 如果 value 为空，再从 pair 中获取
@@ -591,10 +488,10 @@ public class RequestFactory {
                     contentType = MediaType.get(headerValue);
                 }
 
-                Converter<String, String> converter = pigeon.stringConverter(String.class, new Annotation[]{});
+                StringConverter<String> converter = pigeon.stringConverter(String.class, new Annotation[]{});
                 try {
                     headerValue = converter.convert(headerValue);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     log.error("", e);
                 }
                 headersBuilder.add(headerName, Opt.ofNullable(headerValue).orElse(""));

@@ -14,9 +14,5 @@ import java.lang.annotation.*;
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Part {
-
-    String value();
-
-    String encoding() default "binary";
+public @interface Binary {
 }

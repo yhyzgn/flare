@@ -1,15 +1,19 @@
 package com.yhy.http.flare.http.request.param;
 
-import com.yhy.http.flare.convert.Converter;
+import com.yhy.http.flare.convert.FormFieldConverter;
+import com.yhy.http.flare.convert.JsonConverter;
+import com.yhy.http.flare.convert.StringConverter;
 import com.yhy.http.flare.http.request.RequestBuilder;
 import com.yhy.http.flare.utils.Assert;
 import com.yhy.http.flare.utils.Opt;
 import com.yhy.http.flare.utils.ReflectUtils;
-import okhttp3.MultipartBody;
+import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -27,12 +31,12 @@ import java.util.Objects;
  */
 public abstract class ParameterHandler<T> {
 
-    public abstract void apply(RequestBuilder builder, @Nullable T value) throws IOException;
+    public abstract void apply(RequestBuilder builder, @Nullable T value) throws Exception;
 
     public final ParameterHandler<Iterable<T>> iterable() {
         return new ParameterHandler<>() {
             @Override
-            public void apply(RequestBuilder builder, @Nullable Iterable<T> values) throws IOException {
+            public void apply(RequestBuilder builder, @Nullable Iterable<T> values) throws Exception {
                 if (values == null) {
                     // Skip null values.
                     return;
@@ -47,7 +51,7 @@ public abstract class ParameterHandler<T> {
     public final ParameterHandler<Object> array() {
         return new ParameterHandler<>() {
             @Override
-            public void apply(RequestBuilder builder, @Nullable Object values) throws IOException {
+            public void apply(RequestBuilder builder, @Nullable Object values) throws Exception {
                 if (values == null) return; // Skip null values.
                 for (int i = 0, size = Array.getLength(values); i < size; i++) {
                     // noinspection unchecked
@@ -80,10 +84,10 @@ public abstract class ParameterHandler<T> {
         private final int index;
         private final String name;
         private final String defaultValue;
-        private final Converter<T, String> converter;
+        private final StringConverter<T> converter;
         private final boolean encoded;
 
-        public Path(Method method, int index, String name, String defaultValue, boolean encoded, Converter<T, String> converter) {
+        public Path(Method method, int index, String name, String defaultValue, boolean encoded, StringConverter<T> converter) {
             this.method = method;
             this.index = index;
             this.name = Objects.requireNonNull(name, "Path param name can not be null.");
@@ -93,7 +97,7 @@ public abstract class ParameterHandler<T> {
         }
 
         @Override
-        public void apply(RequestBuilder builder, @Nullable T value) throws IOException {
+        public void apply(RequestBuilder builder, @Nullable T value) throws Exception {
             String pathValue = defaultValue;
             if (null != value) {
                 pathValue = converter.convert(value);
@@ -106,10 +110,10 @@ public abstract class ParameterHandler<T> {
     public static class Query<T> extends ParameterHandler<T> {
         private final String name;
         private final String defaultValue;
-        private final Converter<T, String> converter;
+        private final StringConverter<T> converter;
         private final boolean encoded;
 
-        public Query(String name, String defaultValue, boolean encoded, Converter<T, String> converter) {
+        public Query(String name, String defaultValue, boolean encoded, StringConverter<T> converter) {
             this.name = Objects.requireNonNull(name, "Query param name can not be null.");
             this.defaultValue = "".equals(defaultValue) ? null : defaultValue;
             this.encoded = encoded;
@@ -117,7 +121,7 @@ public abstract class ParameterHandler<T> {
         }
 
         @Override
-        public void apply(RequestBuilder builder, @Nullable T value) throws IOException {
+        public void apply(RequestBuilder builder, @Nullable T value) throws Exception {
             String queryValue = defaultValue;
             if (null != value) {
                 queryValue = converter.convert(value);
@@ -129,10 +133,10 @@ public abstract class ParameterHandler<T> {
     public static class QueryMap<T> extends ParameterHandler<Map<String, T>> {
         private final Method method;
         private final int index;
-        private final Converter<T, String> converter;
+        private final StringConverter<T> converter;
         private final boolean encoded;
 
-        public QueryMap(Method method, int index, Converter<T, String> converter, boolean encoded) {
+        public QueryMap(Method method, int index, StringConverter<T> converter, boolean encoded) {
             this.method = method;
             this.index = index;
             this.converter = converter;
@@ -140,7 +144,7 @@ public abstract class ParameterHandler<T> {
         }
 
         @Override
-        public void apply(RequestBuilder builder, @Nullable Map<String, T> value) throws IOException {
+        public void apply(RequestBuilder builder, @Nullable Map<String, T> value) throws Exception {
             if (value == null) {
                 value = new HashMap<>();
             }
@@ -165,10 +169,10 @@ public abstract class ParameterHandler<T> {
     public static class Field<T> extends ParameterHandler<T> {
         private final String name;
         private final String defaultValue;
-        private final Converter<T, String> converter;
+        private final FormFieldConverter<T> converter;
         private final boolean encoded;
 
-        public Field(String name, String defaultValue, boolean encoded, Converter<T, String> converter) {
+        public Field(String name, String defaultValue, boolean encoded, FormFieldConverter<T> converter) {
             this.name = Objects.requireNonNull(name, "Filed name can not be null.");
             this.defaultValue = "".equals(defaultValue) ? null : defaultValue;
             this.converter = converter;
@@ -176,22 +180,23 @@ public abstract class ParameterHandler<T> {
         }
 
         @Override
-        public void apply(RequestBuilder builder, @Nullable T value) throws IOException {
-            String fieldValue = defaultValue;
-            if (null != value) {
-                fieldValue = converter.convert(value);
-            }
-            builder.addFiled(name, Opt.ofNullable(fieldValue).orElse(""), encoded);
+        public void apply(RequestBuilder builder, @Nullable T value) throws Exception {
+            Opt.ofNullable(converter.convert(name, value, encoded, defaultValue))
+                    .ifValid(fieldList ->
+                            fieldList.forEach(field ->
+                                    builder.addFiled(field.getName(), field)
+                            )
+                    );
         }
     }
 
     public static class FieldMap<T> extends ParameterHandler<Map<String, T>> {
         private final Method method;
         private final int index;
-        private final Converter<T, String> converter;
+        private final FormFieldConverter<T> converter;
         private final boolean encoded;
 
-        public FieldMap(Method method, int index, Converter<T, String> converter, boolean encoded) {
+        public FieldMap(Method method, int index, FormFieldConverter<T> converter, boolean encoded) {
             this.method = method;
             this.index = index;
             this.converter = converter;
@@ -199,7 +204,7 @@ public abstract class ParameterHandler<T> {
         }
 
         @Override
-        public void apply(RequestBuilder builder, @Nullable Map<String, T> value) throws IOException {
+        public void apply(RequestBuilder builder, @Nullable Map<String, T> value) throws Exception {
             if (value == null) {
                 value = new HashMap<>();
             }
@@ -209,31 +214,27 @@ public abstract class ParameterHandler<T> {
                 Assert.notNull(etKey, ReflectUtils.parameterError(method, index, "Field map contained null key."));
                 T etValue = et.getValue();
                 Assert.notNull(etValue, ReflectUtils.parameterError(method, index, "Field map contained null value for key '" + etKey + "'."));
-                String fieldEntry = converter.convert(etValue);
-                Assert.notNull(fieldEntry, ReflectUtils.parameterError(method, index, "Field map value '"
-                        + etValue
-                        + "' converted to null by "
-                        + converter.getClass().getName()
-                        + " for key '"
-                        + etKey
-                        + "'."));
-
-                builder.addFiled(etKey, fieldEntry, encoded);
+                Opt.ofNullable(converter.convert(etKey, etValue, encoded, null))
+                        .ifValid(fieldList ->
+                                fieldList.forEach(field ->
+                                        builder.addFiled(field.getName(), field)
+                                )
+                        );
             }
         }
     }
 
     public static class Header<T> extends ParameterHandler<T> {
         private final String name;
-        private final Converter<T, String> converter;
+        private final StringConverter<T> converter;
 
-        public Header(String name, Converter<T, String> converter) {
+        public Header(String name, StringConverter<T> converter) {
             this.name = name;
             this.converter = converter;
         }
 
         @Override
-        public void apply(RequestBuilder builder, @Nullable T value) throws IOException {
+        public void apply(RequestBuilder builder, @Nullable T value) throws Exception {
             String headerValue = null == value ? null : converter.convert(value);
             builder.addHeader(name, Opt.ofNullable(headerValue).orElse(""));
         }
@@ -242,16 +243,16 @@ public abstract class ParameterHandler<T> {
     public static class HeaderMap<T> extends ParameterHandler<Map<String, T>> {
         private final Method method;
         private final int index;
-        private final Converter<T, String> converter;
+        private final StringConverter<T> converter;
 
-        public HeaderMap(Method method, int index, Converter<T, String> converter) {
+        public HeaderMap(Method method, int index, StringConverter<T> converter) {
             this.method = method;
             this.index = index;
             this.converter = converter;
         }
 
         @Override
-        public void apply(RequestBuilder builder, @Nullable Map<String, T> value) throws IOException {
+        public void apply(RequestBuilder builder, @Nullable Map<String, T> value) throws Exception {
             if (value == null) {
                 value = new HashMap<>();
             }
@@ -281,76 +282,12 @@ public abstract class ParameterHandler<T> {
         }
     }
 
-    public static final class Part<T> extends ParameterHandler<T> {
-        private final Method method;
-        private final int index;
-        private final okhttp3.Headers headers;
-        private final Converter<T, RequestBody> converter;
-
-        public Part(Method method, int index, okhttp3.Headers headers, Converter<T, RequestBody> converter) {
-            this.method = method;
-            this.index = index;
-            this.headers = headers;
-            this.converter = converter;
-        }
-
-        @Override
-        public void apply(RequestBuilder builder, @Nullable T value) {
-            if (value == null) {
-                return;
-            }
-            RequestBody body = Assert.wrap(() -> converter.convert(value), e -> ReflectUtils.parameterError(method, index, "Unable to convert " + value + " to RequestBody", e));
-            builder.addPart(headers, body);
-        }
-    }
-
-    public static final class RawPart extends ParameterHandler<MultipartBody.Part> {
-        public static final RawPart INSTANCE = new RawPart();
-
-        private RawPart() {
-        }
-
-        @Override
-        public void apply(RequestBuilder builder, @Nullable MultipartBody.Part value) {
-            if (value != null) {
-                builder.addPart(value);
-            }
-        }
-    }
-
-    public static final class PartMap<T> extends ParameterHandler<Map<String, T>> {
-        private final Method method;
-        private final int index;
-        private final Converter<T, RequestBody> valueConverter;
-        private final String transferEncoding;
-
-        public PartMap(Method method, int index, Converter<T, RequestBody> valueConverter, String transferEncoding) {
-            this.method = method;
-            this.index = index;
-            this.valueConverter = valueConverter;
-            this.transferEncoding = transferEncoding;
-        }
-
-        @Override
-        public void apply(RequestBuilder builder, @Nullable Map<String, T> value) throws IOException {
-            Assert.notNull(value, ReflectUtils.parameterError(method, index, "Part map was null."));
-            for (Map.Entry<String, T> entry : value.entrySet()) {
-                String etKey = entry.getKey();
-                Assert.hasText(etKey, ReflectUtils.parameterError(method, index, "Part map contained empty key."));
-                T etValue = entry.getValue();
-                Assert.notNull(etValue, ReflectUtils.parameterError(method, index, "Part map contained null value for key '" + etKey + "'."));
-                okhttp3.Headers headers = okhttp3.Headers.of("Content-Disposition", "form-data; name=\"" + etKey + "\"", "Content-Transfer-Encoding", transferEncoding);
-                builder.addPart(headers, valueConverter.convert(etValue));
-            }
-        }
-    }
-
     public static class Body<T> extends ParameterHandler<T> {
         private final Method method;
         private final int index;
-        private final Converter<T, RequestBody> converter;
+        private final JsonConverter<T, RequestBody> converter;
 
-        public Body(Method method, int index, Converter<T, RequestBody> converter) {
+        public Body(Method method, int index, JsonConverter<T, RequestBody> converter) {
             this.method = method;
             this.index = index;
             this.converter = converter;
@@ -374,6 +311,27 @@ public abstract class ParameterHandler<T> {
         @Override
         public void apply(RequestBuilder builder, @Nullable T value) {
             builder.addTag(clazz, value);
+        }
+    }
+
+    public static final class Binary<T> extends ParameterHandler<T> {
+        private final Method method;
+        private final int index;
+
+        public Binary(Method method, int index) {
+            this.method = method;
+            this.index = index;
+        }
+
+        @Override
+        public void apply(RequestBuilder builder, @Nullable T value) throws Exception {
+            Assert.notNull(value, ReflectUtils.parameterError(method, index, "Binary parameter value must not be null."));
+            switch (value) {
+                case File file -> builder.body(RequestBody.create(file, MediaType.parse("application/octet-stream")));
+                case InputStream inputStream -> builder.body(RequestBody.create(inputStream.readAllBytes(), MediaType.parse("application/octet-stream")));
+                case byte[] bytes -> builder.body(RequestBody.create(bytes, MediaType.parse("application/octet-stream")));
+                default -> throw new IllegalArgumentException(ReflectUtils.parameterError(method, index, "Body parameter must be File/InputStream/byte[] for now."));
+            }
         }
     }
 }
