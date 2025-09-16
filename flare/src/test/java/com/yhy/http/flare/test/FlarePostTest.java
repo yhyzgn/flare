@@ -125,6 +125,24 @@ public class FlarePostTest {
         logRes(res);
     }
 
+    @Test
+    public void uploadBinaryFile() {
+        MockPostApi api = flare().create(MockPostApi.class);
+        File file = new File("/home/neo/Downloads/sample1.webp");
+        Res<String> res = api.uploadBinaryFile(file);
+        logRes(res);
+    }
+
+    @Test
+    public void uploadBinaryInputStream() throws IOException {
+        MockPostApi api = flare().create(MockPostApi.class);
+        File file = new File("/home/neo/Downloads/sample1.webp");
+        FileInputStream fis = new FileInputStream(file);
+        Res<String> res = api.uploadBinaryInputStream(fis);
+        fis.close();
+        logRes(res);
+    }
+
     private Flare flare() {
         return new Flare.Builder()
                 .baseUrl(MockPostApi.BASE_URL)
