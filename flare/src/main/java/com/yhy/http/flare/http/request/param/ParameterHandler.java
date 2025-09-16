@@ -1,7 +1,7 @@
 package com.yhy.http.flare.http.request.param;
 
-import com.yhy.http.flare.convert.FormFieldConverter;
 import com.yhy.http.flare.convert.BodyConverter;
+import com.yhy.http.flare.convert.FormFieldConverter;
 import com.yhy.http.flare.convert.StringConverter;
 import com.yhy.http.flare.http.request.RequestBuilder;
 import com.yhy.http.flare.model.FormField;
@@ -10,6 +10,8 @@ import com.yhy.http.flare.utils.Opt;
 import com.yhy.http.flare.utils.ReflectUtils;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
+import okio.BufferedSink;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -370,8 +372,25 @@ public abstract class ParameterHandler<T> {
             Assert.notNull(value, ReflectUtils.parameterError(method, index, "Binary parameter value must not be null."));
             switch (value) {
                 case File file -> builder.body(RequestBody.create(file, MediaType.parse("application/octet-stream")));
-                case InputStream inputStream -> builder.body(RequestBody.create(inputStream.readAllBytes(), MediaType.parse("application/octet-stream")));
                 case byte[] bytes -> builder.body(RequestBody.create(bytes, MediaType.parse("application/octet-stream")));
+                case InputStream inputStream -> {
+                    RequestBody streamBody = new RequestBody() {
+                        @Override
+                        public MediaType contentType() {
+                            return MediaType.parse("application/octet-stream");
+                        }
+
+                        @Override
+                        public void writeTo(@NotNull BufferedSink sink) throws IOException {
+                            byte[] buffer = new byte[8192];
+                            int len;
+                            while ((len = inputStream.read(buffer)) != -1) {
+                                sink.write(buffer, 0, len);
+                            }
+                        }
+                    };
+                    builder.body(streamBody);
+                }
                 default -> throw new IllegalArgumentException(ReflectUtils.parameterError(method, index, "Body parameter must be File/InputStream/byte[] for now."));
             }
         }

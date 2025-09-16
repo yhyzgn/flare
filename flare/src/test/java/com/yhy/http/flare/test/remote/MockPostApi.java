@@ -17,6 +17,7 @@ import com.yhy.http.flare.test.model.User;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 
 /**
  * <a href="https://jsonplaceholder.typicode.com/">测试站点</a>
@@ -72,4 +73,10 @@ public interface MockPostApi {
 
     @Post("/uploadBinary")
     Res<String> uploadBinary(@Binary byte[] data);
+
+    @Post("/uploadBinary")
+    Res<String> uploadBinaryFile(@Binary File file);
+
+    @Post("/uploadBinary")
+    Res<String> uploadBinaryInputStream(@Binary InputStream inputStream);
 }
