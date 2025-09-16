@@ -3,6 +3,7 @@ package com.yhy.http.flare.test.remote;
 import com.yhy.http.flare.annotation.Header;
 import com.yhy.http.flare.annotation.Interceptor;
 import com.yhy.http.flare.annotation.method.Get;
+import com.yhy.http.flare.annotation.param.Path;
 import com.yhy.http.flare.annotation.param.Query;
 import com.yhy.http.flare.test.custom.AuthorizationDynamicHeader;
 import com.yhy.http.flare.test.custom.TestTagInterceptor;
@@ -29,6 +30,9 @@ public interface MockGetApi {
 
     @Get("/query")
     Res<String> query(@Query("name") String name, @Query("age") int age);
+
+    @Get("/query/{name}/{age}")
+    Res<String> queryPath(@Path("name") String name, @Path("age") int age);
 
     @Get("/queryUser")
     Res<User> queryUser(@Query User user);

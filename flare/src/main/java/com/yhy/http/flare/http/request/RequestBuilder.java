@@ -11,7 +11,6 @@ import org.apache.commons.collections4.MapUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -35,7 +34,7 @@ public class RequestBuilder {
     private final Request.Builder requestBuilder;
     private final Headers.Builder headersBuilder;
 
-    private final Map<String, String> pathParamMap;
+    private final Map<String, Object> pathParamMap;
     private final Map<String, List<FormField.ValueFormField>> queryParamMap;
     private final Map<String, List<FormField<?>>> formFieldParamMap;
 
