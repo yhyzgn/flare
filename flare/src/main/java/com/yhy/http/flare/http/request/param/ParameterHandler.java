@@ -1,9 +1,10 @@
 package com.yhy.http.flare.http.request.param;
 
 import com.yhy.http.flare.convert.FormFieldConverter;
-import com.yhy.http.flare.convert.JsonConverter;
+import com.yhy.http.flare.convert.BodyConverter;
 import com.yhy.http.flare.convert.StringConverter;
 import com.yhy.http.flare.http.request.RequestBuilder;
+import com.yhy.http.flare.model.FormField;
 import com.yhy.http.flare.utils.Assert;
 import com.yhy.http.flare.utils.Opt;
 import com.yhy.http.flare.utils.ReflectUtils;
@@ -110,10 +111,10 @@ public abstract class ParameterHandler<T> {
     public static class Query<T> extends ParameterHandler<T> {
         private final String name;
         private final String defaultValue;
-        private final StringConverter<T> converter;
+        private final FormFieldConverter<T> converter;
         private final boolean encoded;
 
-        public Query(String name, String defaultValue, boolean encoded, StringConverter<T> converter) {
+        public Query(String name, String defaultValue, boolean encoded, FormFieldConverter<T> converter) {
             this.name = Objects.requireNonNull(name, "Query param name can not be null.");
             this.defaultValue = "".equals(defaultValue) ? null : defaultValue;
             this.encoded = encoded;
@@ -122,21 +123,27 @@ public abstract class ParameterHandler<T> {
 
         @Override
         public void apply(RequestBuilder builder, @Nullable T value) throws Exception {
-            String queryValue = defaultValue;
-            if (null != value) {
-                queryValue = converter.convert(value);
-            }
-            builder.addQueryParam(name, Opt.of(queryValue).orElse(""), encoded);
+            Assert.notNull(value, "Query parameter value must not be null.");
+            boolean isPrimitiveOrString = ReflectUtils.isPrimitiveOrString(value.getClass());
+            // 如果是基础类型或者String类型，则需要把 name 传入 converter.convert 方法，否则就省去 name 传入
+            Opt.ofNullable(converter.convert(isPrimitiveOrString ? name : "", value, encoded, defaultValue))
+                    .ifValid(fieldList ->
+                            fieldList.forEach(field -> {
+                                if (field instanceof FormField.ValueFormField valueFormField) {
+                                    builder.addQueryParam(field.getName(), valueFormField);
+                                }
+                            })
+                    );
         }
     }
 
     public static class QueryMap<T> extends ParameterHandler<Map<String, T>> {
         private final Method method;
         private final int index;
-        private final StringConverter<T> converter;
+        private final FormFieldConverter<T> converter;
         private final boolean encoded;
 
-        public QueryMap(Method method, int index, StringConverter<T> converter, boolean encoded) {
+        public QueryMap(Method method, int index, FormFieldConverter<T> converter, boolean encoded) {
             this.method = method;
             this.index = index;
             this.converter = converter;
@@ -153,15 +160,14 @@ public abstract class ParameterHandler<T> {
                 Assert.notNull(etKey, ReflectUtils.parameterError(method, index, "Query map contained null key."));
                 T etValue = et.getValue();
                 Assert.notNull(etValue, ReflectUtils.parameterError(method, index, "Query map contained null value for key '" + etKey + "'."));
-                String convertedValue = converter.convert(etValue);
-                Assert.notNull(convertedValue, ReflectUtils.parameterError(method, index, "Query map value '"
-                        + etValue
-                        + "' converted to null by "
-                        + converter.getClass().getName()
-                        + " for key '"
-                        + etKey
-                        + "'."));
-                builder.addQueryParam(etKey, convertedValue, encoded);
+                Opt.ofNullable(converter.convert(etKey, etValue, encoded, null))
+                        .ifValid(fieldList ->
+                                fieldList.forEach(field -> {
+                                    if (field instanceof FormField.ValueFormField valueFormField) {
+                                        builder.addQueryParam(field.getName(), valueFormField);
+                                    }
+                                })
+                        );
             }
         }
     }
@@ -181,7 +187,10 @@ public abstract class ParameterHandler<T> {
 
         @Override
         public void apply(RequestBuilder builder, @Nullable T value) throws Exception {
-            Opt.ofNullable(converter.convert(name, value, encoded, defaultValue))
+            Assert.notNull(value, "Field parameter value must not be null.");
+            boolean isPrimitiveOrString = ReflectUtils.isPrimitiveOrString(value.getClass());
+            // 如果是基础类型或者String类型，则需要把 name 传入 converter.convert 方法，否则就省去 name 传入
+            Opt.ofNullable(converter.convert(isPrimitiveOrString ? name : "", value, encoded, defaultValue))
                     .ifValid(fieldList ->
                             fieldList.forEach(field ->
                                     builder.addFiled(field.getName(), field)
@@ -221,6 +230,39 @@ public abstract class ParameterHandler<T> {
                                 )
                         );
             }
+        }
+    }
+
+    public static class Multipart<T> extends ParameterHandler<T> {
+        private final String name;
+        private final String filename;
+
+        public Multipart(String name, String filename) {
+            this.name = Objects.requireNonNull(name, "Filed name can not be null.");
+            this.filename = filename;
+        }
+
+        @Override
+        public void apply(RequestBuilder builder, @Nullable T value) throws Exception {
+            Assert.notNull(value, "Field parameter value must not be null.");
+            Class<?> clazz = value.getClass();
+            // 支持 File, byte[], InputStream 类型的字段
+            if (clazz == File.class) {
+                builder.addFiled(name, new FormField.FileFormField(name, (File) value, filename));
+                return;
+            }
+
+            if (clazz == byte[].class) {
+                builder.addFiled(name, new FormField.BytesFormField(name, (byte[]) value, filename));
+                return;
+            }
+
+            if (InputStream.class.isAssignableFrom(clazz)) {
+                builder.addFiled(name, new FormField.InputStreamFormField(name, (InputStream) value, filename));
+                return;
+            }
+
+            throw new IllegalArgumentException(clazz.getName() + " is not a valid multipart field");
         }
     }
 
@@ -285,9 +327,9 @@ public abstract class ParameterHandler<T> {
     public static class Body<T> extends ParameterHandler<T> {
         private final Method method;
         private final int index;
-        private final JsonConverter<T, RequestBody> converter;
+        private final BodyConverter<T, RequestBody> converter;
 
-        public Body(Method method, int index, JsonConverter<T, RequestBody> converter) {
+        public Body(Method method, int index, BodyConverter<T, RequestBody> converter) {
             this.method = method;
             this.index = index;
             this.converter = converter;

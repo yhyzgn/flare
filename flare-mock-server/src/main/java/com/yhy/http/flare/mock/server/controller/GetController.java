@@ -1,0 +1,41 @@
+package com.yhy.http.flare.mock.server.controller;
+
+import com.yhy.http.flare.mock.server.model.Res;
+import com.yhy.http.flare.mock.server.model.User;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * GET 请求方式接口
+ * <p>
+ * Created on 2025-09-16 13:34
+ *
+ * @author 颜洪毅
+ * @version 1.0.0
+ * @since 1.0.0
+ */
+@Slf4j
+@RestController
+@RequestMapping("/get")
+public class GetController {
+
+    @GetMapping("/index")
+    public Res<String> index() {
+        log.info("GET 请求 /get/index");
+        return Res.success("GET 请求 /get/index");
+    }
+
+    @GetMapping("/query")
+    public Res<String> query(String name, Integer age) {
+        log.info("GET 请求 /get/query?name={}&age={}", name, age);
+        return Res.success("GET 请求 /get/query?name=" + name + "&age=" + age);
+    }
+
+    @GetMapping("/queryUser")
+    public Res<User> query(User user) {
+        log.info("GET 请求 /get/queryUser?user={}", user);
+        return Res.success(user);
+    }
+}

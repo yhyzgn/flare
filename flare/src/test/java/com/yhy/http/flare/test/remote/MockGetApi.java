@@ -3,8 +3,12 @@ package com.yhy.http.flare.test.remote;
 import com.yhy.http.flare.annotation.Header;
 import com.yhy.http.flare.annotation.Interceptor;
 import com.yhy.http.flare.annotation.method.Get;
+import com.yhy.http.flare.annotation.param.Query;
 import com.yhy.http.flare.test.custom.AuthorizationDynamicHeader;
 import com.yhy.http.flare.test.custom.TestTagInterceptor;
+import com.yhy.http.flare.test.model.Res;
+import com.yhy.http.flare.test.model.User;
+import okhttp3.ResponseBody;
 
 /**
  * <a href="https://jsonplaceholder.typicode.com/">测试站点</a>
@@ -15,11 +19,23 @@ import com.yhy.http.flare.test.custom.TestTagInterceptor;
  * @version 1.0.0
  * @since 1.0.0
  */
-public interface TypeCodeApi {
-    String BASE_URL = "https://jsonplaceholder.typicode.com";
+public interface MockGetApi {
+    String BASE_URL = "http://localhost:8080/get";
 
-    @Get("posts")
+    @Get("/index")
     @Header(dynamic = AuthorizationDynamicHeader.class)
     @Interceptor(TestTagInterceptor.class)
-    String posts();
+    Res<String> index();
+
+    @Get("/query")
+    Res<String> query(@Query("name") String name, @Query("age") int age);
+
+    @Get("/queryUser")
+    Res<User> queryUser(@Query User user);
+
+    @Get("query")
+    Res<String> queryDefault(@Query String name, @Query int age);
+
+    @Get("/index")
+    ResponseBody forBody();
 }

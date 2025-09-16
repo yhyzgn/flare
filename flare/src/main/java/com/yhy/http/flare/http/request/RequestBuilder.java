@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  *
@@ -35,7 +36,7 @@ public class RequestBuilder {
     private final Headers.Builder headersBuilder;
 
     private final Map<String, String> pathParamMap;
-    private final Map<String, List<String>> queryParamMap;
+    private final Map<String, List<FormField.ValueFormField>> queryParamMap;
     private final Map<String, List<FormField<?>>> formFieldParamMap;
 
     private String relativeUrl;
@@ -49,14 +50,13 @@ public class RequestBuilder {
         this.method = method;
         this.relativeUrl = relativeUrl;
         this.requestBuilder = new Request.Builder();
-        this.contentType = Opt.ofNullable(contentType).orElse(MediaType.parse("application/json; charset=utf-8"));
+        this.contentType = contentType;
         this.headersBuilder = Opt.ofNullable(headers).map(Headers::newBuilder).orElse(new Headers.Builder());
         // form-data 和 x-www-form-urlencoded 设置 body
         if (isX3WFormUrlEncoded) {
             this.formBuilder = new FormBody.Builder();
         } else if (isFormData) {
-            this.multipartBuilder = new MultipartBody.Builder();
-            this.multipartBuilder.setType(MultipartBody.FORM);
+            this.multipartBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         }
         // 临时记录各种参数
         this.pathParamMap = new LinkedTreeMap<>();
@@ -83,8 +83,8 @@ public class RequestBuilder {
         pathParamMap.put(name, dispatchEncode(value, encoded));
     }
 
-    public void addQueryParam(String name, String value, boolean encoded) {
-        queryParamMap.computeIfAbsent(name, k -> new ArrayList<>()).add(dispatchEncode(value, encoded));
+    public void addQueryParam(String name, FormField.ValueFormField value) {
+        queryParamMap.computeIfAbsent(name, k -> new ArrayList<>()).add(value);
     }
 
     public void addFiled(String name, FormField<?> formField) {
@@ -123,27 +123,64 @@ public class RequestBuilder {
 
         if (MapUtils.isNotEmpty(queryParamMap)) {
             // 带参数的url
-            queryParamMap.forEach((name, values) -> values.forEach(val -> urlBuilder.addEncodedQueryParameter(name, val)));
+            queryParamMap.forEach((name, values) -> values.forEach(val -> {
+                if (val.isEncoded()) {
+                    urlBuilder.addEncodedQueryParameter(name, Opt.ofNullable(val.getValue()).orElse(val.getDefaultValue()));
+                } else {
+                    urlBuilder.addQueryParameter(name, Opt.ofNullable(val.getValue()).orElse(val.getDefaultValue()));
+                }
+            }));
         }
         HttpUrl url = urlBuilder.build();
 
         if (MapUtils.isNotEmpty(formFieldParamMap)) {
-            formFieldParamMap.forEach((name, values) -> values.forEach(val -> {
-                if (val instanceof FormField.ValueFormField valueFormField) {
-                    if (null != formBuilder) {
-                        formBuilder.addEncoded(name, valueFormField.getValue());
+            formFieldParamMap.forEach((name, values) -> values.stream().filter(Objects::nonNull).forEach(val -> {
+                switch (val) {
+                    case FormField.ValueFormField valueFormField -> {
+                        if (null != formBuilder) {
+                            if (valueFormField.isEncoded()) {
+                                formBuilder.addEncoded(name, Opt.ofNullable(valueFormField.getValue()).orElse(valueFormField.getDefaultValue()));
+                            } else {
+                                formBuilder.add(name, Opt.ofNullable(valueFormField.getValue()).orElse(valueFormField.getDefaultValue()));
+                            }
+                        }
+                        if (null != multipartBuilder) {
+                            multipartBuilder.addFormDataPart(name, Opt.ofNullable(valueFormField.getValue()).orElse(valueFormField.getDefaultValue()));
+                        }
                     }
-                    if (null != multipartBuilder) {
-                        multipartBuilder.addFormDataPart(name, valueFormField.getValue());
+                    case FormField.FileFormField fileFormField -> {
+                        if (null != multipartBuilder && Objects.nonNull(fileFormField.getValue())) {
+                            RequestBody fileBody = RequestBody.create(fileFormField.getValue(), MediaType.parse("application/octet-stream"));
+                            multipartBuilder.addFormDataPart(name, fileFormField.getFilename(), fileBody);
+                        }
                     }
-                } else if (val instanceof FormField.FileFormField fileFormField) {
-                    if (null != multipartBuilder) {
-                        File file = fileFormField.getValue();
-                        RequestBody fileBody = RequestBody.create(file, MediaType.parse("application/octet-stream"));
-                        multipartBuilder.addFormDataPart(name, file.getName(), fileBody);
+                    case FormField.BytesFormField bytesFormField -> {
+                        if (null != multipartBuilder && Objects.nonNull(bytesFormField.getValue())) {
+                            RequestBody fileBody = RequestBody.create(bytesFormField.getValue(), MediaType.parse("application/octet-stream"));
+                            multipartBuilder.addFormDataPart(name, bytesFormField.getFilename(), fileBody);
+                        }
                     }
-                } else {
-                    throw new IllegalArgumentException("Unsupported form field type: " + val.getClass());
+                    case FormField.InputStreamFormField inputStreamFormField -> {
+                        if (null != multipartBuilder && Objects.nonNull(inputStreamFormField.getValue())) {
+                            RequestBody streamBody = new RequestBody() {
+                                @Override
+                                public MediaType contentType() {
+                                    return MediaType.parse("application/octet-stream");
+                                }
+
+                                @Override
+                                public void writeTo(@NotNull BufferedSink sink) throws IOException {
+                                    byte[] buffer = new byte[8192];
+                                    int len;
+                                    while ((len = inputStreamFormField.getValue().read(buffer)) != -1) {
+                                        sink.write(buffer, 0, len);
+                                    }
+                                }
+                            };
+                            multipartBuilder.addFormDataPart(name, inputStreamFormField.getFilename(), streamBody);
+                        }
+                    }
+                    default -> throw new IllegalArgumentException("Unsupported form field type: " + val.getClass());
                 }
             }));
         }
@@ -158,7 +195,6 @@ public class RequestBuilder {
                 body = RequestBody.create(new byte[0], MediaType.parse("application/json"));
             }
         }
-        body = Opt.ofNullable(body).map(b -> new ContentTypeOverridingRequestBody(b, contentType)).orElse(null);
 
         if (null != contentType) {
             headersBuilder.set("Content-Type", contentType.toString());
@@ -171,30 +207,5 @@ public class RequestBuilder {
 
     private String dispatchEncode(String value, boolean encoded) {
         return encoded ? value : URLEncoder.encode(value, StandardCharsets.UTF_8);
-    }
-
-    private static class ContentTypeOverridingRequestBody extends RequestBody {
-        private final RequestBody delegate;
-        private final MediaType contentType;
-
-        ContentTypeOverridingRequestBody(RequestBody delegate, MediaType contentType) {
-            this.delegate = delegate;
-            this.contentType = contentType;
-        }
-
-        @Override
-        public MediaType contentType() {
-            return contentType;
-        }
-
-        @Override
-        public long contentLength() throws IOException {
-            return delegate.contentLength();
-        }
-
-        @Override
-        public void writeTo(@NotNull BufferedSink sink) throws IOException {
-            delegate.writeTo(sink);
-        }
     }
 }

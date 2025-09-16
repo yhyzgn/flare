@@ -5,11 +5,13 @@ import com.yhy.http.flare.annotation.param.Multipart;
 import com.yhy.http.flare.convert.FormFieldConverter;
 import com.yhy.http.flare.model.FormField;
 import com.yhy.http.flare.utils.Opt;
-import com.yhy.http.flare.utils.UrlUtils;
+import com.yhy.http.flare.utils.ReflectUtils;
 
 import java.io.File;
+import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,9 +56,9 @@ public class FormFieldConverterFactory implements FormFieldConverter.Factory {
             Class<?> clazz = obj.getClass();
 
             // 基本类型或 String，直接放进去
-            if (isPrimitiveOrString(clazz)) {
-                String value = Opt.ofNullable(obj).map(it -> encoded ? it.toString() : UrlUtils.encode(it.toString())).orElse(defaultValue);
-                fieldList.add(new FormField.ValueFormField(name, value));
+            if (ReflectUtils.isPrimitiveOrString(clazz)) {
+                String value = Opt.ofNullable(obj).map(Object::toString).orElse(defaultValue);
+                fieldList.add(new FormField.ValueFormField(name, value, encoded, defaultValue));
                 return;
             }
 
@@ -92,34 +94,46 @@ public class FormFieldConverterFactory implements FormFieldConverter.Factory {
             for (Field field : clazz.getDeclaredFields()) {
                 field.setAccessible(true);
 
-                // 如果是 Multipart 文件字段，直接添加
-                if (isMultipart(field)) {
-                    fieldList.add(new FormField.FileFormField(name, (File) obj));
+                // 如果字段是静态的或者 transient 的，则跳过
+                if (Modifier.isStatic(field.getModifiers()) || Modifier.isTransient(field.getModifiers())) {
                     continue;
                 }
 
-                // 否则递归处理字段
-                try {
-                    Object value = field.get(obj);
-                    String newPrefix = name.isEmpty() ? field.getName() : name + "." + field.getName();
-                    serialize(newPrefix, value, fieldList, encoded, DEFAULT_VALUE);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
+                Object value = ReflectUtils.getValue(field, obj);
+
+                if (null == value) {
+                    continue;
                 }
+
+                // 如果是 Multipart 文件字段，直接添加
+                if (field.isAnnotationPresent(Multipart.class)) {
+                    Multipart multipart = field.getAnnotation(Multipart.class);
+                    String filedName = Opt.ofNullable(multipart.value()).orElse(field.getName());
+                    String newName = name.isEmpty() ? filedName : name + "." + filedName;
+
+                    // 支持 File, byte[], InputStream 类型的字段
+                    if (field.getType() == File.class) {
+                        fieldList.add(new FormField.FileFormField(newName, (File) value, multipart.filename()));
+                        continue;
+                    }
+
+                    if (field.getType() == byte[].class) {
+                        fieldList.add(new FormField.BytesFormField(newName, (byte[]) value, multipart.filename()));
+                        continue;
+                    }
+
+                    if (InputStream.class.isAssignableFrom(field.getType())) {
+                        fieldList.add(new FormField.InputStreamFormField(newName, (InputStream) value, multipart.filename()));
+                        continue;
+                    }
+
+                    throw new IllegalArgumentException(field.getType().getName() + " is not a valid multipart field");
+                }
+
+                // 否则递归处理字段
+                String newName = name.isEmpty() ? field.getName() : name + "." + field.getName();
+                serialize(newName, value, fieldList, encoded, DEFAULT_VALUE);
             }
-        }
-
-        private static boolean isPrimitiveOrString(Class<?> clazz) {
-            return clazz.isPrimitive()
-                    || Number.class.isAssignableFrom(clazz)
-                    || clazz == Boolean.class
-                    || clazz == Character.class
-                    || clazz == String.class;
-        }
-
-        private static boolean isMultipart(Field field) {
-            Class<?> type = field.getType();
-            return type == File.class && field.isAnnotationPresent(Multipart.class);
         }
     }
 }

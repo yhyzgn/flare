@@ -16,7 +16,7 @@ import java.lang.annotation.*;
 @Documented
 public @interface Query {
 
-    String value();
+    String value() default "";
 
     boolean encoded() default false;
 

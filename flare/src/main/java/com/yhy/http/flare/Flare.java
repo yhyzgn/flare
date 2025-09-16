@@ -3,8 +3,8 @@ package com.yhy.http.flare;
 import com.yhy.http.flare.annotation.Header;
 import com.yhy.http.flare.cache.HandlerCache;
 import com.yhy.http.flare.call.CallAdapter;
+import com.yhy.http.flare.convert.BodyConverter;
 import com.yhy.http.flare.convert.FormFieldConverter;
-import com.yhy.http.flare.convert.JsonConverter;
 import com.yhy.http.flare.convert.StringConverter;
 import com.yhy.http.flare.delegate.DynamicHeaderDelegate;
 import com.yhy.http.flare.delegate.InterceptorDelegate;
@@ -56,7 +56,7 @@ public class Flare {
     private final MethodAnnotationDelegate methodAnnotationDelegate;
     private final OkHttpClient.Builder clientBuilder;
     private final CallAdapter.Factory callAdapterFactory;
-    private final JsonConverter.Factory jsonConverterFactory;
+    private final BodyConverter.Factory jsonConverterFactory;
     private final StringConverter.Factory stringConverterFactory;
     private final FormFieldConverter.Factory formFieldConverterFactory;
     private final SSLSocketFactory sslSocketFactory;
@@ -141,13 +141,13 @@ public class Flare {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> JsonConverter<T, RequestBody> requestConverter(Type type, Annotation[] parameterAnnotations) {
-        return (JsonConverter<T, RequestBody>) jsonConverterFactory.requestBodyConverter(type, parameterAnnotations, this);
+    public <T> BodyConverter<T, RequestBody> requestConverter(Type type, Annotation[] parameterAnnotations) {
+        return (BodyConverter<T, RequestBody>) jsonConverterFactory.requestBodyConverter(type, parameterAnnotations, this);
     }
 
     @SuppressWarnings("unchecked")
-    public <T> JsonConverter<ResponseBody, T> responseConverter(Type responseType, Annotation[] annotations) {
-        return (JsonConverter<ResponseBody, T>) jsonConverterFactory.responseBodyConverter(responseType, annotations, this);
+    public <T> BodyConverter<ResponseBody, T> responseConverter(Type responseType, Annotation[] annotations) {
+        return (BodyConverter<ResponseBody, T>) jsonConverterFactory.responseBodyConverter(responseType, annotations, this);
     }
 
     @SuppressWarnings("unchecked")
@@ -207,7 +207,7 @@ public class Flare {
         private Boolean logEnabled;
         private Interceptor loggerInterceptor;
         private CallAdapter.Factory callAdapterFactory;
-        private JsonConverter.Factory jsonConverterFactory;
+        private BodyConverter.Factory jsonConverterFactory;
         private StringConverter.Factory stringConverterFactory;
         private FormFieldConverter.Factory formFieldConverterFactory;
         private SSLSocketFactory sslSocketFactory;
@@ -284,7 +284,7 @@ public class Flare {
             return this;
         }
 
-        public Builder converterFactory(JsonConverter.Factory factory) {
+        public Builder converterFactory(BodyConverter.Factory factory) {
             this.jsonConverterFactory = factory;
             return this;
         }
