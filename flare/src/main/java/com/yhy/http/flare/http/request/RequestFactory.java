@@ -227,7 +227,6 @@ public class RequestFactory {
                 Assert.hasText(relativeUrl, ReflectUtils.parameterError(method, paramIndex, "@Path can only be used with relative url not empty."));
                 String name = Opt.ofNullable(path.value()).orElse(parameter.getName());
                 validatePathName(paramIndex, name);
-
                 StringConverter<?> converter = pigeon.stringConverter(type, annotations);
                 return new ParameterHandler.Path<>(method, paramIndex, name, path.defaultValue(), path.encoded(), converter);
             } else if (annotation instanceof Query query) {

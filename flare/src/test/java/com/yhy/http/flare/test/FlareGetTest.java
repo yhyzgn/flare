@@ -7,7 +7,6 @@ import com.yhy.http.flare.test.model.User;
 import com.yhy.http.flare.test.remote.MockGetApi;
 import com.yhy.http.flare.utils.Assert;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.ResponseBody;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -33,6 +32,13 @@ public class FlareGetTest {
     public void query() {
         MockGetApi api = flare().create(MockGetApi.class);
         Res<String> res = api.query("李万姬", 25);
+        logRes(res);
+    }
+
+    @Test
+    public void queryPath() {
+        MockGetApi api = flare().create(MockGetApi.class);
+        Res<String> res = api.queryPath("李/万姬", 25);
         logRes(res);
     }
 

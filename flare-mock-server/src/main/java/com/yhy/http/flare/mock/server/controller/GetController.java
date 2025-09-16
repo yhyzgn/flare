@@ -4,6 +4,7 @@ import com.yhy.http.flare.mock.server.model.Res;
 import com.yhy.http.flare.mock.server.model.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,5 +38,11 @@ public class GetController {
     public Res<User> query(User user) {
         log.info("GET 请求 /get/queryUser?user={}", user);
         return Res.success(user);
+    }
+
+    @GetMapping("/query/{name}/{age}")
+    public Res<String> queryPath(@PathVariable("name") String name, @PathVariable("age") Integer age) {
+        log.info("GET 请求 /get/query/{}/{}", name, age);
+        return Res.success("GET 请求 /get/query/" + name + "/" + age);
     }
 }
