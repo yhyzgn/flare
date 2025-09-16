@@ -107,6 +107,24 @@ public class FlarePostTest {
         logRes(res);
     }
 
+    @Test
+    public void uploadError() throws IOException {
+        // MockPostApi api = flare().create(MockPostApi.class);
+        // File file = new File("/home/neo/Downloads/sample1.webp");
+        // FileInputStream fis = new FileInputStream(file);
+        // Res<String> res = api.uploadError(fis);
+        // fis.close();
+        // logRes(res);
+    }
+
+    @Test
+    public void uploadBinary() throws IOException {
+        MockPostApi api = flare().create(MockPostApi.class);
+        File file = new File("/home/neo/Downloads/sample1.webp");
+        Res<String> res = api.uploadBinary(FileUtils.readFileToByteArray(file));
+        logRes(res);
+    }
+
     private Flare flare() {
         return new Flare.Builder()
                 .baseUrl(MockPostApi.BASE_URL)
