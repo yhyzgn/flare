@@ -344,6 +344,32 @@ public abstract class ReflectUtils {
         }
     }
 
+    /**
+     * 判断是否为基本类型或String
+     *
+     * @param clazz 类
+     * @return true or false
+     */
+    public static boolean isPrimitiveOrString(Class<?> clazz) {
+        return clazz.isPrimitive()
+                || Number.class.isAssignableFrom(clazz)
+                || clazz == Boolean.class
+                || clazz == Character.class
+                || clazz == String.class;
+    }
+
+    public static Object getValue(Field field, Object obj) {
+        if (null == obj || null == field) {
+            return null;
+        }
+        field.setAccessible(true);
+        try {
+            return field.get(obj);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     static final class ParameterizedTypeImpl implements ParameterizedType {
         private final @Nullable
         Type ownerType;

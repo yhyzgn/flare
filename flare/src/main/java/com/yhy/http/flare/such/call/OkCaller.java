@@ -3,7 +3,7 @@ package com.yhy.http.flare.such.call;
 import com.yhy.http.flare.Flare;
 import com.yhy.http.flare.call.Callback;
 import com.yhy.http.flare.call.Caller;
-import com.yhy.http.flare.convert.JsonConverter;
+import com.yhy.http.flare.convert.BodyConverter;
 import com.yhy.http.flare.http.request.RequestFactory;
 import com.yhy.http.flare.model.InternalResponse;
 import com.yhy.http.flare.such.ssl.VoidSSLX509TrustManager;
@@ -38,7 +38,7 @@ import java.util.Objects;
 public class OkCaller<T> implements Caller<T> {
     private final Flare flare;
     private final RequestFactory requestFactory;
-    private final JsonConverter<ResponseBody, T> responseConverter;
+    private final BodyConverter<ResponseBody, T> responseConverter;
     private final Object[] args;
 
     private volatile boolean canceled;
@@ -48,7 +48,7 @@ public class OkCaller<T> implements Caller<T> {
     private Throwable failureHandler;
     private boolean executed;
 
-    public OkCaller(RequestFactory requestFactory, Flare flare, JsonConverter<ResponseBody, T> responseConverter, Object[] args) {
+    public OkCaller(RequestFactory requestFactory, Flare flare, BodyConverter<ResponseBody, T> responseConverter, Object[] args) {
         this.requestFactory = requestFactory;
         this.flare = flare;
         this.responseConverter = responseConverter;

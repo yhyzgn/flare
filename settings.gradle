@@ -36,3 +36,4 @@ dependencyResolutionManagement {
 rootProject.name = 'flare'
 
 include ':flare'
+include ':flare-mock-server'

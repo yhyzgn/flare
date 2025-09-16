@@ -7,8 +7,8 @@ import com.yhy.http.flare.annotation.Headers;
 import com.yhy.http.flare.annotation.Interceptor;
 import com.yhy.http.flare.annotation.method.*;
 import com.yhy.http.flare.annotation.param.*;
+import com.yhy.http.flare.convert.BodyConverter;
 import com.yhy.http.flare.convert.FormFieldConverter;
-import com.yhy.http.flare.convert.JsonConverter;
 import com.yhy.http.flare.convert.StringConverter;
 import com.yhy.http.flare.delegate.DynamicHeaderDelegate;
 import com.yhy.http.flare.delegate.InterceptorDelegate;
@@ -271,6 +271,11 @@ public class RequestFactory {
                     FormFieldConverter<?> converter = pigeon.formFieldConverter(type, annotations);
                     return new ParameterHandler.Field<>(name, field.defaultValue(), encoded, converter);
                 }
+            } else if (annotation instanceof Multipart multipart) {
+                Assert.isTrue(isFormData, ReflectUtils.parameterError(method, paramIndex, "@Field can only be used with form encoding."));
+                String name = Opt.ofNullable(multipart.value()).orElse(parameter.getName());
+                FormFieldConverter<?> converter = pigeon.formFieldConverter(type, annotations);
+                return new ParameterHandler.Multipart<>(name, multipart.filename());
             } else if (annotation instanceof Header header) {
                 String name = header.value();
 
@@ -316,7 +321,7 @@ public class RequestFactory {
             } else if (annotation instanceof Body) {
                 Assert.isFalse(isFormData || isX3WFormUrlEncoded, ReflectUtils.parameterError(method, paramIndex, "@Body parameters cannot be used with form or multi-multipart encoding."));
                 contentType = MediaType.parse("application/json; charset=utf-8");
-                JsonConverter<?, RequestBody> converter = pigeon.requestConverter(type, annotations);
+                BodyConverter<?, RequestBody> converter = pigeon.requestConverter(type, annotations);
                 return new ParameterHandler.Body<>(method, paramIndex, converter);
             } else if (annotation instanceof Tag) {
                 Class<?> tagType = ReflectUtils.getRawType(type);
@@ -340,11 +345,11 @@ public class RequestFactory {
                     throw ReflectUtils.parameterError(method, paramIndex, rawType.getSimpleName() + " must include generic type (e.g., " + rawType.getSimpleName() + "<String>)");
                 }
                 Type iterableType = ReflectUtils.getParameterUpperBound(0, parameterizedType);
-                StringConverter<?> converter = pigeon.stringConverter(iterableType, annotations);
+                FormFieldConverter<?> converter = pigeon.formFieldConverter(iterableType, annotations);
                 return new ParameterHandler.Query<>(name, defaultValue, encoded, converter).iterable();
             } else if (rawType.isArray()) {
                 Class<?> arrayComponentType = boxIfPrimitive(rawType.getComponentType());
-                StringConverter<?> converter = pigeon.stringConverter(arrayComponentType, annotations);
+                FormFieldConverter<?> converter = pigeon.formFieldConverter(arrayComponentType, annotations);
                 return new ParameterHandler.Query<>(name, defaultValue, encoded, converter).array();
             } else if (Map.class.isAssignableFrom(rawType)) {
                 Type mapType = ReflectUtils.getSupertype(type, rawType, Map.class);
@@ -356,10 +361,10 @@ public class RequestFactory {
                     throw ReflectUtils.parameterError(method, paramIndex, "@Query Map keys must be of type String: " + keyType);
                 }
                 Type valueType = ReflectUtils.getParameterUpperBound(1, parameterizedType);
-                StringConverter<?> converter = pigeon.stringConverter(valueType, annotations);
+                FormFieldConverter<?> converter = pigeon.formFieldConverter(valueType, annotations);
                 return new ParameterHandler.QueryMap<>(method, paramIndex, converter, encoded);
             } else {
-                StringConverter<?> converter = pigeon.stringConverter(type, annotations);
+                FormFieldConverter<?> converter = pigeon.formFieldConverter(type, annotations);
                 return new ParameterHandler.Query<>(name, defaultValue, encoded, converter);
             }
         }
@@ -406,14 +411,12 @@ public class RequestFactory {
                 // x-www-form-urlencoded 表单上传
                 Assert.isFalse(isFormData, ReflectUtils.methodError(method, "Only one encoding annotation is allowed."));
                 isX3WFormUrlEncoded = true;
-                contentType = MediaType.parse("application/x-www-form-urlencoded");
             });
 
             methodAnnotationDelegate.apply(method, FormData.class).forEach(annotation -> {
                 // form 表单上传
                 Assert.isFalse(isX3WFormUrlEncoded, ReflectUtils.methodError(method, "Only one encoding annotation is allowed."));
                 isFormData = true;
-                contentType = MediaType.parse("multipart/form-data");
             });
 
             methodAnnotationDelegate.apply(method, BaseUrl.class).forEach(annotation -> {

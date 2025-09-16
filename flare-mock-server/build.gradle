@@ -1,0 +1,48 @@
+plugins {
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
+    id "java"
+}
+
+def rootConfig = rootProject.ext
+def libVersion = rootConfig.lib
+
+group rootConfig.group
+version rootConfig.mockServer.version
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+bootJar {
+    archiveClassifier = 'boot'
+    manifest {
+        attributes 'Main-Class': 'com.yhy.http.flare.mock.server.Application'
+    }
+}
+
+bootRun {
+    jvmArgs = ["-Dspring.output.ansi.enabled=ALWAYS"]
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-autoconfigure'
+
+    compileOnly "org.projectlombok:lombok:${libVersion.lombok}"
+    annotationProcessor "org.projectlombok:lombok:${libVersion.lombok}"
+
+    testImplementation platform("org.junit:junit-bom:${libVersion.junit}")
+    testImplementation "org.junit.jupiter:junit-jupiter"
+}
+
+test {
+    useJUnitPlatform()
+}
+
+// 在 samples 模块的 build.gradle 中
+tasks.withType(PublishToMavenRepository).configureEach {
+    enabled = false
+}

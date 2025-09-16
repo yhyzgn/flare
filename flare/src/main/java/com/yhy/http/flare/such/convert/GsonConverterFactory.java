@@ -9,7 +9,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.yhy.http.flare.Flare;
-import com.yhy.http.flare.convert.JsonConverter;
+import com.yhy.http.flare.convert.BodyConverter;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -25,7 +25,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
- * 基于 Gson 实现的 JsonConverter
+ * 基于 Gson 实现的 BodyConverter
  * <p>
  * Created on 2025-09-11 09:41
  *
@@ -33,7 +33,7 @@ import java.nio.charset.StandardCharsets;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class GsonConverterFactory implements JsonConverter.Factory {
+public class GsonConverterFactory implements BodyConverter.Factory {
     private final Gson gson;
 
     public GsonConverterFactory() {
@@ -45,18 +45,18 @@ public class GsonConverterFactory implements JsonConverter.Factory {
     }
 
     @Override
-    public JsonConverter<?, RequestBody> requestBodyConverter(Type type, Annotation[] annotations, Flare flare) {
+    public BodyConverter<?, RequestBody> requestBodyConverter(Type type, Annotation[] annotations, Flare flare) {
         TypeAdapter<?> adapter = gson.getAdapter(TypeToken.get(type));
-        return new GsonRequestBodyJsonConverter<>(gson, adapter);
+        return new GsonRequestBodyBodyConverter<>(gson, adapter);
     }
 
     @Override
-    public JsonConverter<ResponseBody, ?> responseBodyConverter(Type type, Annotation[] annotations, Flare flare) {
+    public BodyConverter<ResponseBody, ?> responseBodyConverter(Type type, Annotation[] annotations, Flare flare) {
         TypeAdapter<?> adapter = gson.getAdapter(TypeToken.get(type));
-        return new GsonResponseBodyJsonConverter<>(gson, adapter);
+        return new GsonResponseBodyBodyConverter<>(gson, adapter, type);
     }
 
-    private record GsonRequestBodyJsonConverter<T>(Gson gson, TypeAdapter<T> adapter) implements JsonConverter<T, RequestBody> {
+    private record GsonRequestBodyBodyConverter<T>(Gson gson, TypeAdapter<T> adapter) implements BodyConverter<T, RequestBody> {
         private static final MediaType MEDIA_TYPE = MediaType.get("application/json; charset=UTF-8");
         private static final Charset UTF_8 = StandardCharsets.UTF_8;
 
@@ -88,11 +88,22 @@ public class GsonConverterFactory implements JsonConverter.Factory {
         }
     }
 
-    private record GsonResponseBodyJsonConverter<T>(Gson gson, TypeAdapter<T> adapter) implements JsonConverter<ResponseBody, T> {
+    private record GsonResponseBodyBodyConverter<T>(Gson gson, TypeAdapter<T> adapter, Type type) implements BodyConverter<ResponseBody, T> {
 
+        @SuppressWarnings("unchecked")
         @Nullable
         @Override
         public T convert(ResponseBody from) throws IOException {
+            if (type == String.class) {
+                return (T) from.string();
+            }
+            if (type == ResponseBody.class) {
+                return (T) from;
+            }
+            if (type == byte[].class) {
+                return (T) from.bytes();
+            }
+
             JsonReader jsonReader = gson.newJsonReader(from.charStream());
             jsonReader.setStrictness(Strictness.LENIENT);
             try (from) {

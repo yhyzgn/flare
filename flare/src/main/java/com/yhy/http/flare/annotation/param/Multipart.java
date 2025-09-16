@@ -11,10 +11,12 @@ import java.lang.annotation.*;
  * @version 1.0.0
  * @since 1.0.0
  */
-@Target({ElementType.FIELD})
+@Target({ElementType.PARAMETER, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Multipart {
 
-    String value();
+    String value() default "";
+
+    String filename() default "";
 }
