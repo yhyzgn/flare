@@ -91,14 +91,6 @@ public class RequestBuilder {
         formFieldParamMap.computeIfAbsent(name, k -> new ArrayList<>()).add(formField);
     }
 
-    public void addPart(Headers headers, RequestBody body) {
-        multipartBuilder.addPart(headers, body);
-    }
-
-    public void addPart(MultipartBody.Part part) {
-        multipartBuilder.addPart(part);
-    }
-
     public void body(RequestBody body) {
         this.body = body;
     }

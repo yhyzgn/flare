@@ -4,6 +4,7 @@ import com.yhy.http.flare.mock.server.model.PartForm;
 import com.yhy.http.flare.mock.server.model.Res;
 import com.yhy.http.flare.mock.server.model.User;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -55,5 +56,11 @@ public class PostController {
     public Res<String> partForm(@ModelAttribute PartForm form) {
         log.info("POST 请求 /post/upload, form={}", form);
         return Res.success(form.getName());
+    }
+
+    @PostMapping(value = "/uploadBinary", consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public Res<String> uploadBinary(@RequestBody byte[] data) {
+        log.info("POST 请求 /post/upload, data={}", data.length);
+        return Res.success("收到二进制流, 大小: " + data.length);
     }
 }

@@ -105,7 +105,7 @@ public class RequestFactory {
         }
 
         @SuppressWarnings("unchecked")
-        List<List<ParameterHandler<Object>>> handlers = parameterHandlers.stream().map(it -> it.stream().map(dd -> (ParameterHandler<Object>) dd).collect(Collectors.toList())).toList();
+        List<List<ParameterHandler<Object>>> handlers = parameterHandlers.stream().filter(Objects::nonNull).map(it -> it.stream().filter(Objects::nonNull).map(dd -> (ParameterHandler<Object>) dd).collect(Collectors.toList())).toList();
 
         int argsCount = args.length;
         if (argsCount != handlers.size()) {
@@ -272,7 +272,7 @@ public class RequestFactory {
                     return new ParameterHandler.Field<>(name, field.defaultValue(), encoded, converter);
                 }
             } else if (annotation instanceof Multipart multipart) {
-                Assert.isTrue(isFormData, ReflectUtils.parameterError(method, paramIndex, "@Field can only be used with form encoding."));
+                Assert.isTrue(isFormData, ReflectUtils.parameterError(method, paramIndex, "@Multipart parameters can only be used with @FormData."));
                 String name = Opt.ofNullable(multipart.value()).orElse(parameter.getName());
                 FormFieldConverter<?> converter = pigeon.formFieldConverter(type, annotations);
                 return new ParameterHandler.Multipart<>(name, multipart.filename());
@@ -317,7 +317,7 @@ public class RequestFactory {
             } else if (annotation instanceof Binary) {
                 Assert.isFalse(isFormData || isX3WFormUrlEncoded, ReflectUtils.parameterError(method, paramIndex, "@Binary parameters can only be used with multipart encoding."));
                 contentType = MediaType.parse("application/octet-stream");
-                new ParameterHandler.Binary<>(method, paramIndex);
+                return new ParameterHandler.Binary<>(method, paramIndex);
             } else if (annotation instanceof Body) {
                 Assert.isFalse(isFormData || isX3WFormUrlEncoded, ReflectUtils.parameterError(method, paramIndex, "@Body parameters cannot be used with form or multi-multipart encoding."));
                 contentType = MediaType.parse("application/json; charset=utf-8");

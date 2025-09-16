@@ -5,6 +5,7 @@ import com.yhy.http.flare.annotation.Header;
 import com.yhy.http.flare.annotation.Interceptor;
 import com.yhy.http.flare.annotation.X3WFormUrlEncoded;
 import com.yhy.http.flare.annotation.method.Post;
+import com.yhy.http.flare.annotation.param.Binary;
 import com.yhy.http.flare.annotation.param.Body;
 import com.yhy.http.flare.annotation.param.Field;
 import com.yhy.http.flare.annotation.param.Multipart;
@@ -64,4 +65,11 @@ public interface MockPostApi {
     @FormData
     @Post("/partForm")
     Res<String> partForm(@Field PartForm form);
+
+    // @X3WFormUrlEncoded
+    // @Post("/uploadError")
+    // Res<String> uploadError(@Multipart(filename = "input-stream.webp") FileInputStream file);
+
+    @Post("/uploadBinary")
+    Res<String> uploadBinary(@Binary byte[] data);
 }
