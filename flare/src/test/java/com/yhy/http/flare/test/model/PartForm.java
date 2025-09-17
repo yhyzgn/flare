@@ -4,7 +4,7 @@ import com.yhy.http.flare.annotation.param.Multipart;
 import lombok.Data;
 
 import java.io.File;
-import java.io.InputStream;
+import java.io.FileInputStream;
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -31,5 +31,5 @@ public class PartForm implements Serializable {
     private byte[] bytesFile;
 
     @Multipart(value = "inputStreamFile", filename = "tempInputStreamFile.webp")
-    private InputStream tempInputStreamFile;
+    private FileInputStream tempInputStreamFile;
 }

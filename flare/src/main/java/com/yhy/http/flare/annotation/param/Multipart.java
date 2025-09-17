@@ -16,7 +16,17 @@ import java.lang.annotation.*;
 @Documented
 public @interface Multipart {
 
+    /**
+     * 请求参数名，空则取签名中的参数名
+     *
+     * @return 请求参数名
+     */
     String value() default "";
 
+    /**
+     * 文件名
+     *
+     * @return 文件名
+     */
     String filename() default "";
 }
