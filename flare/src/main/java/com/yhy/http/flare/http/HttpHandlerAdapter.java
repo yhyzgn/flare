@@ -42,37 +42,36 @@ public abstract class HttpHandlerAdapter<R, T> implements HttpHandler<T> {
 
     protected abstract T adapt(Caller<R> caller, Object[] args) throws Exception;
 
-    public static HttpHandler<?> parseAnnotations(Flare pigeon, Method method) {
+    public static HttpHandler<?> parseAnnotations(Flare flare, Method method) {
         Type returnType = method.getGenericReturnType();
         Assert.isFalse(ReflectUtils.hasUnresolvableType(returnType), ReflectUtils.methodError(method, "Method return type must not include a type variable or wildcard: %s", returnType));
-        Assert.isFalse(returnType == void.class, ReflectUtils.methodError(method, "Service methods cannot return void."));
-        return parseAnnotations(pigeon, method, RequestFactory.parseAnnotations(pigeon, method));
+        return parseAnnotations(flare, method, RequestFactory.parseAnnotations(flare, method));
     }
 
-    private static <R, T> HttpHandlerAdapter<R, T> parseAnnotations(Flare pigeon, Method method, RequestFactory factory) {
+    private static <R, T> HttpHandlerAdapter<R, T> parseAnnotations(Flare flare, Method method, RequestFactory factory) {
         Type returnType = method.getGenericReturnType();
         Annotation[] annotations = method.getAnnotations();
-        CallAdapter<R, T> callAdapter = createCallAdapter(pigeon, annotations, returnType);
+        CallAdapter<R, T> callAdapter = createCallAdapter(flare, annotations, returnType);
         Type responseType = callAdapter.responseType();
-        BodyConverter<ResponseBody, R> responseConverter = createResponseConverter(pigeon, annotations, responseType);
+        BodyConverter<ResponseBody, R> responseConverter = createResponseConverter(flare, annotations, responseType);
 
-        return new AdaptedCaller<>(factory, pigeon, responseConverter, callAdapter);
+        return new AdaptedCaller<>(factory, flare, responseConverter, callAdapter);
     }
 
-    private static <R> BodyConverter<ResponseBody, R> createResponseConverter(Flare pigeon, Annotation[] annotations, Type responseType) {
-        return pigeon.responseConverter(responseType, annotations);
+    private static <R> BodyConverter<ResponseBody, R> createResponseConverter(Flare flare, Annotation[] annotations, Type responseType) {
+        return flare.responseConverter(responseType, annotations);
     }
 
     @SuppressWarnings("unchecked")
-    private static <R, T> CallAdapter<R, T> createCallAdapter(Flare pigeon, Annotation[] annotations, Type returnType) {
-        return (CallAdapter<R, T>) pigeon.callAdapter(returnType, annotations);
+    private static <R, T> CallAdapter<R, T> createCallAdapter(Flare flare, Annotation[] annotations, Type returnType) {
+        return (CallAdapter<R, T>) flare.callAdapter(returnType, annotations);
     }
 
     public static class AdaptedCaller<R, T> extends HttpHandlerAdapter<R, T> {
         private final CallAdapter<R, T> callAdapter;
 
-        AdaptedCaller(RequestFactory requestFactory, Flare pigeon, BodyConverter<ResponseBody, R> responseConverter, CallAdapter<R, T> callAdapter) {
-            super(requestFactory, pigeon, responseConverter);
+        AdaptedCaller(RequestFactory requestFactory, Flare flare, BodyConverter<ResponseBody, R> responseConverter, CallAdapter<R, T> callAdapter) {
+            super(requestFactory, flare, responseConverter);
             this.callAdapter = callAdapter;
         }
 

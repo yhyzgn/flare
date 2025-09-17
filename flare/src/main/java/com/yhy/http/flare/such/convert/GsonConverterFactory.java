@@ -47,18 +47,23 @@ public class GsonConverterFactory implements BodyConverter.Factory {
     @Override
     public BodyConverter<?, RequestBody> requestBodyConverter(Type type, Annotation[] annotations, Flare flare) {
         TypeAdapter<?> adapter = gson.getAdapter(TypeToken.get(type));
-        return new GsonRequestBodyBodyConverter<>(gson, adapter);
+        return new GsonRequestBodyBodyConverter<>(gson, adapter, type);
     }
 
     @Override
     public BodyConverter<ResponseBody, ?> responseBodyConverter(Type type, Annotation[] annotations, Flare flare) {
         TypeAdapter<?> adapter = gson.getAdapter(TypeToken.get(type));
-        return new GsonResponseBodyBodyConverter<>(gson, adapter, type);
+        return new GsonResponseBodyBodyConverter<>(gson, adapter, type, annotations);
     }
 
-    private record GsonRequestBodyBodyConverter<T>(Gson gson, TypeAdapter<T> adapter) implements BodyConverter<T, RequestBody> {
+    private record GsonRequestBodyBodyConverter<T>(Gson gson, TypeAdapter<T> adapter, Type type) implements BodyConverter<T, RequestBody> {
         private static final MediaType MEDIA_TYPE = MediaType.get("application/json; charset=UTF-8");
         private static final Charset UTF_8 = StandardCharsets.UTF_8;
+
+        @Override
+        public Class<?> resultType() {
+            return (Class<?>) type;
+        }
 
         @Override
         public RequestBody convert(T from) throws IOException {
@@ -88,31 +93,27 @@ public class GsonConverterFactory implements BodyConverter.Factory {
         }
     }
 
-    private record GsonResponseBodyBodyConverter<T>(Gson gson, TypeAdapter<T> adapter, Type type) implements BodyConverter<ResponseBody, T> {
+    private record GsonResponseBodyBodyConverter<T>(Gson gson, TypeAdapter<T> adapter, Type type, Annotation[] annotations) implements BodyConverter<ResponseBody, T> {
 
-        @SuppressWarnings("unchecked")
+        @Override
+        public Class<?> resultType() {
+            return (Class<?>) type;
+        }
+
         @Nullable
         @Override
         public T convert(ResponseBody from) throws IOException {
-            if (type == String.class) {
-                return (T) from.string();
-            }
-            if (type == ResponseBody.class) {
-                return (T) from;
-            }
-            if (type == byte[].class) {
-                return (T) from.bytes();
-            }
-
-            JsonReader jsonReader = gson.newJsonReader(from.charStream());
-            jsonReader.setStrictness(Strictness.LENIENT);
-            try (from) {
-                T result = adapter.read(jsonReader);
-                if (jsonReader.peek() != JsonToken.END_DOCUMENT) {
-                    throw new JsonIOException("JSON document was not fully consumed.");
+            return responseBodyResolve(from, annotations, fm -> {
+                JsonReader jsonReader = gson.newJsonReader(from.charStream());
+                jsonReader.setStrictness(Strictness.LENIENT);
+                try (from) {
+                    T result = adapter.read(jsonReader);
+                    if (jsonReader.peek() != JsonToken.END_DOCUMENT) {
+                        throw new JsonIOException("JSON document was not fully consumed.");
+                    }
+                    return result;
                 }
-                return result;
-            }
+            });
         }
     }
 }

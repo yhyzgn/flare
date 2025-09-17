@@ -1,5 +1,6 @@
 package com.yhy.http.flare.test.remote;
 
+import com.yhy.http.flare.annotation.Download;
 import com.yhy.http.flare.annotation.Header;
 import com.yhy.http.flare.annotation.Interceptor;
 import com.yhy.http.flare.annotation.method.Get;
@@ -10,6 +11,9 @@ import com.yhy.http.flare.test.custom.TestTagInterceptor;
 import com.yhy.http.flare.test.model.Res;
 import com.yhy.http.flare.test.model.User;
 import okhttp3.ResponseBody;
+
+import java.io.File;
+import java.io.InputStream;
 
 /**
  * <a href="https://jsonplaceholder.typicode.com/">测试站点</a>
@@ -42,4 +46,21 @@ public interface MockGetApi {
 
     @Get("/index")
     ResponseBody forBody();
+
+    @Get("/index")
+    byte[] forBytes();
+
+    @Get("/index")
+    InputStream forInputStream();
+
+    @Get("/index")
+    File forFile();
+
+    @Get("/index")
+    @Download(filePath = "/home/neo/Downloads/ttttttttt.txt", overwrite = true)
+    File forFileDownload();
+
+    @Get("/index")
+    @Download(filePath = "/home/neo/Downloads/void.txt")
+    void forVoidFileDownload();
 }

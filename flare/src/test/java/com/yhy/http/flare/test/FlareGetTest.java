@@ -9,6 +9,9 @@ import com.yhy.http.flare.utils.Assert;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
+import java.io.InputStream;
+
 /**
  * 测试类
  * <p>
@@ -63,6 +66,40 @@ public class FlareGetTest {
         MockGetApi api = flare().create(MockGetApi.class);
         okhttp3.ResponseBody body = api.forBody();
         log.info("body: {}", body);
+    }
+
+    @Test
+    public void forBytes() {
+        MockGetApi api = flare().create(MockGetApi.class);
+        byte[] bytes = api.forBytes();
+        log.info("bytes: {}", bytes);
+    }
+
+    @Test
+    public void forInputStream() {
+        MockGetApi api = flare().create(MockGetApi.class);
+        InputStream inputStream = api.forInputStream();
+        log.info("inputStream: {}", inputStream);
+    }
+
+    @Test
+    public void forFile() {
+        MockGetApi api = flare().create(MockGetApi.class);
+        File file = api.forFile();
+        log.info("file: {}", file);
+    }
+
+    @Test
+    public void forFileDownload() {
+        MockGetApi api = flare().create(MockGetApi.class);
+        File file = api.forFileDownload();
+        log.info("file: {}", file);
+    }
+
+    @Test
+    public void forVoidFileDownload() {
+        MockGetApi api = flare().create(MockGetApi.class);
+        api.forVoidFileDownload();
     }
 
     private Flare flare() {
