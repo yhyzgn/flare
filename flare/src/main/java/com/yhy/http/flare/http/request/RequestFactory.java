@@ -72,27 +72,27 @@ public class RequestFactory {
         methodAnnotationDelegate = builder.methodAnnotationDelegate;
 
         // 合并全局配置和当前配置
-        host = Optional.ofNullable(builder.baseUrl).orElse(builder.pigeon.baseUrl());
-        headerMap = builder.pigeon.headers();
+        host = Optional.ofNullable(builder.baseUrl).orElse(builder.flare.baseUrl());
+        headerMap = builder.flare.headers();
 
         // 拦截器按顺序合并，保证先执行局部拦截器，后执行全局拦截器
         netInterceptors = builder.netInterceptors;
-        if (!builder.pigeon.netInterceptors().isEmpty()) {
-            netInterceptors.addAll(builder.pigeon.netInterceptors().reversed());
+        if (!builder.flare.netInterceptors().isEmpty()) {
+            netInterceptors.addAll(builder.flare.netInterceptors().reversed());
         }
         interceptors = builder.interceptors;
-        if (!builder.pigeon.interceptors().isEmpty()) {
-            interceptors.addAll(builder.pigeon.interceptors().reversed());
+        if (!builder.flare.interceptors().isEmpty()) {
+            interceptors.addAll(builder.flare.interceptors().reversed());
         }
         // 优先使用局部 header，其次才是全局 header
         dynamicHeaders = builder.dynamicHeaders;
-        if (!builder.pigeon.dynamicHeaders().isEmpty()) {
-            dynamicHeaders.addAll(0, builder.pigeon.dynamicHeaders());
+        if (!builder.flare.dynamicHeaders().isEmpty()) {
+            dynamicHeaders.addAll(0, builder.flare.dynamicHeaders());
         }
     }
 
-    public static RequestFactory parseAnnotations(Flare pigeon, Method method) {
-        return new Builder(pigeon, method).build();
+    public static RequestFactory parseAnnotations(Flare flare, Method method) {
+        return new Builder(flare, method).build();
     }
 
     public Request create(OkHttpClient.Builder clientBuilder, Object[] args) throws Exception {
@@ -155,7 +155,7 @@ public class RequestFactory {
         private static final Pattern REGEX_PARAM_URL = Pattern.compile("\\{(" + REGEX_PARAM + ")}.*?");
         private static final Pattern REGEX_PARAM_NAME = Pattern.compile(REGEX_PARAM);
 
-        private final Flare pigeon;
+        private final Flare flare;
         private final Method method;
         private final MethodAnnotationDelegate methodAnnotationDelegate;
         private final Parameter[] parameters;
@@ -173,10 +173,10 @@ public class RequestFactory {
         private final List<okhttp3.Interceptor> interceptors;
         private final List<Header.Dynamic> dynamicHeaders;
 
-        Builder(Flare pigeon, Method method) {
-            this.pigeon = pigeon;
+        Builder(Flare flare, Method method) {
+            this.flare = flare;
             this.method = method;
-            this.methodAnnotationDelegate = pigeon.methodAnnotationDelegate();
+            this.methodAnnotationDelegate = flare.methodAnnotationDelegate();
             this.parameters = method.getParameters();
             this.headersBuilder = new okhttp3.Headers.Builder();
             this.dynamicHeaders = new ArrayList<>();
@@ -227,7 +227,7 @@ public class RequestFactory {
                 Assert.hasText(relativeUrl, ReflectUtils.parameterError(method, paramIndex, "@Path can only be used with relative url not empty."));
                 String name = Opt.ofNullable(path.value()).orElse(parameter.getName());
                 validatePathName(paramIndex, name);
-                StringConverter<?> converter = pigeon.stringConverter(type, annotations);
+                StringConverter<?> converter = flare.stringConverter(type, annotations);
                 return new ParameterHandler.Path<>(method, paramIndex, name, path.defaultValue(), path.encoded(), converter);
             } else if (annotation instanceof Query query) {
                 String name = Opt.ofNullable(query.value()).orElse(parameter.getName());
@@ -243,11 +243,11 @@ public class RequestFactory {
                         throw ReflectUtils.parameterError(method, paramIndex, rawType.getSimpleName() + " must include generic type (e.g., " + rawType.getSimpleName() + "<String>)");
                     }
                     Type iterableType = ReflectUtils.getParameterUpperBound(0, parameterizedType);
-                    FormFieldConverter<?> converter = pigeon.formFieldConverter(iterableType, annotations);
+                    FormFieldConverter<?> converter = flare.formFieldConverter(iterableType, annotations);
                     return new ParameterHandler.Field<>(name, field.defaultValue(), encoded, converter).iterable();
                 } else if (rawType.isArray()) {
                     Class<?> arrayComponentType = boxIfPrimitive(rawType.getComponentType());
-                    FormFieldConverter<?> converter = pigeon.formFieldConverter(arrayComponentType, annotations);
+                    FormFieldConverter<?> converter = flare.formFieldConverter(arrayComponentType, annotations);
                     return new ParameterHandler.Field<>(name, field.defaultValue(), encoded, converter).array();
                 } else if (Map.class.isAssignableFrom(rawType)) {
                     Class<?> rawParameterType = ReflectUtils.getRawType(type);
@@ -264,16 +264,16 @@ public class RequestFactory {
                         throw ReflectUtils.parameterError(method, paramIndex, "@Field Map keys must be of type String: " + keyType);
                     }
                     Type valueType = ReflectUtils.getParameterUpperBound(1, parameterizedType);
-                    FormFieldConverter<?> converter = pigeon.formFieldConverter(valueType, annotations);
+                    FormFieldConverter<?> converter = flare.formFieldConverter(valueType, annotations);
                     return new ParameterHandler.FieldMap<>(method, paramIndex, converter, encoded);
                 } else {
-                    FormFieldConverter<?> converter = pigeon.formFieldConverter(type, annotations);
+                    FormFieldConverter<?> converter = flare.formFieldConverter(type, annotations);
                     return new ParameterHandler.Field<>(name, field.defaultValue(), encoded, converter);
                 }
             } else if (annotation instanceof Multipart multipart) {
                 Assert.isTrue(isFormData, ReflectUtils.parameterError(method, paramIndex, "@Multipart parameters can only be used with @FormData."));
                 String name = Opt.ofNullable(multipart.value()).orElse(parameter.getName());
-                FormFieldConverter<?> converter = pigeon.formFieldConverter(type, annotations);
+                FormFieldConverter<?> converter = flare.formFieldConverter(type, annotations);
                 return new ParameterHandler.Multipart<>(name, multipart.filename());
             } else if (annotation instanceof Header header) {
                 String name = header.value();
@@ -284,13 +284,13 @@ public class RequestFactory {
                         throw ReflectUtils.parameterError(method, paramIndex, rawType.getSimpleName() + " must include generic type (e.g., " + rawType.getSimpleName() + "<String>)");
                     }
                     Type iterableType = ReflectUtils.getParameterUpperBound(0, parameterizedType);
-                    StringConverter<?> converter = pigeon.stringConverter(iterableType, annotations);
+                    StringConverter<?> converter = flare.stringConverter(iterableType, annotations);
                     return new ParameterHandler.Header<>(name, converter).iterable();
                 } else if (okhttp3.Headers.class.isAssignableFrom(rawType)) {
                     return new ParameterHandler.Headers(method, paramIndex);
                 } else if (rawType.isArray()) {
                     Class<?> arrayComponentType = boxIfPrimitive(rawType.getComponentType());
-                    StringConverter<?> converter = pigeon.stringConverter(arrayComponentType, annotations);
+                    StringConverter<?> converter = flare.stringConverter(arrayComponentType, annotations);
                     return new ParameterHandler.Header<>(name, converter).array();
                 } else if (Map.class.isAssignableFrom(rawType)) {
                     Class<?> rawParameterType = ReflectUtils.getRawType(type);
@@ -307,10 +307,10 @@ public class RequestFactory {
                         throw ReflectUtils.parameterError(method, paramIndex, "@Header Map keys must be of type String: " + keyType);
                     }
                     Type valueType = ReflectUtils.getParameterUpperBound(1, parameterizedType);
-                    StringConverter<?> converter = pigeon.stringConverter(valueType, annotations);
+                    StringConverter<?> converter = flare.stringConverter(valueType, annotations);
                     return new ParameterHandler.HeaderMap<>(method, paramIndex, converter);
                 } else {
-                    StringConverter<?> converter = pigeon.stringConverter(type, annotations);
+                    StringConverter<?> converter = flare.stringConverter(type, annotations);
                     return new ParameterHandler.Header<>(name, converter);
                 }
             } else if (annotation instanceof Binary) {
@@ -320,7 +320,7 @@ public class RequestFactory {
             } else if (annotation instanceof Body) {
                 Assert.isFalse(isFormData || isX3WFormUrlEncoded, ReflectUtils.parameterError(method, paramIndex, "@Body parameters cannot be used with form or multi-multipart encoding."));
                 contentType = MediaType.parse("application/json; charset=utf-8");
-                BodyConverter<?, RequestBody> converter = pigeon.requestConverter(type, annotations);
+                BodyConverter<?, RequestBody> converter = flare.requestConverter(type, annotations);
                 return new ParameterHandler.Body<>(method, paramIndex, converter);
             } else if (annotation instanceof Tag) {
                 Class<?> tagType = ReflectUtils.getRawType(type);
@@ -344,11 +344,11 @@ public class RequestFactory {
                     throw ReflectUtils.parameterError(method, paramIndex, rawType.getSimpleName() + " must include generic type (e.g., " + rawType.getSimpleName() + "<String>)");
                 }
                 Type iterableType = ReflectUtils.getParameterUpperBound(0, parameterizedType);
-                FormFieldConverter<?> converter = pigeon.formFieldConverter(iterableType, annotations);
+                FormFieldConverter<?> converter = flare.formFieldConverter(iterableType, annotations);
                 return new ParameterHandler.Query<>(name, defaultValue, encoded, converter).iterable();
             } else if (rawType.isArray()) {
                 Class<?> arrayComponentType = boxIfPrimitive(rawType.getComponentType());
-                FormFieldConverter<?> converter = pigeon.formFieldConverter(arrayComponentType, annotations);
+                FormFieldConverter<?> converter = flare.formFieldConverter(arrayComponentType, annotations);
                 return new ParameterHandler.Query<>(name, defaultValue, encoded, converter).array();
             } else if (Map.class.isAssignableFrom(rawType)) {
                 Type mapType = ReflectUtils.getSupertype(type, rawType, Map.class);
@@ -360,10 +360,10 @@ public class RequestFactory {
                     throw ReflectUtils.parameterError(method, paramIndex, "@Query Map keys must be of type String: " + keyType);
                 }
                 Type valueType = ReflectUtils.getParameterUpperBound(1, parameterizedType);
-                FormFieldConverter<?> converter = pigeon.formFieldConverter(valueType, annotations);
+                FormFieldConverter<?> converter = flare.formFieldConverter(valueType, annotations);
                 return new ParameterHandler.QueryMap<>(method, paramIndex, converter, encoded);
             } else {
-                FormFieldConverter<?> converter = pigeon.formFieldConverter(type, annotations);
+                FormFieldConverter<?> converter = flare.formFieldConverter(type, annotations);
                 return new ParameterHandler.Query<>(name, defaultValue, encoded, converter);
             }
         }
@@ -432,7 +432,7 @@ public class RequestFactory {
             if (null == annotation) return;
             for (Interceptor ano : annotation) {
                 Class<? extends okhttp3.Interceptor> clazz = ano.value();
-                InterceptorDelegate delegate = pigeon.interceptorDelegate();
+                InterceptorDelegate delegate = flare.interceptorDelegate();
                 if (null == delegate) {
                     delegate = ConstructorInterceptorDelegate.create();
                 }
@@ -463,7 +463,7 @@ public class RequestFactory {
                     headerValue = header.value().substring(index + 1).trim();
                 } else if (header.dynamic() != Header.Dynamic.class && Header.Dynamic.class.isAssignableFrom(header.dynamic())) {
                     Class<? extends Header.Dynamic> pairClass = header.dynamic();
-                    DynamicHeaderDelegate delegate = pigeon.headerDelegate();
+                    DynamicHeaderDelegate delegate = flare.headerDelegate();
                     if (null == delegate) {
                         delegate = ConstructorDynamicHeaderDelegate.create();
                     }
@@ -490,7 +490,7 @@ public class RequestFactory {
                     contentType = MediaType.get(headerValue);
                 }
 
-                StringConverter<String> converter = pigeon.stringConverter(String.class, new Annotation[]{});
+                StringConverter<String> converter = flare.stringConverter(String.class, new Annotation[]{});
                 try {
                     headerValue = converter.convert(headerValue);
                 } catch (Exception e) {
