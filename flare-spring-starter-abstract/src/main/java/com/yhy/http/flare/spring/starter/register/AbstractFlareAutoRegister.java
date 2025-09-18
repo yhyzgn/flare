@@ -205,7 +205,7 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
     }
 
     private long getTimeout(Map<String, Object> attrs) {
-        // 优先使用 @Pigeon 作用域
+        // 优先使用 @Flare 作用域
         String str = resolve((String) attrs.get("timeout"));
         if (StringUtils.isNumeric(str)) {
             long temp = Long.parseLong(str);
@@ -227,28 +227,28 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
 
     @SuppressWarnings("unchecked")
     private Class<? extends Interceptor> getLoggerInterceptor(Map<String, Object> attrs) {
-        // 优先使用 @Pigeon 作用域
+        // 优先使用 @Flare 作用域
         Class<? extends Interceptor> temp = (Class<? extends Interceptor>) attrs.get("loggerInterceptor");
         return null != temp && temp != HttpLoggerInterceptor.class ? temp : loggerInterceptor;
     }
 
     @SuppressWarnings("unchecked")
     private Class<? extends SSLSocketFactory> getSSLSocketFactory(Map<String, Object> attrs) {
-        // 优先使用 @Pigeon 作用域
+        // 优先使用 @Flare 作用域
         Class<? extends SSLSocketFactory> temp = (Class<? extends SSLSocketFactory>) attrs.get("sslSocketFactory");
         return null != temp && temp != VoidSSLSocketFactory.class ? temp : sslSocketFactory;
     }
 
     @SuppressWarnings("unchecked")
     private Class<? extends X509TrustManager> getSSLTrustManager(Map<String, Object> attrs) {
-        // 优先使用 @Pigeon 作用域
+        // 优先使用 @Flare 作用域
         Class<? extends X509TrustManager> temp = (Class<? extends X509TrustManager>) attrs.get("sslTrustManager");
         return null != temp && temp != VoidSSLX509TrustManager.class ? temp : sslTrustManager;
     }
 
     @SuppressWarnings("unchecked")
     private Class<? extends HostnameVerifier> getSSLHostnameVerifier(Map<String, Object> attrs) {
-        // 优先使用 @Pigeon 作用域
+        // 优先使用 @Flare 作用域
         Class<? extends HostnameVerifier> temp = (Class<? extends HostnameVerifier>) attrs.get("sslHostnameVerifier");
         return null != temp && temp != VoidSSLHostnameVerifier.class ? temp : sslHostnameVerifier;
     }
