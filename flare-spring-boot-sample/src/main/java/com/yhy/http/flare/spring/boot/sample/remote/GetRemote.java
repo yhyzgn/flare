@@ -1,9 +1,14 @@
 package com.yhy.http.flare.spring.boot.sample.remote;
 
 import com.yhy.http.flare.annotation.Download;
+import com.yhy.http.flare.annotation.Header;
+import com.yhy.http.flare.annotation.HeaderPair;
+import com.yhy.http.flare.annotation.Interceptor;
 import com.yhy.http.flare.annotation.method.Get;
 import com.yhy.http.flare.annotation.param.Path;
 import com.yhy.http.flare.annotation.param.Query;
+import com.yhy.http.flare.spring.boot.sample.header.GetDynamicHeader;
+import com.yhy.http.flare.spring.boot.sample.interceptor.GetInterceptor;
 import com.yhy.http.flare.spring.boot.sample.model.Res;
 import com.yhy.http.flare.spring.boot.sample.model.User;
 import com.yhy.http.flare.spring.starter.annotation.Flare;
@@ -22,7 +27,14 @@ import java.io.InputStream;
  * @since 1.0.0
  */
 @Flare(
-        baseUrl = "http://localhost:8080/get"
+        baseUrl = "${flare.remote-host}/get",
+        header = {
+                @Header(pair = @HeaderPair(name = "Get-Header", value = "Get-Value")),
+                @Header(dynamic = GetDynamicHeader.class)
+        },
+        interceptor = {
+                @Interceptor(GetInterceptor.class)
+        }
 )
 public interface GetRemote {
 

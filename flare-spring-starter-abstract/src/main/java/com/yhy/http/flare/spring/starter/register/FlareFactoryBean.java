@@ -19,7 +19,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -44,17 +43,9 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
     private ApplicationContext context;
 
     @Setter
-    private Environment environment;
-    @Setter
     private Class<? extends Annotation> flareAnnotation;
     @Setter
     private Class<?> flareInterface;
-    @Setter
-    private List<Class<? extends Header.Dynamic>> dynamicHeaderList;
-    @Setter
-    private List<Class<? extends Interceptor>> globalInterceptorList;
-    @Setter
-    private List<Class<? extends Interceptor>> globalNetInterceptorList;
     @Setter
     private String baseUrl;
     @Setter
@@ -63,6 +54,8 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
     private long timeout;
     @Setter
     private Map<String, List<String>> headers;
+    @Setter
+    private List<Class<? extends Header.Dynamic>> dynamicHeaderList;
     @Setter
     private List<Class<? extends Interceptor>> interceptors;
     @Setter
@@ -108,26 +101,6 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
             dynamicHeaderList.forEach(item -> {
                 try {
                     builder.header(dynamicHeaderDelegate.apply(item));
-                } catch (Exception e) {
-                    log.error("", e);
-                }
-            });
-        }
-
-        if (!CollectionUtils.isEmpty(globalInterceptorList)) {
-            globalInterceptorList.forEach(item -> {
-                try {
-                    builder.interceptor(interceptorDelegate.apply(item));
-                } catch (Exception e) {
-                    log.error("", e);
-                }
-            });
-        }
-
-        if (!CollectionUtils.isEmpty(globalNetInterceptorList)) {
-            globalNetInterceptorList.forEach(item -> {
-                try {
-                    builder.netInterceptor(interceptorDelegate.apply(item));
                 } catch (Exception e) {
                     log.error("", e);
                 }

@@ -1,8 +1,10 @@
 package com.yhy.http.flare.spring.boot.sample.model;
 
+import com.yhy.http.flare.annotation.param.Multipart;
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -22,9 +24,12 @@ public class PartForm implements Serializable {
 
     private String name;
 
-    private MultipartFile file;
+    @Multipart
+    private File file;
 
-    private MultipartFile bytesFile;
+    @Multipart(filename = "bytes.webp")
+    private byte[] bytesFile;
 
-    private MultipartFile inputStreamFile;
+    @Multipart(value = "inputStreamFile", filename = "tempInputStreamFile.webp")
+    private FileInputStream tempInputStreamFile;
 }

@@ -1,12 +1,20 @@
 package com.yhy.http.flare.spring.boot.sample.controller;
 
+import com.yhy.http.flare.spring.boot.sample.model.Cat;
 import com.yhy.http.flare.spring.boot.sample.model.PartForm;
 import com.yhy.http.flare.spring.boot.sample.model.Res;
 import com.yhy.http.flare.spring.boot.sample.model.User;
+import com.yhy.http.flare.spring.boot.sample.remote.PostRemote;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.apache.commons.io.FileUtils;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 
 /**
  * POST 请求方式接口
@@ -18,49 +26,100 @@ import org.springframework.web.multipart.MultipartFile;
  * @since 1.0.0
  */
 @Slf4j
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/post")
 public class PostController {
+    private final PostRemote postRemote;
 
     @PostMapping("/index")
     public Res<String> index() {
-        log.info("POST 请求 /post/index");
-        return Res.success("POST 请求 /post/index");
+        return postRemote.index();
     }
 
     @PostMapping("/form")
-    public Res<String> form(String name, Integer age) {
-        log.info("POST 请求 /post/form?name={}&age={}", name, age);
-        return Res.success("POST 请求 /post/form?name=" + name + "&age=" + age);
+    public Res<String> form() {
+        return postRemote.form("李万姬", 25, "Form-Header-Value");
     }
 
     @PostMapping("/formUser")
-    public Res<User> form(User user) {
-        log.info("POST 请求 /post/formUser?user={}", user);
-        return Res.success(user);
+    public Res<User> formUser() {
+        Cat cat = new Cat("Tom", "white");
+        User user = new User(1L, "李万姬", 25, cat);
+        return postRemote.formUser(user);
+    }
+
+    @PostMapping("/formDefault")
+    public Res<String> formDefault() {
+        return postRemote.formDefault("李万姬", 25);
     }
 
     @PostMapping("/body")
-    public Res<User> body(@RequestBody User user) {
-        log.info("POST 请求 /post/body, user={}", user);
-        return Res.success(user);
+    public Res<User> body() {
+        Cat cat = new Cat("Tom", "white");
+        User user = new User(1L, "李万姬", 25, cat);
+        return postRemote.body(user);
     }
 
     @PostMapping("/upload")
-    public Res<String> upload(@RequestPart("file") MultipartFile file) {
-        log.info("POST 请求 /post/upload, file={}", file.getOriginalFilename());
-        return Res.success(file.getOriginalFilename());
+    public Res<String> upload() {
+        File file = new File("/home/neo/Downloads/sample1.webp");
+        return postRemote.upload(file);
+    }
+
+    @PostMapping("/uploadBytes")
+    public Res<String> uploadBytes() throws IOException {
+        File file = new File("/home/neo/Downloads/sample1.webp");
+        return postRemote.uploadBytes(FileUtils.readFileToByteArray(file));
+    }
+
+    @PostMapping("/uploadStream")
+    public Res<String> uploadStream() throws IOException {
+        File file = new File("/home/neo/Downloads/sample1.webp");
+        FileInputStream fis = new FileInputStream(file);
+        Res<String> res = postRemote.uploadStream(fis);
+        fis.close();
+        return res;
     }
 
     @PostMapping("/partForm")
-    public Res<String> partForm(@ModelAttribute PartForm form) {
-        log.info("POST 请求 /post/upload, form={}", form);
-        return Res.success(form.getName());
+    public Res<String> partForm() throws IOException {
+        File file = new File("/home/neo/Downloads/sample1.webp");
+        FileInputStream fis = new FileInputStream(file);
+        PartForm form = new PartForm();
+        form.setName("test");
+        form.setFile(file);
+        form.setBytesFile(FileUtils.readFileToByteArray(file));
+        form.setTempInputStreamFile(fis);
+        Res<String> res = postRemote.partForm(form);
+        fis.close();
+        return res;
     }
 
-    @PostMapping(value = "/uploadBinary", consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public Res<String> uploadBinary(@RequestBody byte[] data) {
-        log.info("POST 请求 /post/upload, data={}", data.length);
-        return Res.success("收到二进制流, 大小: " + data.length);
+    @PostMapping("/uploadError")
+    public Res<String> uploadError() {
+        // postRemote.uploadError();
+        return Res.success();
+    }
+
+    @PostMapping("/uploadBinary")
+    public Res<String> uploadBinary() throws IOException {
+        File file = new File("/home/neo/Downloads/sample1.webp");
+        return postRemote.uploadBinary(FileUtils.readFileToByteArray(file));
+    }
+
+    @PostMapping("/uploadBinaryFile")
+    public Res<String> uploadBinaryFile() {
+        File file = new File("/home/neo/Downloads/sample1.webp");
+        return postRemote.uploadBinaryFile(file);
+    }
+
+    @PostMapping("/uploadBinaryInputStream")
+    public Res<String> uploadBinaryInputStream() throws IOException {
+        File file = new File("/home/neo/Downloads/sample1.webp");
+        FileInputStream fis = new FileInputStream(file);
+        Res<String> res = postRemote.uploadBinaryInputStream(fis);
+        fis.close();
+        return res;
     }
 }
