@@ -41,16 +41,15 @@
 
 ## 🗺️ 可视化概览
 
-客户端创建与调用流程（简易示意）
+```mermaid
+flowchart LR
+    A["Flare.Builder<br/>(baseUrl, logs)"] -->|"create(interface)"| B["API Proxy<br/>(MockGetApi)"]
+    B -->|calls| C["HTTP 服务端"]
 
-   +----------------+      create(interface)      +-------------+
-   | Flare.Builder  | ---------------------------> | API Proxy   |
-   | baseUrl, logs  |                              | (MockGetApi) |
-   +----------------+                              +------+------+ 
-                                                          |
-                                                          | 发起请求
-                                                          v
-                                                     HTTP 服务端
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:1px
+    style C fill:#bfb,stroke:#333,stroke-width:1px
+```
 
 附加组件：
 - 🧾 动态 Header 提供者 -> 在发送时注入请求头（例如认证 token）
@@ -199,7 +198,7 @@ Res<String> r9 = api.partForm(form);
 
 在模块根目录运行：
 
-```shell
+```bash
 ./gradlew :flare:test
 ```
 

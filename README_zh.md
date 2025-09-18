@@ -55,7 +55,7 @@
 
 1) Gradle (Groovy)
 
-```text
+```groovy
 // Core client
 implementation 'com.yhyzgn.http:flare:${latest.version}'
 
@@ -71,7 +71,7 @@ implementation 'com.yhyzgn.http:flare-spring-boot-starter:${latest.version}'
 
 2) Maven
 
-```text
+```xml
 <!-- Core client -->
 <dependency>
   <groupId>com.yhyzgn.http</groupId>
@@ -119,7 +119,7 @@ implementation 'com.yhyzgn.http:flare-spring-boot-starter:${latest.version}'
 
 Core（纯 Java）：
 
-```text
+```java
 // 添加依赖 'com.yhyzgn.http:flare'
 Flare flare = new Flare.Builder().baseUrl("https://api.example.com").build();
 MyApi api = flare.create(MyApi.class);
@@ -127,7 +127,7 @@ MyApi api = flare.create(MyApi.class);
 
 Spring（手动装配，使用 flare-spring）：
 
-```text
+```java
 @Configuration
 public class FlareConfig {
   @Bean
@@ -139,7 +139,7 @@ public class FlareConfig {
 
 Spring Boot（使用 starter）：
 
-```text
+```java
 // 添加依赖 'com.yhyzgn.http:flare-spring-boot-starter'
 // 在 @SpringBootApplication 上使用 @EnableFlare（见下文）
 ```
@@ -150,11 +150,14 @@ Spring Boot（使用 starter）：
 
 Starter 提供了注解 `@EnableFlare`，用于扫描并注册 `@Flare` 注解的接口并自动配置 Flare 组件。示例用法：
 
-```text
+```java
 @EnableFlare(basePackages = "com.example.remote", baseUrl = "https://api.example.com")
 @SpringBootApplication
 public class Application {
-  public static void main(String[] args) { SpringApplication.run(Application.class, args); }
+    
+  public static void main(String[] args) {
+      SpringApplication.run(Application.class, args); 
+  }
 }
 ```
 
@@ -197,14 +200,14 @@ public class Application {
 
 使用 Gradle：
 
-```text
+```bash
 # 在仓库根目录运行
 ./gradlew :flare-mock-server:bootRun
 ```
 
 或构建并运行可执行 jar（适合 CI）：
 
-```text
+```bash
 ./gradlew :flare-mock-server:bootJar
 java -jar ./flare/flare-mock-server/build/libs/flare-mock-server-${latest.version}-boot.jar
 ```
@@ -213,7 +216,7 @@ mock 服务启动后监听 8080，并提供 `/get` 与 `/post` 下的测试接�
 
 ### ▶️ 启动示例 Spring Boot 应用
 
-```text
+```bash
 ./gradlew :flare-spring-boot-sample:bootRun
 # 或
 ./gradlew :flare-spring-boot-sample:bootJar
@@ -224,7 +227,7 @@ java -jar ./flare/flare-spring-boot-sample/build/libs/flare-spring-boot-sample-$
 
 ### 🧪 运行测试（Gradle）
 
-```text
+```bash
 # 运行 flare 模块测试
 ./gradlew :flare:test
 
@@ -238,7 +241,7 @@ java -jar ./flare/flare-spring-boot-sample/build/libs/flare-spring-boot-sample-$
 
 若你使用 Maven 并将模块安装到本地仓库，可在模块目录通过 Maven 运行测试：
 
-```text
+```bash
 mvn -f flare/pom.xml test
 mvn -f flare/pom.xml -Dtest=FlareGetTest test
 ```
@@ -259,7 +262,7 @@ curl -v -X POST http://localhost:8080/post/index -d "name=alice&age=30"
 - 测试中使用临时文件或类路径资源替代绝对路径。
 - 在 CI 中以后台方式启动 mock server，再运行测试：
 
-```text
+```bash
 ./gradlew :flare-mock-server:bootRun &
 # 等待服务就绪（sleep 或健康检查循环）
 ./gradlew :flare:test
@@ -293,7 +296,7 @@ Starter 与自动注册逻辑会解析注解属性中的 Spring 占位符（例�
 
 示例 application.yml（CI 友好）
 
-```text
+```yaml
 spring:
   application:
     name: flare-sample-app

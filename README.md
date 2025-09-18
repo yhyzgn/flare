@@ -57,7 +57,7 @@ Welcome to the Flare multi-module repository. This root README summarizes the pu
 
 1) Gradle (Groovy)
 
-```text
+```groovy
 // Core client
 implementation 'com.yhyzgn.http:flare:${latest.version}'
 
@@ -73,7 +73,7 @@ implementation 'com.yhyzgn.http:flare-spring-boot-starter:${latest.version}'
 
 2) Maven
 
-```text
+```xml
 <!-- Core client -->
 <dependency>
   <groupId>com.yhyzgn.http</groupId>
@@ -121,7 +121,7 @@ implementation 'com.yhyzgn.http:flare-spring-boot-starter:${latest.version}'
 
 Core (plain Java):
 
-```text
+```java
 // Add dependency 'com.yhyzgn.http:flare'
 Flare flare = new Flare.Builder().baseUrl("https://api.example.com").build();
 MyApi api = flare.create(MyApi.class);
@@ -129,7 +129,7 @@ MyApi api = flare.create(MyApi.class);
 
 Spring (manual wiring with flare-spring):
 
-```text
+```java
 @Configuration
 public class FlareConfig {
   @Bean
@@ -141,7 +141,7 @@ public class FlareConfig {
 
 Spring Boot (starter):
 
-```text
+```java
 // Add dependency 'com.yhyzgn.http:flare-spring-boot-starter'
 // Use @EnableFlare on your @SpringBootApplication (see details below)
 ```
@@ -154,11 +154,14 @@ The starter exposes an annotation `@EnableFlare` to register and auto-configure 
 
 Example usage:
 
-```text
+```java
 @EnableFlare(basePackages = "com.example.remote", baseUrl = "https://api.example.com")
 @SpringBootApplication
 public class Application {
-  public static void main(String[] args) { SpringApplication.run(Application.class, args); }
+    
+  public static void main(String[] args) {
+      SpringApplication.run(Application.class, args); 
+  }
 }
 ```
 
@@ -204,14 +207,14 @@ This project includes a mock server and sample applications to help you run and 
 
 Use Gradle (preferred in this repo):
 
-```text
+```bash
 # from repo root
 ./gradlew :flare-mock-server:bootRun
 ```
 
 Or build the boot jar and run it (works in CI-like environments):
 
-```text
+```bash
 ./gradlew :flare-mock-server:bootJar
 java -jar ./flare/flare-mock-server/build/libs/flare-mock-server-${latest.version}-boot.jar
 ```
@@ -222,7 +225,7 @@ After startup the mock server listens on port 8080 (see `flare-mock-server/src/m
 
 Start the sample app to see the starter in action:
 
-```text
+```bash
 ./gradlew :flare-spring-boot-sample:bootRun
 # or
 ./gradlew :flare-spring-boot-sample:bootJar
@@ -235,7 +238,7 @@ The sample app demonstrates `@EnableFlare` and how the starter registers Flare c
 
 Run all tests in the repository or a specific module:
 
-```text
+```bash
 # run all tests in the flare module
 ./gradlew :flare:test
 
@@ -249,7 +252,7 @@ If tests fail due to missing mock server, start the mock server first (see above
 
 If you use Maven locally and have the modules installed to a local Maven repository, you can run tests via Maven in a module folder. Example (from module root):
 
-```text
+```bash
 # run tests for the flare module
 mvn -f flare/pom.xml test
 
@@ -278,7 +281,7 @@ Use the logs produced by the server and by Flare (enable logEnabled in Flare.Bui
 - Use temporary files or classpath resources for upload/download tests to avoid absolute paths.
 - Start the mock server in the CI pipeline as a background step before running tests:
 
-```text
+```bash
 # start mock server in background (example)
 ./gradlew :flare-mock-server:bootRun &
 # wait for it to become healthy (simple sleep or health-check loop)
@@ -314,7 +317,7 @@ Common property patterns found in the repository samples:
 
 Example application.yml (minimal, CI/dev friendly)
 
-```text
+```yaml
 spring:
   application:
     name: flare-sample-app
@@ -343,7 +346,7 @@ How to use placeholders in annotations
 
 Example (in code):
 
-```text
+```java
 @Flare(name = "getRemote", baseUrl = "${flare.remote-host}/get")
 public interface GetRemote {
     // ... methods
@@ -387,7 +390,7 @@ How placeholders are used
 
 Sample application.yml (expanded, CI-friendly)
 
-```text
+```yaml
 spring:
   application:
     name: flare-sample-app
@@ -414,7 +417,7 @@ Override order & environment variables
   - JVM system properties (e.g. `-Dflare.remote-host=https://api.example.com`)
 - Example using system property on startup:
 
-```text
+```bash
 java -Dflare.remote-host=https://api.example.com -jar app.jar
 ```
 
