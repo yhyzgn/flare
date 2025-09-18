@@ -47,16 +47,16 @@ public class GsonConverterFactory implements BodyConverter.Factory {
     @Override
     public BodyConverter<?, RequestBody> requestBodyConverter(Type type, Annotation[] annotations, Flare flare) {
         TypeAdapter<?> adapter = gson.getAdapter(TypeToken.get(type));
-        return new GsonRequestBodyBodyConverter<>(gson, adapter, type);
+        return new GsonRequestBodyBodyConverter<>(gson, adapter, type, flare);
     }
 
     @Override
     public BodyConverter<ResponseBody, ?> responseBodyConverter(Type type, Annotation[] annotations, Flare flare) {
         TypeAdapter<?> adapter = gson.getAdapter(TypeToken.get(type));
-        return new GsonResponseBodyBodyConverter<>(gson, adapter, type, annotations);
+        return new GsonResponseBodyBodyConverter<>(gson, adapter, type, annotations, flare);
     }
 
-    private record GsonRequestBodyBodyConverter<T>(Gson gson, TypeAdapter<T> adapter, Type type) implements BodyConverter<T, RequestBody> {
+    private record GsonRequestBodyBodyConverter<T>(Gson gson, TypeAdapter<T> adapter, Type type, Flare flare) implements BodyConverter<T, RequestBody> {
         private static final MediaType MEDIA_TYPE = MediaType.get("application/json; charset=UTF-8");
         private static final Charset UTF_8 = StandardCharsets.UTF_8;
 
@@ -93,7 +93,7 @@ public class GsonConverterFactory implements BodyConverter.Factory {
         }
     }
 
-    private record GsonResponseBodyBodyConverter<T>(Gson gson, TypeAdapter<T> adapter, Type type, Annotation[] annotations) implements BodyConverter<ResponseBody, T> {
+    private record GsonResponseBodyBodyConverter<T>(Gson gson, TypeAdapter<T> adapter, Type type, Annotation[] annotations, Flare flare) implements BodyConverter<ResponseBody, T> {
 
         @Override
         public Class<?> resultType() {
@@ -113,7 +113,7 @@ public class GsonConverterFactory implements BodyConverter.Factory {
                     }
                     return result;
                 }
-            });
+            }, flare.stringConverter());
         }
     }
 }

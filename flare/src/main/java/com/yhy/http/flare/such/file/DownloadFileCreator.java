@@ -1,6 +1,7 @@
 package com.yhy.http.flare.such.file;
 
 import com.yhy.http.flare.annotation.Download;
+import com.yhy.http.flare.convert.StringConverter;
 import com.yhy.http.flare.file.FileCreator;
 import com.yhy.http.flare.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -24,19 +25,24 @@ public class DownloadFileCreator implements FileCreator<Download> {
     private final TempFileCreator tempFileCreator = new TempFileCreator();
 
     @Override
-    public File create(Download download) throws IOException {
+    public File create(Download download, StringConverter<String> stringConverter) throws IOException {
         if (null == download) {
-            return tempFileCreator.create(null);
+            return tempFileCreator.create(null, stringConverter);
         }
         String filePath = download.filePath();
         if (!StringUtils.hasText(filePath)) {
             log.warn("Download file path is empty, use temp file instead.");
-            return tempFileCreator.create(null);
+            return tempFileCreator.create(null, stringConverter);
         }
 
+        try {
+            filePath = stringConverter.convert(filePath);
+        } catch (Exception e) {
+            log.error("", e);
+        }
         File file = new File(filePath);
         // 如果文件存在，且允许覆盖，则先删除文件
-        if (download.overwrite()) {
+        if (file.exists() && download.overwrite()) {
             FileUtils.forceDelete(file);
         }
         // 创建文件

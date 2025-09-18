@@ -136,8 +136,8 @@ public class Flare {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> StringConverter<T> stringConverter(Type type, Annotation[] annotations) {
-        return (StringConverter<T>) stringConverterFactory.converter(type, annotations, this);
+    public <T> StringConverter<T> stringConverter() {
+        return (StringConverter<T>) stringConverterFactory.converter(this);
     }
 
     @SuppressWarnings("unchecked")

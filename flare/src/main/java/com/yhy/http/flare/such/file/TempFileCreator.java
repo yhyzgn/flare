@@ -1,5 +1,6 @@
 package com.yhy.http.flare.such.file;
 
+import com.yhy.http.flare.convert.StringConverter;
 import com.yhy.http.flare.file.FileCreator;
 
 import java.io.File;
@@ -18,7 +19,7 @@ import java.nio.file.Files;
 public class TempFileCreator implements FileCreator<Void> {
 
     @Override
-    public File create(Void unused) throws IOException {
+    public File create(Void unused, StringConverter<String> stringConverter) throws IOException {
         return Files.createTempFile("flare-download-", ".tmp").toFile();
     }
 }

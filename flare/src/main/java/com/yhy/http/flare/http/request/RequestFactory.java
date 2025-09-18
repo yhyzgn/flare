@@ -227,7 +227,7 @@ public class RequestFactory {
                 Assert.hasText(relativeUrl, ReflectUtils.parameterError(method, paramIndex, "@Path can only be used with relative url not empty."));
                 String name = Opt.ofNullable(path.value()).orElse(parameter.getName());
                 validatePathName(paramIndex, name);
-                StringConverter<?> converter = flare.stringConverter(type, annotations);
+                StringConverter<?> converter = flare.stringConverter();
                 return new ParameterHandler.Path<>(method, paramIndex, name, path.defaultValue(), path.encoded(), converter);
             } else if (annotation instanceof Query query) {
                 String name = Opt.ofNullable(query.value()).orElse(parameter.getName());
@@ -284,13 +284,13 @@ public class RequestFactory {
                         throw ReflectUtils.parameterError(method, paramIndex, rawType.getSimpleName() + " must include generic type (e.g., " + rawType.getSimpleName() + "<String>)");
                     }
                     Type iterableType = ReflectUtils.getParameterUpperBound(0, parameterizedType);
-                    StringConverter<?> converter = flare.stringConverter(iterableType, annotations);
+                    StringConverter<?> converter = flare.stringConverter();
                     return new ParameterHandler.Header<>(name, converter).iterable();
                 } else if (okhttp3.Headers.class.isAssignableFrom(rawType)) {
                     return new ParameterHandler.Headers(method, paramIndex);
                 } else if (rawType.isArray()) {
                     Class<?> arrayComponentType = boxIfPrimitive(rawType.getComponentType());
-                    StringConverter<?> converter = flare.stringConverter(arrayComponentType, annotations);
+                    StringConverter<?> converter = flare.stringConverter();
                     return new ParameterHandler.Header<>(name, converter).array();
                 } else if (Map.class.isAssignableFrom(rawType)) {
                     Class<?> rawParameterType = ReflectUtils.getRawType(type);
@@ -307,10 +307,10 @@ public class RequestFactory {
                         throw ReflectUtils.parameterError(method, paramIndex, "@Header Map keys must be of type String: " + keyType);
                     }
                     Type valueType = ReflectUtils.getParameterUpperBound(1, parameterizedType);
-                    StringConverter<?> converter = flare.stringConverter(valueType, annotations);
+                    StringConverter<?> converter = flare.stringConverter();
                     return new ParameterHandler.HeaderMap<>(method, paramIndex, converter);
                 } else {
-                    StringConverter<?> converter = flare.stringConverter(type, annotations);
+                    StringConverter<?> converter = flare.stringConverter();
                     return new ParameterHandler.Header<>(name, converter);
                 }
             } else if (annotation instanceof Binary) {
@@ -490,7 +490,7 @@ public class RequestFactory {
                     contentType = MediaType.get(headerValue);
                 }
 
-                StringConverter<String> converter = flare.stringConverter(String.class, new Annotation[]{});
+                StringConverter<String> converter = flare.stringConverter();
                 try {
                     headerValue = converter.convert(headerValue);
                 } catch (Exception e) {

@@ -66,10 +66,10 @@ public interface GetRemote {
     File forFile();
 
     @Get("/index")
-    @Download(filePath = "/home/neo/Downloads/ttttttttt.txt", overwrite = true)
+    @Download(filePath = "${flare.download-dir}/ddddddddd.txt", overwrite = true)
     File forFileDownload();
 
     @Get("/index")
-    @Download(filePath = "/home/neo/Downloads/void.txt")
+    @Download(filePath = "${flare.download-dir}/void.txt")
     void forVoidFileDownload();
 }

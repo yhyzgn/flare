@@ -49,7 +49,7 @@ public interface BodyConverter<F, T> {
      * @return 目标对象类型
      */
     @SuppressWarnings("unchecked")
-    default T responseBodyResolve(ResponseBody from, Annotation[] annotations, SilenceFunction<ResponseBody, T, IOException> function) throws IOException {
+    default T responseBodyResolve(ResponseBody from, Annotation[] annotations, SilenceFunction<ResponseBody, T, IOException> function, StringConverter<String> stringConverter) throws IOException {
         Class<?> type = resultType();
         if (type == String.class) {
             return (T) from.string();
@@ -62,7 +62,7 @@ public interface BodyConverter<F, T> {
         // File 类型，则需要检查是否有 @Download 注解，如果没有则保存为临时文件
         if (type == File.class) {
             Download download = (Download) Arrays.stream(annotations).filter(a -> a instanceof Download).findFirst().orElse(null);
-            return (T) DownloadFileUtils.write(download, from.byteStream());
+            return (T) DownloadFileUtils.write(download, from.byteStream(), stringConverter);
         }
 
         // 处理 InputStream、 Reader、 byte[] 和 void 类型，如果有 @Download 注解则才存为文件，否则直接返回
@@ -84,7 +84,7 @@ public interface BodyConverter<F, T> {
             }
 
             // 确认指定为下载文件，保存为文件
-            File file = DownloadFileUtils.write(download, from.byteStream());
+            File file = DownloadFileUtils.write(download, from.byteStream(), stringConverter);
             if (InputStream.class.isAssignableFrom(type)) {
                 return (T) new FileInputStream(file);
             }
