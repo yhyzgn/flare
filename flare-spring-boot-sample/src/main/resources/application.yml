@@ -1,6 +1,9 @@
 server:
   port: 8082
 
-# logging:
-#   level:
-#     root: info
+spring:
+  application:
+    name: flare-spring-boot-sample
+
+flare:
+  remote-host: http://localhost:8080

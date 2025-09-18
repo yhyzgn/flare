@@ -62,6 +62,7 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
     // 全局配置
     private String baseURL;
     private Map<String, List<String>> headerMap = new HashMap<>();
+    private List<Class<? extends Header.Dynamic>> dynamicHeaderList = new ArrayList<>();
     private List<Class<? extends Interceptor>> interceptorList = new ArrayList<>();
     private List<Class<? extends Interceptor>> netInterceptorList = new ArrayList<>();
     private Boolean logEnabled;
@@ -103,6 +104,7 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
             sslSocketFactory = getSSLSocketFactory(attributes);
             sslTrustManager = getSSLTrustManager(attributes);
             sslHostnameVerifier = getSSLHostnameVerifier(attributes);
+            dynamicHeaderList = dynamicHeaderList(attributes);
         }
         log.info("The global configuration for @{} from @{} loaded.", flareAnnotation.getSimpleName(), enableAnnotation.getSimpleName());
     }
@@ -135,11 +137,11 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
         String qualifier = getQualifier(attrs);
         AnnotationAttributes[] interceptors = (AnnotationAttributes[]) attrs.get("interceptor");
 
-        builder.addPropertyValue("environment", environment);
         builder.addPropertyValue("flareAnnotation", flareAnnotation);
         builder.addPropertyValue("flareInterface", className);
         builder.addPropertyValue("baseUrl", getBaseUrl(attrs));
         builder.addPropertyValue("headers", getHeader(attrs));
+        builder.addPropertyValue("dynamicHeaderList", dynamicHeaderList(attrs));
         builder.addPropertyValue("interceptors", getInterceptors(interceptors, false));
         builder.addPropertyValue("netInterceptors", getInterceptors(interceptors, true));
         builder.addPropertyValue("timeout", getTimeout(attrs));
@@ -148,9 +150,6 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
         builder.addPropertyValue("sslSocketFactory", getSSLSocketFactory(attrs));
         builder.addPropertyValue("sslTrustManager", getSSLTrustManager(attrs));
         builder.addPropertyValue("sslHostnameVerifier", getSSLHostnameVerifier(attrs));
-        builder.addPropertyValue("dynamicHeaderList", dynamicHeaderList());
-        builder.addPropertyValue("globalInterceptorList", globalInterceptorList());
-        builder.addPropertyValue("globalNetInterceptorList", globalNetInterceptorList());
         builder.setAutowireMode(AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE);
         builder.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         builder.setPrimary((Boolean) attrs.get("primary"));
@@ -190,19 +189,19 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
     }
 
     private List<Class<? extends Interceptor>> getInterceptors(AnnotationAttributes[] interceptors, boolean net) {
+        List<Class<? extends Interceptor>> global = net ? netInterceptorList : interceptorList;
         if (null != interceptors && interceptors.length > 0) {
             List<Class<? extends Interceptor>> temp = Stream.of(interceptors).filter(it -> net && it.getBoolean("net") || !net && !it.getBoolean("net")).map(it -> it.<Interceptor>getClass("value")).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(temp)) {
-                temp = net ? netInterceptorList : interceptorList;
-            } else if (!CollectionUtils.isEmpty(interceptorList)) {
+                return global;
+            }
+            if (!CollectionUtils.isEmpty(global)) {
                 // 全局拦截器优先加载
-                List<Class<? extends Interceptor>> buf = new ArrayList<>(net ? netInterceptorList : interceptorList);
-                buf.addAll(temp);
-                temp = buf;
+                temp.addAll(global);
             }
             return temp;
         }
-        return net ? netInterceptorList : interceptorList;
+        return global;
     }
 
     private long getTimeout(Map<String, Object> attrs) {
@@ -254,16 +253,18 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
         return null != temp && temp != VoidSSLHostnameVerifier.class ? temp : sslHostnameVerifier;
     }
 
-    public List<Class<? extends Header.Dynamic>> dynamicHeaderList() {
-        return null;
-    }
-
-    public List<Class<? extends Interceptor>> globalInterceptorList() {
-        return null;
-    }
-
-    public List<Class<? extends Interceptor>> globalNetInterceptorList() {
-        return null;
+    public List<Class<? extends Header.Dynamic>> dynamicHeaderList(Map<String, Object> attrs) {
+        AnnotationAttributes[] headers = (AnnotationAttributes[]) attrs.get("header");
+        if (null != headers && headers.length > 0) {
+            List<Class<? extends Header.Dynamic>> temp = Stream.of(headers).filter(it -> it.getClass("dynamic") != Header.Dynamic.class).map(it -> it.<Header.Dynamic>getClass("dynamic")).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(temp)) {
+                temp = dynamicHeaderList;
+            } else if (!CollectionUtils.isEmpty(dynamicHeaderList)) {
+                temp.addAll(dynamicHeaderList);
+            }
+            return temp;
+        }
+        return dynamicHeaderList;
     }
 
     @Override
