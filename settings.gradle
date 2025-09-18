@@ -36,4 +36,8 @@ dependencyResolutionManagement {
 rootProject.name = 'flare'
 
 include ':flare'
+include ':flare-spring'
+include ':flare-spring-starter-abstract'
+include ':flare-spring-boot-starter'
 include ':flare-mock-server'
+include ':flare-spring-boot-sample'

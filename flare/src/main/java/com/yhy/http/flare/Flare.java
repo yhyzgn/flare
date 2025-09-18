@@ -56,7 +56,7 @@ public class Flare {
     private final MethodAnnotationDelegate methodAnnotationDelegate;
     private final OkHttpClient.Builder clientBuilder;
     private final CallAdapter.Factory callAdapterFactory;
-    private final BodyConverter.Factory jsonConverterFactory;
+    private final BodyConverter.Factory bodyConverterFactory;
     private final StringConverter.Factory stringConverterFactory;
     private final FormFieldConverter.Factory formFieldConverterFactory;
     private final SSLSocketFactory sslSocketFactory;
@@ -74,7 +74,7 @@ public class Flare {
         this.methodAnnotationDelegate = builder.methodAnnotationDelegate;
         this.clientBuilder = builder.clientBuilder;
         this.callAdapterFactory = builder.callAdapterFactory;
-        this.jsonConverterFactory = builder.jsonConverterFactory;
+        this.bodyConverterFactory = builder.bodyConverterFactory;
         this.stringConverterFactory = builder.stringConverterFactory;
         this.formFieldConverterFactory = builder.formFieldConverterFactory;
         this.sslSocketFactory = builder.sslSocketFactory;
@@ -142,12 +142,12 @@ public class Flare {
 
     @SuppressWarnings("unchecked")
     public <T> BodyConverter<T, RequestBody> requestConverter(Type type, Annotation[] parameterAnnotations) {
-        return (BodyConverter<T, RequestBody>) jsonConverterFactory.requestBodyConverter(type, parameterAnnotations, this);
+        return (BodyConverter<T, RequestBody>) bodyConverterFactory.requestBodyConverter(type, parameterAnnotations, this);
     }
 
     @SuppressWarnings("unchecked")
     public <T> BodyConverter<ResponseBody, T> responseConverter(Type responseType, Annotation[] annotations) {
-        return (BodyConverter<ResponseBody, T>) jsonConverterFactory.responseBodyConverter(responseType, annotations, this);
+        return (BodyConverter<ResponseBody, T>) bodyConverterFactory.responseBodyConverter(responseType, annotations, this);
     }
 
     @SuppressWarnings("unchecked")
@@ -207,7 +207,7 @@ public class Flare {
         private Boolean logEnabled;
         private Interceptor loggerInterceptor;
         private CallAdapter.Factory callAdapterFactory;
-        private BodyConverter.Factory jsonConverterFactory;
+        private BodyConverter.Factory bodyConverterFactory;
         private StringConverter.Factory stringConverterFactory;
         private FormFieldConverter.Factory formFieldConverterFactory;
         private SSLSocketFactory sslSocketFactory;
@@ -284,8 +284,8 @@ public class Flare {
             return this;
         }
 
-        public Builder converterFactory(BodyConverter.Factory factory) {
-            this.jsonConverterFactory = factory;
+        public Builder bodyConverterFactory(BodyConverter.Factory factory) {
+            this.bodyConverterFactory = factory;
             return this;
         }
 
@@ -335,7 +335,7 @@ public class Flare {
             Assert.notNull(baseUrl, "baseUrl cannot be null");
 
             callAdapterFactory = Opt.ofNullable(callAdapterFactory).orElse(new GuavaCallAdapter());
-            jsonConverterFactory = Opt.ofNullable(jsonConverterFactory).orElse(new JacksonConverterFactory());
+            bodyConverterFactory = Opt.ofNullable(bodyConverterFactory).orElse(new JacksonConverterFactory());
             stringConverterFactory = Opt.ofNullable(stringConverterFactory).orElse(new StringConverterFactory());
             formFieldConverterFactory = Opt.ofNullable(formFieldConverterFactory).orElse(new FormFieldConverterFactory());
 

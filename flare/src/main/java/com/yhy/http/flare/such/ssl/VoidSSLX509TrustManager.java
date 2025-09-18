@@ -15,7 +15,7 @@ import java.security.cert.X509Certificate;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class VoidSSLX509TrustManager extends X509ExtendedTrustManager {
+public final class VoidSSLX509TrustManager extends X509ExtendedTrustManager {
     @Override
     public void checkClientTrusted(X509Certificate[] chain, String authType, Socket socket) throws CertificateException {
     }
