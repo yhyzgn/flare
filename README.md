@@ -1,4 +1,18 @@
-# 🚀✨📘 Flare Project (root README)
+# 🚀✨📘 Flare
+
+
+![jdk](https://img.shields.io/badge/jdk-21%2B-critical) ![spring-boot](https://img.shields.io/badge/spring--boot-3.5.5-yellowgreen) 
+
+![Maven Central](https://img.shields.io/maven-central/v/com.yhyzgn.http/flare?color=orange&label=flare&style=flat-square&logo=java) 
+
+![Maven Central](https://img.shields.io/maven-central/v/com.yhyzgn.http/flare-spring?color=green&label=flare-spring&style=flat-square&logo=spring) 
+
+![Maven Central](https://img.shields.io/maven-central/v/com.yhyzgn.http/flare-spring-starter-abstract?color=blueviolet&label=flare-spring-starter-abstract&style=flat-square&logo=spring) 
+
+![Maven Central](https://img.shields.io/maven-central/v/com.yhyzgn.http/flare-spring-boot-starter?color=brightgreen&label=flare-spring-boot-starter&style=flat-square&logo=springboot) 
+
+
+
 
 [中文版本 / 中文 README](README_zh.md) 🔗
 
@@ -23,7 +37,7 @@ Welcome to the Flare multi-module repository. This root README summarizes the pu
 ## 🧭 General coordinates (group / version)
 
 - Maven groupId: `com.yhyzgn.http`
-- Version: `0.1.0`
+- Version: `${latest.version}`
 
 (Values are declared in `ext.gradle` — update if you publish with different coordinates.)
 
@@ -45,16 +59,16 @@ Welcome to the Flare multi-module repository. This root README summarizes the pu
 
 ```text
 // Core client
-implementation 'com.yhyzgn.http:flare:0.1.0'
+implementation 'com.yhyzgn.http:flare:${latest.version}'
 
 // Spring integration
-implementation 'com.yhyzgn.http:flare-spring:0.1.0'
+implementation 'com.yhyzgn.http:flare-spring:${latest.version}'
 
 // Starter abstract (for customizing starter integration)
-implementation 'com.yhyzgn.http:flare-spring-starter-abstract:0.1.0'
+implementation 'com.yhyzgn.http:flare-spring-starter-abstract:${latest.version}'
 
 // Spring Boot starter (auto-config)
-implementation 'com.yhyzgn.http:flare-spring-boot-starter:0.1.0'
+implementation 'com.yhyzgn.http:flare-spring-boot-starter:${latest.version}'
 ```
 
 2) Maven
@@ -64,28 +78,28 @@ implementation 'com.yhyzgn.http:flare-spring-boot-starter:0.1.0'
 <dependency>
   <groupId>com.yhyzgn.http</groupId>
   <artifactId>flare</artifactId>
-  <version>0.1.0</version>
+  <version>${latest.version}</version>
 </dependency>
 
 <!-- Spring integration -->
 <dependency>
   <groupId>com.yhyzgn.http</groupId>
   <artifactId>flare-spring</artifactId>
-  <version>0.1.0</version>
+  <version>${latest.version}</version>
 </dependency>
 
 <!-- Starter abstract -->
 <dependency>
   <groupId>com.yhyzgn.http</groupId>
   <artifactId>flare-spring-starter-abstract</artifactId>
-  <version>0.1.0</version>
+  <version>${latest.version}</version>
 </dependency>
 
 <!-- Spring Boot starter -->
 <dependency>
   <groupId>com.yhyzgn.http</groupId>
   <artifactId>flare-spring-boot-starter</artifactId>
-  <version>0.1.0</version>
+  <version>${latest.version}</version>
 </dependency>
 ```
 
@@ -199,7 +213,7 @@ Or build the boot jar and run it (works in CI-like environments):
 
 ```text
 ./gradlew :flare-mock-server:bootJar
-java -jar ./flare/flare-mock-server/build/libs/flare-mock-server-0.1.0-boot.jar
+java -jar ./flare/flare-mock-server/build/libs/flare-mock-server-${latest.version}-boot.jar
 ```
 
 After startup the mock server listens on port 8080 (see `flare-mock-server/src/main/resources/application.yml`). It exposes endpoints used by tests under `/get` and `/post` (e.g. `/get/index`, `/get/query`, `/post/index`, etc.).
@@ -212,7 +226,7 @@ Start the sample app to see the starter in action:
 ./gradlew :flare-spring-boot-sample:bootRun
 # or
 ./gradlew :flare-spring-boot-sample:bootJar
-java -jar ./flare/flare-spring-boot-sample/build/libs/flare-spring-boot-sample-0.1.0-boot.jar
+java -jar ./flare/flare-spring-boot-sample/build/libs/flare-spring-boot-sample-${latest.version}-boot.jar
 ```
 
 The sample app demonstrates `@EnableFlare` and how the starter registers Flare components. Use logs and the sample endpoints to validate behavior.
