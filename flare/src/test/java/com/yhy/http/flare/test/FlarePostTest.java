@@ -14,6 +14,10 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 /**
  * 测试类
@@ -67,80 +71,120 @@ public class FlarePostTest {
     }
 
     @Test
-    public void upload() {
+    public void upload() throws IOException {
         MockPostApi api = flare().create(MockPostApi.class);
-        File file = new File("/home/neo/Downloads/sample1.webp");
-        Res<String> res = api.upload(file);
-        logRes(res);
+        Path tmp = createTempSampleFile();
+        try {
+            File file = tmp.toFile();
+            Res<String> res = api.upload(file);
+            logRes(res);
+        } finally {
+            Files.deleteIfExists(tmp);
+        }
     }
 
     @Test
     public void uploadBytes() throws IOException {
         MockPostApi api = flare().create(MockPostApi.class);
-        File file = new File("/home/neo/Downloads/sample1.webp");
-        Res<String> res = api.uploadBytes(FileUtils.readFileToByteArray(file));
-        logRes(res);
+        Path tmp = createTempSampleFile();
+        try {
+            Res<String> res = api.uploadBytes(FileUtils.readFileToByteArray(tmp.toFile()));
+            logRes(res);
+        } finally {
+            Files.deleteIfExists(tmp);
+        }
     }
 
     @Test
     public void uploadStream() throws IOException {
         MockPostApi api = flare().create(MockPostApi.class);
-        File file = new File("/home/neo/Downloads/sample1.webp");
-        FileInputStream fis = new FileInputStream(file);
-        Res<String> res = api.uploadStream(fis);
-        fis.close();
-        logRes(res);
+        Path tmp = createTempSampleFile();
+        try (FileInputStream fis = new FileInputStream(tmp.toFile())) {
+            Res<String> res = api.uploadStream(fis);
+            logRes(res);
+        } finally {
+            Files.deleteIfExists(tmp);
+        }
     }
 
     @Test
     public void partForm() throws IOException {
         MockPostApi api = flare().create(MockPostApi.class);
-        File file = new File("/home/neo/Downloads/sample1.webp");
-        FileInputStream fis = new FileInputStream(file);
-        PartForm form = new PartForm();
-        form.setName("test");
-        form.setFile(file);
-        form.setBytesFile(FileUtils.readFileToByteArray(file));
-        form.setTempInputStreamFile(fis);
-        Res<String> res = api.partForm(form);
-        fis.close();
-        logRes(res);
+        Path tmp = createTempSampleFile();
+        try (FileInputStream fis = new FileInputStream(tmp.toFile())) {
+            PartForm form = new PartForm();
+            File file = tmp.toFile();
+            form.setName("test");
+            form.setFile(file);
+            form.setBytesFile(FileUtils.readFileToByteArray(file));
+            form.setTempInputStreamFile(fis);
+            Res<String> res = api.partForm(form);
+            fis.close();
+            logRes(res);
+        } finally {
+            Files.deleteIfExists(tmp);
+        }
     }
 
     @Test
     public void uploadError() throws IOException {
         // MockPostApi api = flare().create(MockPostApi.class);
-        // File file = new File("/home/neo/Downloads/sample1.webp");
-        // FileInputStream fis = new FileInputStream(file);
-        // Res<String> res = api.uploadError(fis);
-        // fis.close();
-        // logRes(res);
+        // Path tmp = createTempSampleFile();
+        // try (FileInputStream fis = new FileInputStream(tmp.toFile())) {
+        //     Res<String> res = api.uploadError(fis);
+        //     logRes(res);
+        // } finally {
+        //     Files.deleteIfExists(tmp);
+        // }
     }
 
     @Test
     public void uploadBinary() throws IOException {
         MockPostApi api = flare().create(MockPostApi.class);
-        File file = new File("/home/neo/Downloads/sample1.webp");
-        Res<String> res = api.uploadBinary(FileUtils.readFileToByteArray(file));
-        logRes(res);
+        Path tmp = createTempSampleFile();
+        try {
+            Res<String> res = api.uploadBinary(FileUtils.readFileToByteArray(tmp.toFile()));
+            logRes(res);
+        } finally {
+            Files.deleteIfExists(tmp);
+        }
     }
 
     @Test
-    public void uploadBinaryFile() {
+    public void uploadBinaryFile() throws IOException {
         MockPostApi api = flare().create(MockPostApi.class);
-        File file = new File("/home/neo/Downloads/sample1.webp");
-        Res<String> res = api.uploadBinaryFile(file);
-        logRes(res);
+        Path tmp = createTempSampleFile();
+        try {
+            Res<String> res = api.uploadBinaryFile(tmp.toFile());
+            logRes(res);
+        } finally {
+            Files.deleteIfExists(tmp);
+        }
     }
 
     @Test
     public void uploadBinaryInputStream() throws IOException {
         MockPostApi api = flare().create(MockPostApi.class);
-        File file = new File("/home/neo/Downloads/sample1.webp");
-        FileInputStream fis = new FileInputStream(file);
-        Res<String> res = api.uploadBinaryInputStream(fis);
-        fis.close();
-        logRes(res);
+        Path tmp = createTempSampleFile();
+        try (FileInputStream fis = new FileInputStream(tmp.toFile())) {
+            Res<String> res = api.uploadBinaryInputStream(fis);
+            logRes(res);
+        } finally {
+            Files.deleteIfExists(tmp);
+        }
+    }
+
+    // Helper: create a temporary sample file from classpath resource or empty placeholder
+    private Path createTempSampleFile() throws IOException {
+        Path tmp = Files.createTempFile("sample1-", ".webp");
+        try (InputStream is = getClass().getResourceAsStream("/samples/sample1.webp")) {
+            if (is != null) {
+                Files.copy(is, tmp, StandardCopyOption.REPLACE_EXISTING);
+            } else {
+                Files.write(tmp, new byte[0]);
+            }
+        }
+        return tmp;
     }
 
     private Flare flare() {

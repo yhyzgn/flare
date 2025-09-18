@@ -3,7 +3,19 @@ server:
 
 spring:
   application:
-    name: flare-spring-boot-sample
+    name: flare-sample-app
 
+# Remote host used by sample interfaces
 flare:
   remote-host: http://localhost:8080
+  timeout: 6000
+  log-enabled: true
+  # Use system temp dir by default for downloads in CI-friendly manner
+  download-dir: ${user.home}/Downloads
+
+# Example overrides (uncomment and customize in local/dev environment)
+# logging:
+#   level:
+#     root: INFO
+#     com.yhy.http.flare: DEBUG
+

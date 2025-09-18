@@ -2,9 +2,6 @@ package com.yhy.http.flare.convert;
 
 import com.yhy.http.flare.Flare;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-
 /**
  * 字符串转换器
  * <p>
@@ -33,11 +30,9 @@ public interface StringConverter<T> {
         /**
          * 字符串转换器
          *
-         * @param type        类型
-         * @param annotations 注解
-         * @param flare       Flare
+         * @param flare Flare
          * @return 字符串转换器
          */
-        StringConverter<?> converter(Type type, Annotation[] annotations, Flare flare);
+        StringConverter<?> converter(Flare flare);
     }
 }

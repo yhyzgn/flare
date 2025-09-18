@@ -11,9 +11,6 @@ import org.springframework.context.annotation.Role;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-
 /**
  * Spring 实现的 StringConverter
  * <p>
@@ -31,7 +28,7 @@ public class SpringStringConverterFactory implements StringConverter.Factory, In
     private final Environment environment;
 
     @Override
-    public StringConverter<?> converter(Type type, Annotation[] annotations, Flare flare) {
+    public StringConverter<?> converter(Flare flare) {
         return new SpringStringConverter<>(environment);
     }
 

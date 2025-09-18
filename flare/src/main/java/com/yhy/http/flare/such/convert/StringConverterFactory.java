@@ -4,9 +4,6 @@ import com.yhy.http.flare.Flare;
 import com.yhy.http.flare.convert.StringConverter;
 import com.yhy.http.flare.utils.Opt;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-
 /**
  * 字符串转换器工厂
  * <p>
@@ -19,7 +16,7 @@ import java.lang.reflect.Type;
 public class StringConverterFactory implements StringConverter.Factory {
 
     @Override
-    public StringConverter<?> converter(Type type, Annotation[] annotations, Flare flare) {
+    public StringConverter<?> converter(Flare flare) {
         return new ToStringConverter<>();
     }
 

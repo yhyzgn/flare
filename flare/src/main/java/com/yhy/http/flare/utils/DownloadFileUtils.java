@@ -1,6 +1,7 @@
 package com.yhy.http.flare.utils;
 
 import com.yhy.http.flare.annotation.Download;
+import com.yhy.http.flare.convert.StringConverter;
 import com.yhy.http.flare.such.file.DownloadFileCreator;
 import com.yhy.http.flare.such.file.TempFileCreator;
 import org.apache.commons.io.FileUtils;
@@ -26,8 +27,8 @@ public abstract class DownloadFileUtils {
         throw new UnsupportedOperationException("Can not instantiate utils class");
     }
 
-    public static File write(Download annotation, InputStream inputStream) throws IOException {
-        File file = null != annotation ? DOWNLOAD_FILE_CREATOR.create(annotation) : TEMP_FILE_CREATOR.create(null);
+    public static File write(Download annotation, InputStream inputStream, StringConverter<String> stringConverter) throws IOException {
+        File file = null != annotation ? DOWNLOAD_FILE_CREATOR.create(annotation, stringConverter) : TEMP_FILE_CREATOR.create(null, stringConverter);
         FileUtils.copyInputStreamToFile(inputStream, file);
         return file;
     }

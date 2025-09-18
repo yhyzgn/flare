@@ -47,16 +47,16 @@ public class JacksonConverterFactory implements BodyConverter.Factory {
     @Override
     public @Nullable BodyConverter<?, RequestBody> requestBodyConverter(Type type, Annotation[] parameterAnnotations, Flare flare) {
         JavaType javaType = mapper.getTypeFactory().constructType(type);
-        return new JacksonRequestBodyBodyConverter<>(mapper, javaType);
+        return new JacksonRequestBodyBodyConverter<>(mapper, javaType, flare);
     }
 
     @Override
     public @Nullable BodyConverter<ResponseBody, ?> responseBodyConverter(Type type, Annotation[] annotations, Flare flare) {
         JavaType javaType = mapper.getTypeFactory().constructType(type);
-        return new JacksonResponseBodyBodyConverter<>(mapper, javaType, annotations);
+        return new JacksonResponseBodyBodyConverter<>(mapper, javaType, annotations, flare);
     }
 
-    private record JacksonRequestBodyBodyConverter<T>(ObjectMapper mapper, JavaType type) implements BodyConverter<T, RequestBody> {
+    private record JacksonRequestBodyBodyConverter<T>(ObjectMapper mapper, JavaType type, Flare flare) implements BodyConverter<T, RequestBody> {
         private static final MediaType MEDIA_TYPE = MediaType.get("application/json; charset=UTF-8");
         private static final Charset UTF_8 = StandardCharsets.UTF_8;
 
@@ -93,7 +93,7 @@ public class JacksonConverterFactory implements BodyConverter.Factory {
         }
     }
 
-    private record JacksonResponseBodyBodyConverter<T>(ObjectMapper mapper, JavaType type, Annotation[] annotations) implements BodyConverter<ResponseBody, T> {
+    private record JacksonResponseBodyBodyConverter<T>(ObjectMapper mapper, JavaType type, Annotation[] annotations, Flare flare) implements BodyConverter<ResponseBody, T> {
 
         @Override
         public Class<?> resultType() {
@@ -103,7 +103,7 @@ public class JacksonConverterFactory implements BodyConverter.Factory {
         @Nullable
         @Override
         public T convert(ResponseBody from) throws IOException {
-            return responseBodyResolve(from, annotations, fm -> mapper.readValue(fm.byteStream(), type));
+            return responseBodyResolve(from, annotations, fm -> mapper.readValue(fm.byteStream(), type), flare.stringConverter());
         }
     }
 }
