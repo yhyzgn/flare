@@ -13,7 +13,7 @@ import java.net.Socket;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class VoidSSLSocketFactory extends SSLSocketFactory {
+public final class VoidSSLSocketFactory extends SSLSocketFactory {
 
     @Override
     public String[] getDefaultCipherSuites() {

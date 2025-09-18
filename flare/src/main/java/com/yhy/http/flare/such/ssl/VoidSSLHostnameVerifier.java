@@ -12,7 +12,7 @@ import javax.net.ssl.SSLSession;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class VoidSSLHostnameVerifier implements HostnameVerifier {
+public final class VoidSSLHostnameVerifier implements HostnameVerifier {
 
     @Override
     public boolean verify(String hostname, SSLSession session) {

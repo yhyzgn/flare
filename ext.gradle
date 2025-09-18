@@ -46,10 +46,10 @@ ext {
             version    : "${version}",
             description: "Spring boot starter."
     ] as LinkedHashMap
-    starterSimple = [
-            artifact   : "flare-spring-boot-starter-simple",
+    bootSample = [
+            artifact   : "flare-spring-boot-sample",
             version    : "${version}",
-            description: "Spring boot starter simple."
+            description: "Spring boot starter sample."
     ] as LinkedHashMap
     mockServer = [
             artifact   : "flare-mock-server",

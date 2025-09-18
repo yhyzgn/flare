@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
  * 字符串工具类
@@ -460,5 +461,19 @@ public abstract class StringUtils {
             return null;
         }
         return trimStart(trimEnd(cs));
+    }
+
+    /**
+     * 判断处理配置变量 ${xxx.xxx}
+     *
+     * @param value 配置值
+     * @return true 表示存在置变量，false 表示不存在
+     */
+    public static boolean isPlaceholdersPresent(String value) {
+        return !isEmpty(value) && Pattern.matches(".*?\\$\\{\\s*[0-9a-zA-Z\\-_.]+\\s*?}.*", value);
+    }
+
+    public static boolean isBoolean(String text) {
+        return "true".equalsIgnoreCase(text) || "false".equalsIgnoreCase(text);
     }
 }
