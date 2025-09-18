@@ -340,12 +340,13 @@ flare:
 ```mermaid
 flowchart LR
   subgraph 客户端
-    A[Flare.Builder] --> B[API 代理 (flare.create)]
+    A[Flare.Builder] --> B["API 代理 (flare.create)"]
   end
-  B --> C[HTTP 请求]
-  C --> D[远端 HTTP 服务]
-  B -->|拦截器| E[拦截器（Interceptors）]
-  B -->|动态 Header| F[动态 Header 提供者]
+  B --> C["HTTP 请求"]
+  C --> D["远端 HTTP 服务"]
+  B -->|拦截器| E["拦截器（Interceptors）"]
+  B -->|动态 Header| F["动态 Header 提供者"]
+
   style A fill:#f9f,stroke:#333,stroke-width:2px
   style D fill:#bbf,stroke:#333,stroke-width:1px
 ```
