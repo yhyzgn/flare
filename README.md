@@ -437,12 +437,13 @@ Below is a high-level flowchart showing how the pieces fit together. GitHub (and
 ```mermaid
 flowchart LR
   subgraph Client
-    A[Flare.Builder] --> B[API Proxy (flare.create)]
+    A["Flare.Builder"] --> B["API Proxy (flare.create)"]
   end
-  B --> C[HTTP Request]
-  C --> D[Remote HTTP Server]
-  B -->|interceptors| E[Interceptors]
-  B -->|dynamic headers| F[Dynamic Header Providers]
+  B --> C["HTTP Request"]
+  C --> D["Remote HTTP Server"]
+  B -->|interceptors| E["Interceptors"]
+  B -->|dynamic headers| F["Dynamic Header Providers"]
+
   style A fill:#f9f,stroke:#333,stroke-width:2px
   style D fill:#bbf,stroke:#333,stroke-width:1px
 ```
