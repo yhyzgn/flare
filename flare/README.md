@@ -42,16 +42,15 @@ This module contains the core Flare HTTP client used by the project's tests. The
 
 ## 🗺️ Quick overview (visual)
 
-Client creation
+```mermaid
+flowchart LR
+    A["Flare.Builder<br/>(baseUrl, logs)"] -->|"create(interface)"| B["API Proxy<br/>(MockGetApi)"]
+    B -->|calls| C["HTTP Server"]
 
-   +----------------+      create(interface)      +-------------+
-   | Flare.Builder  | ---------------------------> | API Proxy   |
-   | baseUrl, logs  |                              | (MockGetApi) |
-   +----------------+                              +------+------+ 
-                                                          |
-                                                          | calls
-                                                          v
-                                                     HTTP server
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:1px
+    style C fill:#bfb,stroke:#333,stroke-width:1px
+```
 
 Extras:
 - 🧾 Dynamic header provider -> injected into requests (e.g. auth token)
@@ -215,7 +214,7 @@ To avoid failures in CI or different developer machines, avoid hard-coded absolu
 
 1) Create a temporary file at runtime (recommended for tests)
 
-```text
+```java
 // Java example (tests)
 Path tmp = Files.createTempFile("flare-test-", ".tmp");
 Files.write(tmp, byteArray); // write bytes if needed
@@ -227,7 +226,7 @@ Files.deleteIfExists(tmp);
 
 2) Project-relative resource (for sample data)
 
-```text
+```java
 // Put sample files under src/test/resources and load via classpath
 InputStream is = getClass().getResourceAsStream("/samples/sample1.webp");
 Res<String> res = api.uploadStream(is);
@@ -238,7 +237,7 @@ Notes:
 - Always close streams and delete temp files after use.
 - Update download examples to write to project temp dirs:
 
-```text
+```java
 Path out = Files.createTempFile("flare-download-", ".txt");
 // method annotated with @Download(filePath = out.toString(), overwrite = true)
 // or if the API accepts OutputStream, write directly to out
@@ -250,7 +249,7 @@ Path out = Files.createTempFile("flare-download-", ".txt");
 
 From the module root (flare), run the Gradle test task:
 
-```shell
+```bash
 ./gradlew :flare:test
 ```
 
@@ -277,14 +276,14 @@ This module includes unit/integration tests demonstrating Flare features (GET/PO
 
 Some tests require the mock server running at `http://localhost:8080`. From the repository root start the mock server module:
 
-```text
+```bash
 # start mock server (from repo root)
 ./gradlew :flare-mock-server:bootRun
 ```
 
 Or build and run the boot jar (CI friendly):
 
-```text
+```bash
 ./gradlew :flare-mock-server:bootJar
 java -jar ./flare/flare-mock-server/build/libs/flare-mock-server-0.1.0-boot.jar
 ```
@@ -293,7 +292,7 @@ java -jar ./flare/flare-mock-server/build/libs/flare-mock-server-0.1.0-boot.jar
 
 Run all tests in this module or run a single test class:
 
-```text
+```bash
 # all tests
 ./gradlew :flare:test
 
@@ -307,7 +306,7 @@ If tests fail with connection errors, verify the mock server is running.
 
 If you maintain a pom.xml and use Maven locally, you can run module tests via Maven (assuming artifacts are available locally):
 
-```text
+```bash
 mvn -f flare/pom.xml test
 mvn -f flare/pom.xml -Dtest=FlareGetTest test
 ```
@@ -330,7 +329,7 @@ Enable Flare logging (Flare.Builder.logEnabled(true)) to view request/response d
 - Use temporary files or classpath resources for upload/download tests to avoid hard-coded absolute paths. See 'CI-safe file handling' in the root README for examples using `Files.createTempFile`.
 - Start the mock server as a background step in CI before running module tests:
 
-```text
+```bash
 ./gradlew :flare-mock-server:bootRun &
 # wait for readiness (sleep or health-check)
 ./gradlew :flare:test
