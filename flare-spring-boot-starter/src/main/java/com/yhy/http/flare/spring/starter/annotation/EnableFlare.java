@@ -4,9 +4,11 @@ import com.yhy.http.flare.annotation.Header;
 import com.yhy.http.flare.annotation.Interceptor;
 import com.yhy.http.flare.spring.convert.ObjectMapperConverterFactory;
 import com.yhy.http.flare.spring.convert.SpringStringConverterFactory;
+import com.yhy.http.flare.spring.delegate.SpringDispatcherProviderDelegate;
 import com.yhy.http.flare.spring.delegate.SpringDynamicHeaderDelegate;
 import com.yhy.http.flare.spring.delegate.SpringInterceptorDelegate;
 import com.yhy.http.flare.spring.delegate.SpringMethodAnnotationDelegate;
+import com.yhy.http.flare.spring.provider.SpringDispatcherProvider;
 import com.yhy.http.flare.spring.starter.config.FlareStarterAutoConfiguration;
 import com.yhy.http.flare.spring.starter.register.FlareAutoRegister;
 import com.yhy.http.flare.such.interceptor.HttpLoggerInterceptor;
@@ -41,7 +43,9 @@ import java.lang.annotation.*;
         SpringStringConverterFactory.class,
         SpringDynamicHeaderDelegate.class,
         SpringInterceptorDelegate.class,
-        SpringMethodAnnotationDelegate.class
+        SpringMethodAnnotationDelegate.class,
+        SpringDispatcherProviderDelegate.class,
+        SpringDispatcherProvider.class
 })
 public @interface EnableFlare {
 

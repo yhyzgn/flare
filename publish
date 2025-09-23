@@ -1,0 +1,9 @@
+#!/bin/bash
+
+echo compiling...
+./gradlew clean compileJava
+echo compiling done.
+
+echopublishing...
+./gradlew publishAllPublicationsToMavenCentralRepository
+echo published.
