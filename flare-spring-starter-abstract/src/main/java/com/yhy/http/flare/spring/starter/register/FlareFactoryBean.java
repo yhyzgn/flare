@@ -2,11 +2,15 @@ package com.yhy.http.flare.spring.starter.register;
 
 import com.yhy.http.flare.Flare;
 import com.yhy.http.flare.annotation.Header;
+import com.yhy.http.flare.delegate.DispatcherProviderDelegate;
+import com.yhy.http.flare.provider.DispatcherProvider;
 import com.yhy.http.flare.spring.convert.ObjectMapperConverterFactory;
 import com.yhy.http.flare.spring.convert.SpringStringConverterFactory;
+import com.yhy.http.flare.spring.delegate.SpringDispatcherProviderDelegate;
 import com.yhy.http.flare.spring.delegate.SpringDynamicHeaderDelegate;
 import com.yhy.http.flare.spring.delegate.SpringInterceptorDelegate;
 import com.yhy.http.flare.spring.delegate.SpringMethodAnnotationDelegate;
+import com.yhy.http.flare.spring.provider.SpringDispatcherProvider;
 import com.yhy.http.flare.such.interceptor.HttpLoggerInterceptor;
 import com.yhy.http.flare.utils.StringUtils;
 import lombok.Setter;
@@ -74,6 +78,9 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
     private SpringDynamicHeaderDelegate dynamicHeaderDelegate;
     private SpringInterceptorDelegate interceptorDelegate;
     private SpringMethodAnnotationDelegate methodAnnotationDelegate;
+    private DispatcherProviderDelegate dispatcherProviderDelegate;
+
+    private DispatcherProvider dispatcherProvider;
 
     @Override
     public Object getObject() {
@@ -95,7 +102,10 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
                 .bodyConverterFactory(bodyConverterFactory)
                 .dynamicHeaderDelegate(dynamicHeaderDelegate)
                 .interceptorDelegate(interceptorDelegate)
-                .methodAnnotationDelegate(methodAnnotationDelegate);
+                .methodAnnotationDelegate(methodAnnotationDelegate)
+                .dispatcherProviderDelegate(dispatcherProviderDelegate)
+                .dispatcherProviderClass(SpringDispatcherProvider.class)
+                .dispatcherProvider(dispatcherProvider);
 
         if (!CollectionUtils.isEmpty(dynamicHeaderList)) {
             dynamicHeaderList.forEach(item -> {
@@ -153,6 +163,9 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
         this.dynamicHeaderDelegate = getInstance(SpringDynamicHeaderDelegate.class);
         this.interceptorDelegate = getInstance(SpringInterceptorDelegate.class);
         this.methodAnnotationDelegate = getInstance(SpringMethodAnnotationDelegate.class);
+        this.dispatcherProviderDelegate = getInstance(SpringDispatcherProviderDelegate.class);
+
+        this.dispatcherProvider = getInstance(SpringDispatcherProvider.class);
     }
 
     private <B> B getInstance(Class<B> clazz) {

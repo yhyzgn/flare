@@ -32,7 +32,7 @@ public class SpringDynamicHeaderDelegate implements DynamicHeaderDelegate, Initi
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         log.debug("SpringDynamicHeaderDelegate initialized");
     }
 }

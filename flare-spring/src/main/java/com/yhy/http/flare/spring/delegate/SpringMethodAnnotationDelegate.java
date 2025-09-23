@@ -43,7 +43,7 @@ public class SpringMethodAnnotationDelegate implements MethodAnnotationDelegate,
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         log.debug("SpringMethodAnnotationDelegate initialized");
     }
 }

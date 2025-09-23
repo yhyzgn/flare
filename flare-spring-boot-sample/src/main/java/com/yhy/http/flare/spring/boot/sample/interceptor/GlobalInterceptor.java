@@ -24,6 +24,7 @@ public class GlobalInterceptor implements Interceptor {
     @Override
     public @NotNull Response intercept(@NotNull Interceptor.Chain chain) throws IOException {
         log.info("GlobalInterceptor executing");
+        log.info("当前线程：{}，是否是虚拟线程：{}", Thread.currentThread().getName(), Thread.currentThread().isVirtual());
         return chain.proceed(chain.request());
     }
 }
