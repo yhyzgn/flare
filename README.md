@@ -9,7 +9,7 @@
 
 ![Maven Central](https://img.shields.io/maven-central/v/com.yhyzgn.http/flare-spring-starter-abstract?color=blueviolet&label=flare-spring-starter-abstract&style=flat-square&logo=spring) 
 
-![Maven Central](https://img.shields.io/maven-central/v/com.yhyzgn.http/flare-spring-boot-starter?color=brightgreen&label=flare-spring-boot-starter&style=flat-square&logo=springboot) 
+![Maven Central](https://img.shields.io/maven-central/v/com.yhyzgn.http/flare-spring-boot-starter?color=skyblue&label=flare-spring-boot-starter&style=flat-square&logo=springboot) 
 
 
 
