@@ -11,5 +11,5 @@ package com.yhy.http.flare.utils;
  */
 public interface Version {
 
-    String NAME = "1.0.1";
+    String NAME = "1.0.2";
 }

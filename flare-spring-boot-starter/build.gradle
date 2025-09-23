@@ -50,6 +50,8 @@ tasks.withType(GenerateModuleMetadata).configureEach {
     enabled = false
 }
 
+processResources.exclude('**/rebel.xml')
+
 // https://docs.spring.io/spring-boot/docs/current/gradle-plugin/reference/htmlsingle/#packaging-executable.and-plain-archives
 jar {
     enabled true
