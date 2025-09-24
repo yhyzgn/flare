@@ -131,7 +131,7 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
     }
 
     private void registerHttpAgent(BeanDefinitionRegistry registry, AnnotationMetadata meta, Map<String, Object> attrs) {
-        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(FlareFactoryBean.class);
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(flareFactoryBean());
         String className = meta.getClassName();
         String name = getName(attrs);
         String qualifier = getQualifier(attrs);
@@ -328,4 +328,8 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
     public abstract Class<? extends Annotation> enableAnnotation();
 
     public abstract Class<? extends Annotation> flareAnnotation();
+
+    public Class<? extends FlareFactoryBean> flareFactoryBean() {
+        return FlareFactoryBean.class;
+    }
 }
