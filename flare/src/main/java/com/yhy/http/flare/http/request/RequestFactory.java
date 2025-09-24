@@ -480,10 +480,9 @@ public class RequestFactory {
                     }
                 } else {
                     // 如果 value 为空，再从 pair 中获取
-                    Assert.notNull(header.pair(), ReflectUtils.methodError(method, "@Header pairName and pairValue can not be empty"));
-                    Assert.hasText(header.pair().name(), ReflectUtils.methodError(method, "@Header pairName can not be empty"));
-                    headerName = header.pair().name();
-                    headerValue = Opt.ofNullable(header.pair().value()).orElse("");
+                    Assert.hasText(header.pairName(), ReflectUtils.methodError(method, "@Header pairName can not be empty"));
+                    headerName = header.pairName();
+                    headerValue = Opt.ofNullable(header.pairValue()).orElse("");
                 }
 
                 if ("Content-Type".equalsIgnoreCase(headerName)) {

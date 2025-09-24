@@ -1,6 +1,9 @@
 package com.yhy.http.flare.spring.boot.sample.remote;
 
-import com.yhy.http.flare.annotation.*;
+import com.yhy.http.flare.annotation.FormData;
+import com.yhy.http.flare.annotation.Header;
+import com.yhy.http.flare.annotation.Interceptor;
+import com.yhy.http.flare.annotation.X3WFormUrlEncoded;
 import com.yhy.http.flare.annotation.method.Post;
 import com.yhy.http.flare.annotation.param.Binary;
 import com.yhy.http.flare.annotation.param.Body;
@@ -30,7 +33,7 @@ import java.io.InputStream;
 @Flare(
         baseUrl = "${flare.remote-host}/post",
         header = {
-                @Header(pair = @HeaderPair(name = "Post-Header", value = "Post-Value")),
+                @Header(pairName = "Post-Header", pairValue = "Post-Value"),
                 @Header(dynamic = PostDynamicHeader.class)
         },
         interceptor = {
@@ -45,7 +48,7 @@ public interface PostRemote {
     @FormData
     @Post("/form")
     @Interceptor(FormInterceptor.class)
-    @Header(pair = @HeaderPair(name = "Form-Header", value = "Form-Value"))
+    @Header(pairName = "Form-Header", pairValue = "Form-Value")
     Res<String> form(@Field("name") String name, @Field("age") int age, @Header("Param-Header") String headerValue);
 
     @FormData

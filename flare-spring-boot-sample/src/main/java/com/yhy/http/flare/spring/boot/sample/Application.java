@@ -1,7 +1,6 @@
 package com.yhy.http.flare.spring.boot.sample;
 
 import com.yhy.http.flare.annotation.Header;
-import com.yhy.http.flare.annotation.HeaderPair;
 import com.yhy.http.flare.annotation.Interceptor;
 import com.yhy.http.flare.spring.boot.sample.header.GlobalDynamicHeader;
 import com.yhy.http.flare.spring.boot.sample.interceptor.GlobalInterceptor;
@@ -20,8 +19,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @EnableFlare(
         header = {
-                @Header(pair = @HeaderPair(name = "Global-Fixed-Header", value = "123456")),
-                @Header(pair = @HeaderPair(name = "App-Name", value = "${spring.application.name}")),
+                @Header(pairName = "Global-Fixed-Header", pairValue = "123456"),
+                @Header(pairName = "App-Name", pairValue = "${spring.application.name}"),
                 @Header(dynamic = GlobalDynamicHeader.class)
         },
         interceptor = {

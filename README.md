@@ -380,7 +380,7 @@ Below are the common property keys used by sample modules and how to set/overrid
   - Purpose: controls whether logging is enabled when referenced in annotation attributes (e.g. `logEnabled = "${flare.log-enabled}"`).
 
 - `spring.application.name` (string)
-  - Purpose: used in sample code for header placeholders (e.g. `@Header(pair=@HeaderPair(name="App-Name", value="${spring.application.name}"))`).
+  - Purpose: used in sample code for header placeholders (e.g. `@Header(pairName="App-Name", pairValue="${spring.application.name}")`).
 
 How placeholders are used
 

@@ -29,11 +29,18 @@ public @interface Header {
     String value() default "";
 
     /**
+     * 请求头名称
+     *
+     * @return 请求头名称
+     */
+    String pairName() default "";
+
+    /**
      * 请求头值
      *
      * @return 请求头值
      */
-    HeaderPair pair() default @HeaderPair(name = "", value = "");
+    String pairValue() default "";
 
     /**
      * 动态构造请求头接口
