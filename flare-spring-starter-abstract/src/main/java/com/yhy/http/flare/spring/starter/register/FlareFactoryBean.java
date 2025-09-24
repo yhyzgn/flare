@@ -44,7 +44,7 @@ import java.util.Map;
  */
 @Slf4j
 public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, ApplicationContextAware {
-    private ApplicationContext context;
+    protected ApplicationContext context;
 
     @Setter
     private Class<? extends Annotation> flareAnnotation;
@@ -57,13 +57,13 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
     @Setter
     private long timeout;
     @Setter
-    private Map<String, List<String>> headers;
+    protected Map<String, List<String>> headers;
     @Setter
-    private List<Class<? extends Header.Dynamic>> dynamicHeaderList;
+    protected List<Class<? extends Header.Dynamic>> dynamicHeaderList;
     @Setter
-    private List<Class<? extends Interceptor>> interceptors;
+    protected List<Class<? extends Interceptor>> interceptors;
     @Setter
-    private List<Class<? extends Interceptor>> netInterceptors;
+    protected List<Class<? extends Interceptor>> netInterceptors;
     @Setter
     private Class<? extends SSLSocketFactory> sslSocketFactory;
     @Setter
@@ -94,6 +94,8 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
 
     @SuppressWarnings("unchecked")
     <T> T getTarget() {
+        beforeCreateFlare();
+
         Flare.Builder builder = new Flare.Builder()
                 .baseUrl(baseUrl)
                 .logEnabled(logEnabled)
@@ -166,14 +168,28 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
         this.dispatcherProviderDelegate = getInstance(SpringDispatcherProviderDelegate.class);
 
         this.dispatcherProvider = getInstance(SpringDispatcherProvider.class);
+
+        afterSetContext();
     }
 
-    private <B> B getInstance(Class<B> clazz) {
+    protected <B> B getInstance(Class<B> clazz) {
         try {
             return this.context.getBean(clazz);
         } catch (NoSuchBeanDefinitionException e) {
             log.error("", e);
             return null;
         }
+    }
+
+    /**
+     * 子类可重写此方法，在 {@link #setApplicationContext(ApplicationContext)} 之后执行
+     */
+    protected void afterSetContext() {
+    }
+
+    /**
+     * 子类可重写此方法，在 {@link #getTarget()} 之前执行
+     */
+    protected void beforeCreateFlare() {
     }
 }
