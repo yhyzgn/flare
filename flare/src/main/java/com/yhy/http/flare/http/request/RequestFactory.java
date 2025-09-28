@@ -479,7 +479,7 @@ public class RequestFactory {
                         throw new IllegalArgumentException(e);
                     }
                 } else {
-                    // 如果 value 为空，再从 pair 中获取
+                    // 如果 value 为空，再从 pairXxx 中获取
                     Assert.hasText(header.pairName(), ReflectUtils.methodError(method, "@Header pairName can not be empty"));
                     headerName = header.pairName();
                     headerValue = Opt.ofNullable(header.pairValue()).orElse("");

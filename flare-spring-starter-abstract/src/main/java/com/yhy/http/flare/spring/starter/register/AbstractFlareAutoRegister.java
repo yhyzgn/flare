@@ -177,7 +177,7 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
     private Map<String, List<String>> getHeader(Map<String, Object> attrs) {
         AnnotationAttributes[] headers = (AnnotationAttributes[]) attrs.get("header");
         if (null != headers && headers.length > 0) {
-            Map<String, List<String>> temp = Stream.of(headers).map(attr -> attr.getAnnotation("pair")).collect(Collectors.groupingBy(attr -> attr.getString("name"), Collectors.mapping(attr -> resolve(attr.getString("value")), Collectors.toList())));
+            Map<String, List<String>> temp = Stream.of(headers).collect(Collectors.groupingBy(attr -> attr.getString("pairName"), Collectors.mapping(attr -> resolve(attr.getString("pairValue")), Collectors.toList())));
             if (CollectionUtils.isEmpty(temp)) {
                 temp = headerMap;
             } else if (!CollectionUtils.isEmpty(headerMap)) {
