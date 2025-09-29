@@ -2,13 +2,15 @@ package com.yhy.http.flare.spring.delegate;
 
 import com.yhy.http.flare.annotation.Header;
 import com.yhy.http.flare.delegate.DynamicHeaderDelegate;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Role;
+import org.springframework.stereotype.Component;
 
 /**
  * Spring 实现的动态请求头注入代理
@@ -20,11 +22,10 @@ import org.springframework.context.annotation.Role;
  * @since 1.0.0
  */
 @Slf4j
-@RequiredArgsConstructor
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-@Configuration
-public class SpringDynamicHeaderDelegate implements DynamicHeaderDelegate, InitializingBean {
-    private final ApplicationContext context;
+@Component
+public class SpringDynamicHeaderDelegate implements DynamicHeaderDelegate, InitializingBean, ApplicationContextAware {
+    private ApplicationContext context;
 
     @Override
     public <T extends Header.Dynamic> T apply(Class<T> clazz) {
@@ -34,5 +35,10 @@ public class SpringDynamicHeaderDelegate implements DynamicHeaderDelegate, Initi
     @Override
     public void afterPropertiesSet() {
         log.debug("SpringDynamicHeaderDelegate initialized");
+    }
+
+    @Override
+    public void setApplicationContext(@NotNull ApplicationContext context) throws BeansException {
+        this.context = context;
     }
 }

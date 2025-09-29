@@ -1,14 +1,13 @@
 package com.yhy.http.flare.spring.delegate;
 
 import com.yhy.http.flare.delegate.MethodAnnotationDelegate;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.annotation.MergedAnnotations;
+import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.lang.annotation.Annotation;
@@ -27,9 +26,8 @@ import java.util.Objects;
  * @since 1.0.0
  */
 @Slf4j
-@RequiredArgsConstructor
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-@Configuration
+@Component
 public class SpringMethodAnnotationDelegate implements MethodAnnotationDelegate, InitializingBean {
 
     @Override

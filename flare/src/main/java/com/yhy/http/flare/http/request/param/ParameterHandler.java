@@ -161,7 +161,10 @@ public abstract class ParameterHandler<T> {
                 String etKey = et.getKey();
                 Assert.notNull(etKey, ReflectUtils.parameterError(method, index, "Query map contained null key."));
                 T etValue = et.getValue();
-                Assert.notNull(etValue, ReflectUtils.parameterError(method, index, "Query map contained null value for key '" + etKey + "'."));
+                if (null == etValue) {
+                    // Skip null values.
+                    continue;
+                }
                 Opt.ofNullable(converter.convert(etKey, etValue, encoded, null))
                         .ifValid(fieldList ->
                                 fieldList.forEach(field -> {
@@ -224,7 +227,10 @@ public abstract class ParameterHandler<T> {
                 String etKey = et.getKey();
                 Assert.notNull(etKey, ReflectUtils.parameterError(method, index, "Field map contained null key."));
                 T etValue = et.getValue();
-                Assert.notNull(etValue, ReflectUtils.parameterError(method, index, "Field map contained null value for key '" + etKey + "'."));
+                if (null == etValue) {
+                    // Skip null values.
+                    continue;
+                }
                 Opt.ofNullable(converter.convert(etKey, etValue, encoded, null))
                         .ifValid(fieldList ->
                                 fieldList.forEach(field ->
@@ -305,7 +311,11 @@ public abstract class ParameterHandler<T> {
                 String headerName = et.getKey();
                 Assert.hasText(headerName, ReflectUtils.parameterError(method, index, "Header map contained empty key."));
                 T headerValue = et.getValue();
-                builder.addHeader(headerName, null == headerValue ? "" : converter.convert(headerValue));
+                if (null == headerValue) {
+                    // Skip null values.
+                    continue;
+                }
+                builder.addHeader(headerName, converter.convert(headerValue));
             }
         }
     }

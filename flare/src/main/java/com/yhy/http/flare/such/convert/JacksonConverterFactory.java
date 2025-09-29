@@ -31,29 +31,32 @@ import java.nio.charset.StandardCharsets;
  * @since 1.0.0
  */
 public class JacksonConverterFactory implements BodyConverter.Factory {
-    private final ObjectMapper mapper;
+    private ObjectMapper objectMapper;
 
-    public JacksonConverterFactory() {
-        this(new ObjectMapper());
+    public void setObjectMapper(ObjectMapper objectMapper) {
+        // 排除json字符串中实体类没有的字段
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.findAndRegisterModules();
+        this.objectMapper = objectMapper;
     }
 
-    public JacksonConverterFactory(ObjectMapper mapper) {
-        // 排除json字符串中实体类没有的字段
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.findAndRegisterModules();
-        this.mapper = mapper;
+    public ObjectMapper getObjectMapper() {
+        if (null == objectMapper) {
+            setObjectMapper(new ObjectMapper());
+        }
+        return objectMapper;
     }
 
     @Override
     public @Nullable BodyConverter<?, RequestBody> requestBodyConverter(Type type, Annotation[] parameterAnnotations, Flare flare) {
-        JavaType javaType = mapper.getTypeFactory().constructType(type);
-        return new JacksonRequestBodyBodyConverter<>(mapper, javaType, flare);
+        JavaType javaType = getObjectMapper().getTypeFactory().constructType(type);
+        return new JacksonRequestBodyBodyConverter<>(getObjectMapper(), javaType, flare);
     }
 
     @Override
     public @Nullable BodyConverter<ResponseBody, ?> responseBodyConverter(Type type, Annotation[] annotations, Flare flare) {
-        JavaType javaType = mapper.getTypeFactory().constructType(type);
-        return new JacksonResponseBodyBodyConverter<>(mapper, javaType, annotations, flare);
+        JavaType javaType = getObjectMapper().getTypeFactory().constructType(type);
+        return new JacksonResponseBodyBodyConverter<>(getObjectMapper(), javaType, annotations, flare);
     }
 
     private record JacksonRequestBodyBodyConverter<T>(ObjectMapper mapper, JavaType type, Flare flare) implements BodyConverter<T, RequestBody> {
