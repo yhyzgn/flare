@@ -1,6 +1,6 @@
 ext {
     group = "com.yhyzgn.http"
-    version = "1.0.5"
+    version = "1.1.0"
     url = "github.com/yhyzgn/flare" as Object
     repository = [
             release : "https://oss.sonatype.org/service/local/staging/deploy/maven2/",
@@ -13,7 +13,7 @@ ext {
             commonsCollections4: "4.5.0",
             commonsCompress    : "1.28.0",
             commonsIo          : "2.20.0",
-            commonsLang3       : "3.18.0",
+            commonsLang3       : "3.19.0",
             commonsText        : "1.14.0",
             spring             : "6.2.11",
             jackson            : "2.20.0",

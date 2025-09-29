@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Role;
 public class FlareStarterAutoConfiguration implements InitializingBean {
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         log.info("Flare starter auto configuration is loaded.");
     }
 }

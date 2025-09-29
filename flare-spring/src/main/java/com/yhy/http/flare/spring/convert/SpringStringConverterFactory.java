@@ -3,10 +3,11 @@ package com.yhy.http.flare.spring.convert;
 import com.yhy.http.flare.Flare;
 import com.yhy.http.flare.convert.StringConverter;
 import com.yhy.http.flare.utils.StringUtils;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Role;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -21,11 +22,10 @@ import org.springframework.stereotype.Component;
  * @since 1.0.0
  */
 @Slf4j
-@RequiredArgsConstructor
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 @Component
-public class SpringStringConverterFactory implements StringConverter.Factory, InitializingBean {
-    private final Environment environment;
+public class SpringStringConverterFactory implements StringConverter.Factory, InitializingBean, EnvironmentAware {
+    private Environment environment;
 
     @Override
     public StringConverter<?> converter(Flare flare) {
@@ -33,8 +33,13 @@ public class SpringStringConverterFactory implements StringConverter.Factory, In
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         log.debug("SpringStringConverterFactory initialized");
+    }
+
+    @Override
+    public void setEnvironment(@NotNull Environment environment) {
+        this.environment = environment;
     }
 
     private record SpringStringConverter<T>(Environment environment) implements StringConverter<T> {
