@@ -1,5 +1,6 @@
 package com.yhy.http.flare;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yhy.http.flare.annotation.Header;
 import com.yhy.http.flare.cache.HandlerCache;
 import com.yhy.http.flare.call.CallAdapter;
@@ -593,7 +594,7 @@ public class Flare {
             Assert.notNull(baseUrl, "baseUrl cannot be null");
 
             callAdapterFactory = Opt.ofNullable(callAdapterFactory).orElse(new GuavaCallAdapter());
-            bodyConverterFactory = Opt.ofNullable(bodyConverterFactory).orElse(new JacksonConverterFactory());
+            bodyConverterFactory = Opt.ofNullable(bodyConverterFactory).orElse(new JacksonConverterFactory(new ObjectMapper()));
             stringConverterFactory = Opt.ofNullable(stringConverterFactory).orElse(new StringConverterFactory());
             formFieldConverterFactory = Opt.ofNullable(formFieldConverterFactory).orElse(new FormFieldConverterFactory());
 

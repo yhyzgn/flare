@@ -1,7 +1,6 @@
 package com.yhy.http.flare.such.convert;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yhy.http.flare.Flare;
@@ -31,32 +30,22 @@ import java.nio.charset.StandardCharsets;
  * @since 1.0.0
  */
 public class JacksonConverterFactory implements BodyConverter.Factory {
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
-    public void setObjectMapper(ObjectMapper objectMapper) {
-        // 排除json字符串中实体类没有的字段
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper.findAndRegisterModules();
-        this.objectMapper = objectMapper;
-    }
-
-    public ObjectMapper getObjectMapper() {
-        if (null == objectMapper) {
-            setObjectMapper(new ObjectMapper());
-        }
-        return objectMapper;
+    public JacksonConverterFactory(ObjectMapper mapper) {
+        this.objectMapper = mapper;
     }
 
     @Override
     public @Nullable BodyConverter<?, RequestBody> requestBodyConverter(Type type, Annotation[] parameterAnnotations, Flare flare) {
-        JavaType javaType = getObjectMapper().getTypeFactory().constructType(type);
-        return new JacksonRequestBodyBodyConverter<>(getObjectMapper(), javaType, flare);
+        JavaType javaType = objectMapper.getTypeFactory().constructType(type);
+        return new JacksonRequestBodyBodyConverter<>(objectMapper, javaType, flare);
     }
 
     @Override
     public @Nullable BodyConverter<ResponseBody, ?> responseBodyConverter(Type type, Annotation[] annotations, Flare flare) {
-        JavaType javaType = getObjectMapper().getTypeFactory().constructType(type);
-        return new JacksonResponseBodyBodyConverter<>(getObjectMapper(), javaType, annotations, flare);
+        JavaType javaType = objectMapper.getTypeFactory().constructType(type);
+        return new JacksonResponseBodyBodyConverter<>(objectMapper, javaType, annotations, flare);
     }
 
     private record JacksonRequestBodyBodyConverter<T>(ObjectMapper mapper, JavaType type, Flare flare) implements BodyConverter<T, RequestBody> {
