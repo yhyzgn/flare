@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yhy.http.flare.such.convert.JacksonConverterFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Role;
 import org.springframework.stereotype.Component;
@@ -23,10 +22,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class ObjectMapperConverterFactory extends JacksonConverterFactory implements InitializingBean {
 
-    @Autowired
-    @Override
-    public void setObjectMapper(ObjectMapper objectMapper) {
-        super.setObjectMapper(objectMapper);
+    public ObjectMapperConverterFactory(ObjectMapper mapper) {
+        super(mapper);
     }
 
     @Override

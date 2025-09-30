@@ -42,7 +42,7 @@ public interface BodyConverter<F, T> {
     Class<?> resultType();
 
     /**
-     * 目标对象类型
+     * 目标对象类型Z
      *
      * @param from     源对象
      * @param function 转换函数
