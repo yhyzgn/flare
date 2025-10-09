@@ -3,7 +3,12 @@ package com.yhy.http.flare.spring.starter.register;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yhy.http.flare.Flare;
 import com.yhy.http.flare.annotation.Header;
+import com.yhy.http.flare.convert.BodyConverter;
+import com.yhy.http.flare.convert.StringConverter;
 import com.yhy.http.flare.delegate.DispatcherProviderDelegate;
+import com.yhy.http.flare.delegate.DynamicHeaderDelegate;
+import com.yhy.http.flare.delegate.InterceptorDelegate;
+import com.yhy.http.flare.delegate.MethodAnnotationDelegate;
 import com.yhy.http.flare.provider.DispatcherProvider;
 import com.yhy.http.flare.spring.convert.ObjectMapperConverterFactory;
 import com.yhy.http.flare.spring.convert.SpringStringConverterFactory;
@@ -76,11 +81,11 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
     private Class<? extends Interceptor> loggerInterceptor;
 
     private ObjectMapper objectMapper;
-    private SpringStringConverterFactory stringConverterFactory;
-    private ObjectMapperConverterFactory bodyConverterFactory;
-    private SpringDynamicHeaderDelegate dynamicHeaderDelegate;
-    private SpringInterceptorDelegate interceptorDelegate;
-    private SpringMethodAnnotationDelegate methodAnnotationDelegate;
+    private StringConverter.Factory stringConverterFactory;
+    private BodyConverter.Factory bodyConverterFactory;
+    private DynamicHeaderDelegate dynamicHeaderDelegate;
+    private InterceptorDelegate interceptorDelegate;
+    private MethodAnnotationDelegate methodAnnotationDelegate;
     private DispatcherProviderDelegate dispatcherProviderDelegate;
 
     private DispatcherProvider dispatcherProvider;
@@ -159,14 +164,14 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
     private void initDelayedBeans() {
         // 初始化各个 Bean
         objectMapper = Opt.ofNullable(objectMapper).orElse(getInstance(ObjectMapper.class));
-        stringConverterFactory = getInstance(SpringStringConverterFactory.class);
-        bodyConverterFactory = getInstance(ObjectMapperConverterFactory.class);
-        dynamicHeaderDelegate = getInstance(SpringDynamicHeaderDelegate.class);
-        interceptorDelegate = getInstance(SpringInterceptorDelegate.class);
-        methodAnnotationDelegate = getInstance(SpringMethodAnnotationDelegate.class);
-        dispatcherProviderDelegate = getInstance(SpringDispatcherProviderDelegate.class);
+        stringConverterFactory = Opt.ofNullable(stringConverterFactory).orElse(getInstance(SpringStringConverterFactory.class));
+        bodyConverterFactory = Opt.ofNullable(bodyConverterFactory).orElse(getInstance(ObjectMapperConverterFactory.class));
+        dynamicHeaderDelegate = Opt.ofNullable(dynamicHeaderDelegate).orElse(getInstance(SpringDynamicHeaderDelegate.class));
+        interceptorDelegate = Opt.ofNullable(interceptorDelegate).orElse(getInstance(SpringInterceptorDelegate.class));
+        methodAnnotationDelegate = Opt.ofNullable(methodAnnotationDelegate).orElse(getInstance(SpringMethodAnnotationDelegate.class));
+        dispatcherProviderDelegate = Opt.ofNullable(dispatcherProviderDelegate).orElse(getInstance(SpringDispatcherProviderDelegate.class));
 
-        dispatcherProvider = getInstance(SpringDispatcherProvider.class);
+        dispatcherProvider = Opt.ofNullable(dispatcherProvider).orElse(getInstance(SpringDispatcherProvider.class));
     }
 
     @Override

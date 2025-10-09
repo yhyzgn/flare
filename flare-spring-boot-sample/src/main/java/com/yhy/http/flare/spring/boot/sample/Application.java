@@ -18,6 +18,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @since 1.0.0
  */
 @EnableFlare(
+        timeout = "${flare.timeout}",
         header = {
                 @Header(pairName = "Global-Fixed-Header", pairValue = "123456"),
                 @Header(pairName = "App-Name", pairValue = "${spring.application.name}"),

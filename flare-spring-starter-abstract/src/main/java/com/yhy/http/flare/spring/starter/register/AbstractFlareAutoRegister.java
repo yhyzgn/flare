@@ -1,6 +1,7 @@
 package com.yhy.http.flare.spring.starter.register;
 
 import com.yhy.http.flare.annotation.Header;
+import com.yhy.http.flare.model.FlareConst;
 import com.yhy.http.flare.such.interceptor.HttpLoggerInterceptor;
 import com.yhy.http.flare.such.ssl.VoidSSLHostnameVerifier;
 import com.yhy.http.flare.such.ssl.VoidSSLSocketFactory;
@@ -67,7 +68,7 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
     private List<Class<? extends Interceptor>> netInterceptorList = new ArrayList<>();
     private Boolean logEnabled;
     private Class<? extends Interceptor> loggerInterceptor;
-    private long timeout;
+    private Long timeout;
     private Dispatcher dispatcher;
     private Class<? extends SSLSocketFactory> sslSocketFactory;
     private Class<? extends X509TrustManager> sslTrustManager;
@@ -209,7 +210,13 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
         String str = resolve((String) attrs.get("timeout"));
         if (StringUtils.isNumeric(str)) {
             long temp = Long.parseLong(str);
-            return temp > 0 ? temp : timeout;
+            if (temp > 0) {
+                if (temp != FlareConst.Timeout.DEFAULT_MILLIS) {
+                    return temp;
+                }
+                return Opt.ofNullable(timeout).orElse(temp);
+            }
+            return Opt.ofNullable(timeout).orElse(FlareConst.Timeout.DEFAULT_MILLIS);
         }
         return timeout;
     }

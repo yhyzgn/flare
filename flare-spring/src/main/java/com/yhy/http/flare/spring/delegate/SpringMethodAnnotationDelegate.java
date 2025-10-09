@@ -4,6 +4,7 @@ import com.yhy.http.flare.delegate.MethodAnnotationDelegate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Role;
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.annotation.MergedAnnotations;
@@ -28,6 +29,7 @@ import java.util.Objects;
 @Slf4j
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 @Component
+@ConditionalOnMissingBean(MethodAnnotationDelegate.class)
 public class SpringMethodAnnotationDelegate implements MethodAnnotationDelegate, InitializingBean {
 
     @Override

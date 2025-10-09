@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Role;
 import org.springframework.core.env.Environment;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 @Component
+@ConditionalOnMissingBean(StringConverter.Factory.class)
 public class SpringStringConverterFactory implements StringConverter.Factory, InitializingBean, EnvironmentAware {
     private Environment environment;
 
