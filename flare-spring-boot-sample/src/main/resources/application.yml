@@ -8,7 +8,7 @@ spring:
 # Remote host used by sample interfaces
 flare:
   remote-host: http://localhost:8080
-  timeout: 6000
+  timeout: 60000
   log-enabled: true
   # Use system temp dir by default for downloads in CI-friendly manner
   download-dir: ${user.home}/Downloads

@@ -32,6 +32,7 @@ import java.io.InputStream;
  */
 @Flare(
         baseUrl = "${flare.remote-host}/post",
+        timeout = "8000",
         header = {
                 @Header(pairName = "Post-Header", pairValue = "Post-Value"),
                 @Header(dynamic = PostDynamicHeader.class)

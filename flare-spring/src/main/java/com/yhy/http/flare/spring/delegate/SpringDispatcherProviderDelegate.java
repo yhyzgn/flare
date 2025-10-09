@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Role;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 @Component
+@ConditionalOnMissingBean(DispatcherProviderDelegate.class)
 public class SpringDispatcherProviderDelegate implements DispatcherProviderDelegate, InitializingBean, ApplicationContextAware {
     private ApplicationContext context;
 

@@ -1,10 +1,12 @@
 package com.yhy.http.flare.spring.convert;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yhy.http.flare.convert.BodyConverter;
 import com.yhy.http.flare.such.convert.JacksonConverterFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Role;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 @Component
+@ConditionalOnMissingBean(BodyConverter.Factory.class)
 public class ObjectMapperConverterFactory extends JacksonConverterFactory implements InitializingBean {
 
     public ObjectMapperConverterFactory(ObjectMapper mapper) {

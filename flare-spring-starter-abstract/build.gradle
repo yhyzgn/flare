@@ -28,10 +28,10 @@ dependencies {
     testAnnotationProcessor "org.projectlombok:lombok:${libVersion.lombok}"
 
     testImplementation platform("org.junit:junit-bom:${libVersion.junit}")
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation "org.junit.jupiter:junit-jupiter:${libVersion.junit}"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${libVersion.junit}"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${libVersion.junit}"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher:${libVersion.junit}"
     testImplementation "org.slf4j:slf4j-simple:${libVersion.slf4j}"
 }
 

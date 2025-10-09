@@ -1,7 +1,9 @@
 package com.yhy.http.flare.spring.provider;
 
+import com.yhy.http.flare.provider.DispatcherProvider;
 import com.yhy.http.flare.such.provider.VirtualThreadDispatcherProvider;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Role;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Component;
  */
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 @Component
+@ConditionalOnMissingBean(DispatcherProvider.class)
 public class SpringDispatcherProvider extends VirtualThreadDispatcherProvider {
 }
 
