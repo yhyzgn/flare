@@ -79,6 +79,8 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
     private Class<? extends HostnameVerifier> sslHostnameVerifier;
     @Setter
     private Class<? extends Interceptor> loggerInterceptor;
+    @Setter
+    private boolean ignoreHttpStatus;
 
     private ObjectMapper objectMapper;
     private StringConverter.Factory stringConverterFactory;
@@ -108,17 +110,18 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
         initDelayedBeans();
 
         Flare.Builder builder = new Flare.Builder()
-                .baseUrl(baseUrl)
-                .logEnabled(logEnabled)
-                .timeout(timeout)
-                .stringConverterFactory(stringConverterFactory)
-                .bodyConverterFactory(bodyConverterFactory)
-                .dynamicHeaderDelegate(dynamicHeaderDelegate)
-                .interceptorDelegate(interceptorDelegate)
-                .methodAnnotationDelegate(methodAnnotationDelegate)
-                .dispatcherProviderDelegate(dispatcherProviderDelegate)
-                .dispatcherProviderClass(SpringDispatcherProvider.class)
-                .dispatcherProvider(dispatcherProvider);
+            .baseUrl(baseUrl)
+            .logEnabled(logEnabled)
+            .timeout(timeout)
+            .ignoreHttpStatus(ignoreHttpStatus)
+            .stringConverterFactory(stringConverterFactory)
+            .bodyConverterFactory(bodyConverterFactory)
+            .dynamicHeaderDelegate(dynamicHeaderDelegate)
+            .interceptorDelegate(interceptorDelegate)
+            .methodAnnotationDelegate(methodAnnotationDelegate)
+            .dispatcherProviderDelegate(dispatcherProviderDelegate)
+            .dispatcherProviderClass(SpringDispatcherProvider.class)
+            .dispatcherProvider(dispatcherProvider);
 
         if (!CollectionUtils.isEmpty(dynamicHeaderList)) {
             dynamicHeaderList.forEach(item -> {

@@ -57,4 +57,6 @@ public @interface Flare {
     Class<? extends X509TrustManager> sslTrustManager() default VoidSSLX509TrustManager.class;
 
     Class<? extends HostnameVerifier> sslHostnameVerifier() default VoidSSLHostnameVerifier.class;
+
+    boolean ignoreHttpStatus() default false;
 }
