@@ -151,6 +151,7 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
         builder.addPropertyValue("sslSocketFactory", getSSLSocketFactory(attrs));
         builder.addPropertyValue("sslTrustManager", getSSLTrustManager(attrs));
         builder.addPropertyValue("sslHostnameVerifier", getSSLHostnameVerifier(attrs));
+        builder.addPropertyValue("ignoreHttpStatus", getIgnoreHttpStatus(attrs));
         builder.setAutowireMode(AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE);
         builder.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         builder.setPrimary((Boolean) attrs.get("primary"));
@@ -258,6 +259,11 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
         // 优先使用 @Flare 作用域
         Class<? extends HostnameVerifier> temp = (Class<? extends HostnameVerifier>) attrs.get("sslHostnameVerifier");
         return null != temp && temp != VoidSSLHostnameVerifier.class ? temp : sslHostnameVerifier;
+    }
+
+    private boolean getIgnoreHttpStatus(Map<String, Object> attrs) {
+        // 目前仅支持 @Flare 作用域配置
+        return (boolean) attrs.get("ignoreHttpStatus");
     }
 
     public List<Class<? extends Header.Dynamic>> dynamicHeaderList(Map<String, Object> attrs) {

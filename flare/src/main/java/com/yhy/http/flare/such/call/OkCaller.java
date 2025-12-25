@@ -219,31 +219,31 @@ public class OkCaller<T> implements Caller<T> {
         OkHttpClient ok = flare.clientBuilder().build();
         // Copy the OkHttpClient's configuration to the builder.
         return new OkHttpClient.Builder()
-                .taskRunner$okhttp(ok.getTaskRunner$okhttp())
-                .dispatcher(ok.dispatcher())
-                .connectionPool(ok.connectionPool())
-                .eventListenerFactory(ok.eventListenerFactory())
-                .retryOnConnectionFailure(ok.retryOnConnectionFailure())
-                .authenticator(ok.authenticator())
-                .followRedirects(ok.followRedirects())
-                .followSslRedirects(ok.followSslRedirects())
-                .cookieJar(ok.cookieJar())
-                .cache(ok.cache())
-                .dns(ok.dns())
-                .proxy(ok.proxy())
-                .proxySelector(ok.proxySelector())
-                .proxyAuthenticator(ok.proxyAuthenticator())
-                .socketFactory(ok.socketFactory())
-                .connectionSpecs(ok.connectionSpecs())
-                .protocols(ok.protocols())
-                .sslSocketFactory(ok.sslSocketFactory(), Opt.ofNullable(ok.x509TrustManager()).orElse(flare.sslTrustManager().orElse(new VoidSSLX509TrustManager())))
-                .hostnameVerifier(ok.hostnameVerifier())
-                .certificatePinner(ok.certificatePinner())
-                .callTimeout(Duration.ofMillis(ok.callTimeoutMillis()))
-                .connectTimeout(Duration.ofMillis(ok.connectTimeoutMillis()))
-                .readTimeout(Duration.ofMillis(ok.readTimeoutMillis()))
-                .writeTimeout(Duration.ofMillis(ok.writeTimeoutMillis()))
-                .pingInterval(Duration.ofMillis(ok.pingIntervalMillis()));
+            .taskRunner$okhttp(ok.getTaskRunner$okhttp())
+            .dispatcher(ok.dispatcher())
+            .connectionPool(ok.connectionPool())
+            .eventListenerFactory(ok.eventListenerFactory())
+            .retryOnConnectionFailure(ok.retryOnConnectionFailure())
+            .authenticator(ok.authenticator())
+            .followRedirects(ok.followRedirects())
+            .followSslRedirects(ok.followSslRedirects())
+            .cookieJar(ok.cookieJar())
+            .cache(ok.cache())
+            .dns(ok.dns())
+            .proxy(ok.proxy())
+            .proxySelector(ok.proxySelector())
+            .proxyAuthenticator(ok.proxyAuthenticator())
+            .socketFactory(ok.socketFactory())
+            .connectionSpecs(ok.connectionSpecs())
+            .protocols(ok.protocols())
+            .sslSocketFactory(ok.sslSocketFactory(), Opt.ofNullable(ok.x509TrustManager()).orElse(flare.sslTrustManager().orElse(new VoidSSLX509TrustManager())))
+            .hostnameVerifier(ok.hostnameVerifier())
+            .certificatePinner(ok.certificatePinner())
+            .callTimeout(Duration.ofMillis(ok.callTimeoutMillis()))
+            .connectTimeout(Duration.ofMillis(ok.connectTimeoutMillis()))
+            .readTimeout(Duration.ofMillis(ok.readTimeoutMillis()))
+            .writeTimeout(Duration.ofMillis(ok.writeTimeoutMillis()))
+            .pingInterval(Duration.ofMillis(ok.pingIntervalMillis()));
     }
 
     private InternalResponse<T> parseResponse(okhttp3.Response rawResponse) throws IOException {
@@ -251,22 +251,24 @@ public class OkCaller<T> implements Caller<T> {
 
         // Remove the body's source (the only stateful object) so we can pass the response along.
         rawResponse = rawResponse.newBuilder()
-                .body(new NoContentResponseBody(rawBody.contentType(), rawBody.contentLength()))
-                .build();
+            .body(new NoContentResponseBody(rawBody.contentType(), rawBody.contentLength()))
+            .build();
 
-        int code = rawResponse.code();
-        if (code < 200 || code >= 300) {
-            try {
-                // Buffer the entire body to avoid future I/O.
-                return InternalResponse.error(rawResponse, BufferUtils.buffer(rawBody));
-            } finally {
-                rawBody.close();
+        // 根据配置决定是否忽略 HTTP 状态码
+        if (!flare.ignoreHttpStatus()) {
+            int code = rawResponse.code();
+            if (code < 200 || code >= 300) {
+                try {
+                    // Buffer the entire body to avoid future I/O.
+                    return InternalResponse.error(rawResponse, BufferUtils.buffer(rawBody));
+                } finally {
+                    rawBody.close();
+                }
             }
-        }
-
-        if (code == 204 || code == 205) {
-            rawBody.close();
-            return InternalResponse.success(rawResponse, null);
+            if (code == 204 || code == 205) {
+                rawBody.close();
+                return InternalResponse.success(rawResponse, null);
+            }
         }
 
         ExceptionCatchingResponseBody catchingBody = new ExceptionCatchingResponseBody(rawBody);

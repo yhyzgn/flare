@@ -67,6 +67,7 @@ public class Flare {
     private final SSLSocketFactory sslSocketFactory;
     private final X509TrustManager sslTrustManager;
     private final HostnameVerifier sslHostnameVerifier;
+    private final boolean ignoreHttpStatus;
 
     private Flare(Builder builder) {
         this.baseUrl = builder.baseUrl;
@@ -85,6 +86,7 @@ public class Flare {
         this.sslSocketFactory = builder.sslSocketFactory;
         this.sslTrustManager = builder.sslTrustManager;
         this.sslHostnameVerifier = builder.sslHostnameVerifier;
+        this.ignoreHttpStatus = builder.ignoreHttpStatus;
     }
 
     /**
@@ -189,6 +191,15 @@ public class Flare {
      */
     public Opt<HostnameVerifier> sslHostnameVerifier() {
         return Opt.ofNullable(sslHostnameVerifier);
+    }
+
+    /**
+     * 是否忽略 HTTP 状态码检查
+     *
+     * @return 是否忽略 HTTP 状态码检查
+     */
+    public boolean ignoreHttpStatus() {
+        return ignoreHttpStatus;
     }
 
     /**
@@ -336,6 +347,7 @@ public class Flare {
         private SSLSocketFactory sslSocketFactory;
         private X509TrustManager sslTrustManager;
         private HostnameVerifier sslHostnameVerifier;
+        private boolean ignoreHttpStatus;
         private Duration timeout;
 
         /**
@@ -538,6 +550,17 @@ public class Flare {
          */
         public Builder clientBuilder(OkHttpClient.Builder client) {
             this.clientBuilder = client;
+            return this;
+        }
+
+        /**
+         * 配置是否忽略 HTTP 状态码检查
+         *
+         * @param ignore 是否忽略 HTTP 状态码检查
+         * @return builder
+         */
+        public Builder ignoreHttpStatus(boolean ignore) {
+            this.ignoreHttpStatus = ignore;
             return this;
         }
 
