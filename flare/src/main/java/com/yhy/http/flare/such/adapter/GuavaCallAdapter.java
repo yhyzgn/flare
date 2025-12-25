@@ -27,13 +27,13 @@ public class GuavaCallAdapter implements CallAdapter.Factory {
     @Override
     public CallAdapter<?, ?> get(Type returnType, Annotation[] annotations, Flare flare) {
         if (getRawType(returnType) != InternalResponse.class) {
-            return new BodyCallAdapter<>(returnType);
+            return new BodyCallAdapter<>(returnType, flare);
         }
         Type responseType = getFirstParameterUpperBound((ParameterizedType) returnType);
         return new ResponseCallAdapter<>(responseType);
     }
 
-    private record BodyCallAdapter<R>(Type responseType) implements CallAdapter<R, R> {
+    private record BodyCallAdapter<R>(Type responseType, Flare flare) implements CallAdapter<R, R> {
 
         @Override
         public R adapt(Caller<R> caller, Object[] args) throws Exception {
@@ -42,11 +42,11 @@ public class GuavaCallAdapter implements CallAdapter.Factory {
                     caller.enqueue(new Callback<>() {
                         @Override
                         public void onResponse(Caller<R> caller, InternalResponse<R> response) {
-                            if (response.isSuccessful()) {
+                            if (flare.ignoreHttpStatus() || response.isSuccessful()) {
                                 set(response.body());
-                            } else {
-                                setException(new HttpException(response));
+                                return;
                             }
+                            setException(new HttpException(response));
                         }
 
                         @Override

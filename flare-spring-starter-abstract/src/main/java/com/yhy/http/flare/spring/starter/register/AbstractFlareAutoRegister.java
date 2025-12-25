@@ -263,7 +263,8 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
 
     private boolean getIgnoreHttpStatus(Map<String, Object> attrs) {
         // 目前仅支持 @Flare 作用域配置
-        return (boolean) attrs.get("ignoreHttpStatus");
+        Object temp = attrs.get("ignoreHttpStatus");
+        return null != temp && (boolean) temp;
     }
 
     public List<Class<? extends Header.Dynamic>> dynamicHeaderList(Map<String, Object> attrs) {
