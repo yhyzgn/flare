@@ -267,14 +267,14 @@ public class OkCaller<T> implements Caller<T> {
             }
             if (code == 204 || code == 205) {
                 rawBody.close();
-                return InternalResponse.success(rawResponse, null);
+                return InternalResponse.success(rawResponse, null, true);
             }
         }
 
         ExceptionCatchingResponseBody catchingBody = new ExceptionCatchingResponseBody(rawBody);
         try {
             T body = responseConverter.convert(catchingBody);
-            return InternalResponse.success(rawResponse, body);
+            return InternalResponse.success(rawResponse, body, flare.ignoreHttpStatus());
         } catch (RuntimeException e) {
             // If the underlying source threw an exception, propagate that rather than indicating it was
             // a runtime exception.

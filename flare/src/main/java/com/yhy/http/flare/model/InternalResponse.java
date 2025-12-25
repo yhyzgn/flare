@@ -54,9 +54,9 @@ public record InternalResponse<T>(Response rawResponse, T body, ResponseBody err
      * @param <T>         响应体类型
      * @return 成功的响应体
      */
-    public static <T> InternalResponse<T> success(Response rawResponse, T body) {
+    public static <T> InternalResponse<T> success(Response rawResponse, T body, boolean ignoreHttpStatus) {
         Assert.notNull(rawResponse, "rawResponse cannot be null");
-        Assert.isTrue(rawResponse.isSuccessful(), "rawResponse is not successful");
+        Assert.isTrue(ignoreHttpStatus || rawResponse.isSuccessful(), "rawResponse is not successful");
         return new InternalResponse<>(rawResponse, body, null);
     }
 
