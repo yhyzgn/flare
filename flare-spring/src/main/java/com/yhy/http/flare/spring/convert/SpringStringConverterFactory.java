@@ -2,7 +2,6 @@ package com.yhy.http.flare.spring.convert;
 
 import com.yhy.http.flare.Flare;
 import com.yhy.http.flare.convert.StringConverter;
-import com.yhy.http.flare.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.InitializingBean;
@@ -48,12 +47,7 @@ public class SpringStringConverterFactory implements StringConverter.Factory, In
 
         @Override
         public String convert(T from) {
-            String text = from.toString();
-            // 判断处理 Spring 配置变量 ${xxx.xxx}
-            if (StringUtils.isPlaceholdersPresent(text)) {
-                return environment.resolvePlaceholders(text);
-            }
-            return text;
+            return null == from ? null : environment.resolvePlaceholders(from.toString());
         }
     }
 }
