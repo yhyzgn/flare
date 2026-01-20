@@ -10,12 +10,14 @@ jobs:
     name: Release build
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
       
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 必须拉取所有历史，否则生成 Release Note 会为空
 
       - name: Extract Version Name
         id: extract_version
@@ -57,7 +59,7 @@ jobs:
           name: Release ${{ env.TAG_NAME }}
           # 自动生成更新日志（基于 commit 记录）
           generate_release_notes: true
-          # 如果你想把编译出的 jar 包也传到 Release 里，可以加上：
+          # 把编译出的 jar 包也传到 Release 里
           files: build/libs/*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
