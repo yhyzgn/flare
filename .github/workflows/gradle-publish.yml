@@ -19,7 +19,11 @@ jobs:
 
       - name: Extract Version Name
         id: extract_version
-        run: echo "VERSION_NAME=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+        run: |
+          # 提取版本号（去掉 v）
+          echo "VERSION_NAME=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+          # 保留原始 tag 名
+          echo "TAG_NAME=${GITHUB_REF_NAME}" >> $GITHUB_ENV
 
       - name: Update Version in ext.gradle
         run: |
@@ -36,10 +40,8 @@ jobs:
           cache: 'gradle' # 开启 Gradle 缓存，加快构建
 
       - name: Publish to Maven Central
-        run: ./publish
+        run: ./gradlew clean compileJava publishToMavenCentral --no-daemon
         env:
-          # 这一行非常重要，它把 Action 里的版本号传给了 build.gradle
-          VERSION_NAME: ${{ env.VERSION_NAME }}
           # 映射 GitHub Secrets 到 Gradle 环境变量
           # vanniktech 插件会自动识别这些特定的环境变量名
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MVNC_USERNAME }}
@@ -48,3 +50,14 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.SIGNING_KEY_ID }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
 
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          name: Release ${{ env.TAG_NAME }}
+          # 自动生成更新日志（基于 commit 记录）
+          generate_release_notes: true
+          # 如果你想把编译出的 jar 包也传到 Release 里，可以加上：
+          files: build/libs/*.jar
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
