@@ -122,16 +122,6 @@ javadoc {
     }
 }
 
-tasks.register('replaceVersion') {
-    ant.replaceregexp(
-            file: "./src/main/java/com/yhy/http/flare/utils/Version.java",
-            match: "String NAME = \"(.+)\"",
-            replace: "String NAME = \"${rootConfig.flare.version}\"",
-            flags: 'g',
-            byline: "true"
-    )
-}
-
 tasks.register('sourceJar', Jar) {
     archiveClassifier = 'sources'
     from sourceSets.main.allJava
