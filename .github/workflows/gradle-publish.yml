@@ -34,6 +34,13 @@ jobs:
           echo "Updated ./ext.gradle content:"
           cat ./ext.gradle
 
+      - name: Update Version in Version.java
+        run: |
+          echo "Updating version to ${{ env.VERSION_NAME }} in Version.java"
+          sed -i "s/NAME = \".*\"/NAME = \"${{ env.VERSION_NAME }}\"/g" ./flare/src/main/java/com/yhy/http/flare/utils/Version.java
+          echo "Updated Version.java content:"
+          cat ./flare/src/main/java/com/yhy/http/flare/utils/Version.java
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
