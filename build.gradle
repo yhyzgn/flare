@@ -35,7 +35,7 @@ subprojects {
     def rootConfig = rootProject.ext
 
     group rootConfig.group
-    version rootConfig.flare.version
+    version rootConfig.version
     def artifactId = it.name
 
     // flare, flare-spring, flare-spring-starter-abstract, flare-spring-boot-starter 这几个子模块可发布到 maven 仓库
