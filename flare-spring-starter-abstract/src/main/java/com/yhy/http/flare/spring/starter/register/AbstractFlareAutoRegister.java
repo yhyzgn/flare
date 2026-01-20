@@ -292,12 +292,8 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
     }
 
     private String resolve(String value) {
-        // 解析占位符
-        // 判断处理 Spring 配置变量 ${xxx.xxx}
-        if (StringUtils.isPlaceholdersPresent(value)) {
-            return environment.resolvePlaceholders(value);
-        }
-        return value;
+        // 解析占位符，处理 Spring 配置变量 ${xxx.xxx}
+        return environment.resolvePlaceholders(value);
     }
 
     private Set<String> getBasePackages(AnnotationMetadata metadata) {
