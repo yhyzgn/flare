@@ -313,14 +313,17 @@ public class Flare {
      * @return HttpHandler
      */
     private HttpHandler<?> loadHttpMethod(Method method) {
-        HttpHandler<?> result = HandlerCache.get(method);
-        if (null != result) {
-            return result;
-        }
-        // 解析方法注解
-        result = HttpHandlerAdapter.parseAnnotations(this, method);
-        HandlerCache.put(method, result);
-        return result;
+        // HttpHandler<?> result = HandlerCache.get(method);
+        // if (null != result) {
+        //     return result;
+        // }
+        // // 解析方法注解
+        // result = HttpHandlerAdapter.parseAnnotations(this, method);
+        // HandlerCache.put(method, result);
+        // return result;
+
+        // 先关闭缓存
+        return HttpHandlerAdapter.parseAnnotations(this, method);
     }
 
     public static class Builder {
