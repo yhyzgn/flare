@@ -2,7 +2,6 @@ package com.yhy.http.flare;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yhy.http.flare.annotation.Header;
-import com.yhy.http.flare.cache.HandlerCache;
 import com.yhy.http.flare.call.CallAdapter;
 import com.yhy.http.flare.convert.BodyConverter;
 import com.yhy.http.flare.convert.FormFieldConverter;
@@ -307,22 +306,12 @@ public class Flare {
     }
 
     /**
-     * 从缓存中加载方法对应的 HttpHandler
+     * 加载方法对应的 HttpHandler
      *
      * @param method 方法
      * @return HttpHandler
      */
     private HttpHandler<?> loadHttpMethod(Method method) {
-        // HttpHandler<?> result = HandlerCache.get(method);
-        // if (null != result) {
-        //     return result;
-        // }
-        // // 解析方法注解
-        // result = HttpHandlerAdapter.parseAnnotations(this, method);
-        // HandlerCache.put(method, result);
-        // return result;
-
-        // 先关闭缓存
         return HttpHandlerAdapter.parseAnnotations(this, method);
     }
 

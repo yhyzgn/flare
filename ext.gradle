@@ -8,7 +8,6 @@ ext {
     ] as LinkedHashMap
     lib = [
             jetbrains          : "26.0.2",
-            caffeine           : "3.2.3",
             commonsCodec       : "1.20.0",
             commonsCollections4: "4.5.0",
             commonsCompress    : "1.28.0",
