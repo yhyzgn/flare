@@ -5,17 +5,11 @@ import com.yhy.http.flare.Flare;
 import com.yhy.http.flare.annotation.Header;
 import com.yhy.http.flare.convert.BodyConverter;
 import com.yhy.http.flare.convert.StringConverter;
-import com.yhy.http.flare.delegate.DispatcherProviderDelegate;
-import com.yhy.http.flare.delegate.DynamicHeaderDelegate;
-import com.yhy.http.flare.delegate.InterceptorDelegate;
-import com.yhy.http.flare.delegate.MethodAnnotationDelegate;
+import com.yhy.http.flare.delegate.*;
 import com.yhy.http.flare.provider.DispatcherProvider;
 import com.yhy.http.flare.spring.convert.ObjectMapperConverterFactory;
 import com.yhy.http.flare.spring.convert.SpringStringConverterFactory;
-import com.yhy.http.flare.spring.delegate.SpringDispatcherProviderDelegate;
-import com.yhy.http.flare.spring.delegate.SpringDynamicHeaderDelegate;
-import com.yhy.http.flare.spring.delegate.SpringInterceptorDelegate;
-import com.yhy.http.flare.spring.delegate.SpringMethodAnnotationDelegate;
+import com.yhy.http.flare.spring.delegate.*;
 import com.yhy.http.flare.spring.provider.SpringDispatcherProvider;
 import com.yhy.http.flare.such.interceptor.HttpLoggerInterceptor;
 import com.yhy.http.flare.utils.Opt;
@@ -89,6 +83,7 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
     private InterceptorDelegate interceptorDelegate;
     private MethodAnnotationDelegate methodAnnotationDelegate;
     private DispatcherProviderDelegate dispatcherProviderDelegate;
+    private ExceptionResolverDelegate exceptionResolverDelegate;
 
     private DispatcherProvider dispatcherProvider;
 
@@ -121,7 +116,8 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
             .methodAnnotationDelegate(methodAnnotationDelegate)
             .dispatcherProviderDelegate(dispatcherProviderDelegate)
             .dispatcherProviderClass(SpringDispatcherProvider.class)
-            .dispatcherProvider(dispatcherProvider);
+            .dispatcherProvider(dispatcherProvider)
+            .exceptionResolverDelegate(exceptionResolverDelegate);
 
         if (!CollectionUtils.isEmpty(dynamicHeaderList)) {
             dynamicHeaderList.forEach(item -> {
@@ -173,6 +169,7 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
         interceptorDelegate = Opt.ofNullable(interceptorDelegate).orElse(getInstance(SpringInterceptorDelegate.class));
         methodAnnotationDelegate = Opt.ofNullable(methodAnnotationDelegate).orElse(getInstance(SpringMethodAnnotationDelegate.class));
         dispatcherProviderDelegate = Opt.ofNullable(dispatcherProviderDelegate).orElse(getInstance(SpringDispatcherProviderDelegate.class));
+        exceptionResolverDelegate = Opt.ofNullable(exceptionResolverDelegate).orElse(getInstance(SpringExceptionResolverDelegate.class));
 
         dispatcherProvider = Opt.ofNullable(dispatcherProvider).orElse(getInstance(SpringDispatcherProvider.class));
     }

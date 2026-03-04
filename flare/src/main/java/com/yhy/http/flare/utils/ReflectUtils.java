@@ -236,14 +236,14 @@ public abstract class ReflectUtils {
                     Type componentType = original.getComponentType();
                     Type newComponentType = resolve(context, contextRawType, componentType);
                     return componentType == newComponentType ? original : new GenericArrayTypeImpl(
-                            newComponentType);
+                        newComponentType);
 
                 }
                 case GenericArrayType original -> {
                     Type componentType = original.getGenericComponentType();
                     Type newComponentType = resolve(context, contextRawType, componentType);
                     return componentType == newComponentType ? original : new GenericArrayTypeImpl(
-                            newComponentType);
+                        newComponentType);
 
                 }
                 case ParameterizedType original -> {
@@ -264,8 +264,8 @@ public abstract class ReflectUtils {
                     }
 
                     return changed
-                            ? new ParameterizedTypeImpl(newOwnerType, original.getRawType(), args)
-                            : original;
+                        ? new ParameterizedTypeImpl(newOwnerType, original.getRawType(), args)
+                        : original;
                 }
                 case WildcardType original -> {
                     Type[] originalLowerBound = original.getLowerBounds();
@@ -298,10 +298,10 @@ public abstract class ReflectUtils {
     public static RuntimeException methodError(Method method, @Nullable Throwable cause, String message, Object... args) {
         message = String.format(message, args);
         return new IllegalArgumentException(message
-                + "\n    for method "
-                + method.getDeclaringClass().getSimpleName()
-                + "."
-                + method.getName(), cause);
+            + "\n    for method "
+            + method.getDeclaringClass().getSimpleName()
+            + "."
+            + method.getName(), cause);
     }
 
     public static RuntimeException parameterError(Method method, Throwable cause, int position, String message, Object... args) {
@@ -352,10 +352,10 @@ public abstract class ReflectUtils {
      */
     public static boolean isPrimitiveOrString(Class<?> clazz) {
         return clazz.isPrimitive()
-                || Number.class.isAssignableFrom(clazz)
-                || clazz == Boolean.class
-                || clazz == Character.class
-                || clazz == String.class;
+            || Number.class.isAssignableFrom(clazz)
+            || clazz == Boolean.class
+            || clazz == Character.class
+            || clazz == String.class;
     }
 
     public static Object getValue(Field field, Object obj) {
@@ -379,7 +379,7 @@ public abstract class ReflectUtils {
         ParameterizedTypeImpl(@Nullable Type ownerType, Type rawType, Type... typeArguments) {
             // Require an owner type if the raw type needs it.
             if (rawType instanceof Class<?>
-                    && (ownerType == null) != (((Class<?>) rawType).getEnclosingClass() == null)) {
+                && (ownerType == null) != (((Class<?>) rawType).getEnclosingClass() == null)) {
                 throw new IllegalArgumentException();
             }
 
@@ -417,8 +417,8 @@ public abstract class ReflectUtils {
         @Override
         public int hashCode() {
             return Arrays.hashCode(typeArguments)
-                    ^ rawType.hashCode()
-                    ^ (ownerType != null ? ownerType.hashCode() : 0);
+                ^ rawType.hashCode()
+                ^ (ownerType != null ? ownerType.hashCode() : 0);
         }
 
         @Override
