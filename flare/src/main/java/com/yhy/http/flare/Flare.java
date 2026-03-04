@@ -2,14 +2,14 @@ package com.yhy.http.flare;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yhy.http.flare.annotation.Header;
+import com.yhy.http.flare.annotation.exception.Catcher;
+import com.yhy.http.flare.annotation.exception.Catchers;
+import com.yhy.http.flare.annotation.exception.ErrorIgnored;
 import com.yhy.http.flare.call.CallAdapter;
 import com.yhy.http.flare.convert.BodyConverter;
 import com.yhy.http.flare.convert.FormFieldConverter;
 import com.yhy.http.flare.convert.StringConverter;
-import com.yhy.http.flare.delegate.DispatcherProviderDelegate;
-import com.yhy.http.flare.delegate.DynamicHeaderDelegate;
-import com.yhy.http.flare.delegate.InterceptorDelegate;
-import com.yhy.http.flare.delegate.MethodAnnotationDelegate;
+import com.yhy.http.flare.delegate.*;
 import com.yhy.http.flare.http.HttpHandler;
 import com.yhy.http.flare.http.HttpHandlerAdapter;
 import com.yhy.http.flare.provider.DispatcherProvider;
@@ -17,14 +17,13 @@ import com.yhy.http.flare.such.adapter.GuavaCallAdapter;
 import com.yhy.http.flare.such.convert.FormFieldConverterFactory;
 import com.yhy.http.flare.such.convert.JacksonConverterFactory;
 import com.yhy.http.flare.such.convert.StringConverterFactory;
-import com.yhy.http.flare.such.delegate.ConstructorDispatcherProviderDelegate;
-import com.yhy.http.flare.such.delegate.ConstructorDynamicHeaderDelegate;
-import com.yhy.http.flare.such.delegate.ConstructorInterceptorDelegate;
-import com.yhy.http.flare.such.delegate.ConstructorMethodAnnotationDelegate;
+import com.yhy.http.flare.such.delegate.*;
 import com.yhy.http.flare.such.interceptor.HttpLoggerInterceptor;
 import com.yhy.http.flare.such.provider.VirtualThreadDispatcherProvider;
 import com.yhy.http.flare.utils.Assert;
+import com.yhy.http.flare.utils.ExceptionUtils;
 import com.yhy.http.flare.utils.Opt;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,6 +37,7 @@ import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.time.Duration;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 一个 HTTP 请求客户端
@@ -48,6 +48,7 @@ import java.util.*;
  * @version 1.0.0
  * @since 1.0.0
  */
+@Slf4j
 @SuppressWarnings("unused")
 public class Flare {
     private final HttpUrl baseUrl;
@@ -58,6 +59,7 @@ public class Flare {
     private final DynamicHeaderDelegate dynamicHeaderDelegate;
     private final InterceptorDelegate interceptorDelegate;
     private final MethodAnnotationDelegate methodAnnotationDelegate;
+    private final ExceptionResolverDelegate exceptionResolverDelegate;
     private final OkHttpClient.Builder clientBuilder;
     private final CallAdapter.Factory callAdapterFactory;
     private final BodyConverter.Factory bodyConverterFactory;
@@ -77,6 +79,7 @@ public class Flare {
         this.dynamicHeaderDelegate = builder.dynamicHeaderDelegate;
         this.interceptorDelegate = builder.interceptorDelegate;
         this.methodAnnotationDelegate = builder.methodAnnotationDelegate;
+        this.exceptionResolverDelegate = builder.exceptionResolverDelegate;
         this.clientBuilder = builder.clientBuilder;
         this.callAdapterFactory = builder.callAdapterFactory;
         this.bodyConverterFactory = builder.bodyConverterFactory;
@@ -282,12 +285,7 @@ public class Flare {
     public <T> T create(Class<T> api) {
         Objects.requireNonNull(api, "api can not be null.");
         validateInterface(api);
-        return (T) Proxy.newProxyInstance(api.getClassLoader(), new Class<?>[]{api}, (proxy, method, args) -> {
-            if (method.getDeclaringClass() == Object.class) {
-                return method.invoke(this, args);
-            }
-            return loadHttpMethod(method).invoke(null != args ? args : new Object[0]);
-        });
+        return (T) Proxy.newProxyInstance(api.getClassLoader(), new Class<?>[]{api}, this::proxyWithCatcher);
     }
 
     /**
@@ -315,6 +313,69 @@ public class Flare {
         return HttpHandlerAdapter.parseAnnotations(this, method);
     }
 
+    /**
+     * 代理方法，添加异常捕获功能
+     *
+     * @param proxy  代理对象
+     * @param method 方法
+     * @param args   参数
+     * @return 方法返回值
+     * @throws Throwable 异常
+     */
+    private Object proxyWithCatcher(Object proxy, Method method, Object[] args) throws Throwable {
+        method.setAccessible(true);
+
+        // 是否已经忽略异常
+        if (method.isAnnotationPresent(ErrorIgnored.class)) {
+            try {
+                return proxyInvoke(proxy, method, args);
+            } catch (Throwable e) {
+                log.error("Error occurred but ignored when trying to invoke the method {}", method.getName(), e);
+            }
+            return null;
+        }
+
+        // 获取异常处理器注解
+        List<Catcher> catchers = new ArrayList<>();
+        Catchers catcher = method.getAnnotation(Catchers.class);
+        if (null != catcher && catcher.value().length > 0) {
+            catchers.addAll(Arrays.asList(catcher.value()));
+        }
+        if (method.isAnnotationPresent(Catcher.class)) {
+            catchers.add(method.getAnnotation(Catcher.class));
+        }
+        // 执行方法
+        try {
+            return proxyInvoke(proxy, method, args);
+        } catch (Throwable e) {
+            if (!catchers.isEmpty()) {
+                List<Class<? extends Throwable>> catcherClasses = catchers.stream().map(Catcher::throwable).collect(Collectors.toList());
+                if (!catcherClasses.isEmpty() && ExceptionUtils.dispatch(catcherClasses, e)) {
+                    // 异常已被处理
+                    return null;
+                }
+            }
+            // 未被处理的异常，继续抛出
+            throw e;
+        }
+    }
+
+    /**
+     * 执行代理方法
+     *
+     * @param proxy  代理对象
+     * @param method 方法
+     * @param args   参数
+     * @return 方法返回值
+     * @throws Throwable 异常
+     */
+    private Object proxyInvoke(Object proxy, Method method, Object[] args) throws Throwable {
+        if (method.getDeclaringClass() == Object.class) {
+            return method.invoke(this, args);
+        }
+        return loadHttpMethod(method).invoke(null != args ? args : new Object[0]);
+    }
+
     public static class Builder {
         private final List<Interceptor> netInterceptors = new ArrayList<>();
         private final List<Interceptor> interceptors = new ArrayList<>();
@@ -325,6 +386,7 @@ public class Flare {
         private DynamicHeaderDelegate dynamicHeaderDelegate;
         private InterceptorDelegate interceptorDelegate;
         private MethodAnnotationDelegate methodAnnotationDelegate;
+        public ExceptionResolverDelegate exceptionResolverDelegate;
         private Dispatcher dispatcher;
         private DispatcherProviderDelegate dispatcherProviderDelegate;
         private Class<? extends DispatcherProvider> dispatcherProviderClass;
@@ -416,6 +478,17 @@ public class Flare {
          */
         public Builder methodAnnotationDelegate(MethodAnnotationDelegate delegate) {
             this.methodAnnotationDelegate = delegate;
+            return this;
+        }
+
+        /**
+         * 配置异常处理器委托实例
+         *
+         * @param delegate 异常处理器委托实例
+         * @return builder
+         */
+        public Builder exceptionResolverDelegate(ExceptionResolverDelegate delegate) {
+            this.exceptionResolverDelegate = delegate;
             return this;
         }
 
@@ -617,6 +690,7 @@ public class Flare {
             interceptorDelegate = Opt.ofNullable(interceptorDelegate).orElse(ConstructorInterceptorDelegate.create());
             methodAnnotationDelegate = Opt.ofNullable(methodAnnotationDelegate).orElse(ConstructorMethodAnnotationDelegate.create());
             dispatcherProviderDelegate = Opt.ofNullable(dispatcherProviderDelegate).orElse(ConstructorDispatcherProviderDelegate.create());
+            exceptionResolverDelegate = Opt.ofNullable(exceptionResolverDelegate).orElse(ConstructorExceptionResolverDelegate.create());
 
             // 默认的请求分发器提供者和请求分发器
             dispatcherProviderClass = null != dispatcherProviderClass ? dispatcherProviderClass : VirtualThreadDispatcherProvider.class;

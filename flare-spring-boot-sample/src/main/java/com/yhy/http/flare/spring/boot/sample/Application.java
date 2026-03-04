@@ -18,15 +18,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @since 1.0.0
  */
 @EnableFlare(
-        timeout = "${flare.timeout}",
-        header = {
-                @Header(pairName = "Global-Fixed-Header", pairValue = "123456"),
-                @Header(pairName = "App-Name", pairValue = "${spring.application.name}"),
-                @Header(dynamic = GlobalDynamicHeader.class)
-        },
-        interceptor = {
-                @Interceptor(GlobalInterceptor.class)
-        }
+    timeout = "${flare.timeout}",
+    header = {
+        @Header(pairName = "Global-Fixed-Header", pairValue = "123456"),
+        @Header(pairName = "App-Name", pairValue = "${spring.application.name}"),
+        @Header(dynamic = GlobalDynamicHeader.class)
+    },
+    interceptor = {
+        @Interceptor(GlobalInterceptor.class)
+    }
 )
 @SpringBootApplication
 public class Application {
