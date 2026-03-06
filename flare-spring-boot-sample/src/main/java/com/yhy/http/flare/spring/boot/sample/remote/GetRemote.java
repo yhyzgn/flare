@@ -52,7 +52,7 @@ public interface GetRemote {
     @Get("/query/{name}/{age}")
     Res<String> queryPath(@Path("name") String name, @Path("age") int age);
 
-    @Catcher
+    @Catcher(throwable = TimeoutException.class, resolver = TimeoutExceptionResolver.class)
     @Get("/queryUser")
     Res<User> queryUser(@Query User user);
 
@@ -62,10 +62,10 @@ public interface GetRemote {
     @Get("query")
     Res<String> queryDefault(@Query String name, @Query int age);
 
-    @Catcher(throwable = TimeoutException.class, resolver = TimeoutExceptionResolver.class)
     @Get("/index")
     ResponseBody forBody();
 
+    @Catcher(resolver = TimeoutExceptionResolver.class)
     @Get("/index")
     byte[] forBytes();
 

@@ -367,8 +367,8 @@ public final class Opt<T> {
     @Override
     public String toString() {
         return value != null
-                ? ("Opt[" + value + "]")
-                : "Opt.empty";
+            ? ("Opt[" + value + "]")
+            : "Opt.empty";
     }
 
     @FunctionalInterface

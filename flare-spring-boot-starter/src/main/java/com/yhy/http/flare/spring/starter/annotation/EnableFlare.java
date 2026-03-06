@@ -4,10 +4,7 @@ import com.yhy.http.flare.annotation.Header;
 import com.yhy.http.flare.annotation.Interceptor;
 import com.yhy.http.flare.spring.convert.ObjectMapperConverterFactory;
 import com.yhy.http.flare.spring.convert.SpringStringConverterFactory;
-import com.yhy.http.flare.spring.delegate.SpringDispatcherProviderDelegate;
-import com.yhy.http.flare.spring.delegate.SpringDynamicHeaderDelegate;
-import com.yhy.http.flare.spring.delegate.SpringInterceptorDelegate;
-import com.yhy.http.flare.spring.delegate.SpringMethodAnnotationDelegate;
+import com.yhy.http.flare.spring.delegate.*;
 import com.yhy.http.flare.spring.provider.SpringDispatcherProvider;
 import com.yhy.http.flare.spring.starter.config.FlareStarterAutoConfiguration;
 import com.yhy.http.flare.spring.starter.register.FlareAutoRegister;
@@ -37,15 +34,16 @@ import java.lang.annotation.*;
 @Documented
 @Inherited
 @Import({
-        FlareAutoRegister.class,
-        FlareStarterAutoConfiguration.class,
-        ObjectMapperConverterFactory.class,
-        SpringStringConverterFactory.class,
-        SpringDynamicHeaderDelegate.class,
-        SpringInterceptorDelegate.class,
-        SpringMethodAnnotationDelegate.class,
-        SpringDispatcherProviderDelegate.class,
-        SpringDispatcherProvider.class
+    FlareAutoRegister.class,
+    FlareStarterAutoConfiguration.class,
+    ObjectMapperConverterFactory.class,
+    SpringStringConverterFactory.class,
+    SpringDynamicHeaderDelegate.class,
+    SpringInterceptorDelegate.class,
+    SpringMethodAnnotationDelegate.class,
+    SpringDispatcherProviderDelegate.class,
+    SpringExceptionResolverDelegate.class,
+    SpringDispatcherProvider.class
 })
 public @interface EnableFlare {
 

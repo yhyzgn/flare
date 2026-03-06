@@ -10,6 +10,7 @@ import com.yhy.http.flare.convert.BodyConverter;
 import com.yhy.http.flare.convert.FormFieldConverter;
 import com.yhy.http.flare.convert.StringConverter;
 import com.yhy.http.flare.delegate.*;
+import com.yhy.http.flare.dispatcher.ThrowableDispatcher;
 import com.yhy.http.flare.http.HttpHandler;
 import com.yhy.http.flare.http.HttpHandlerAdapter;
 import com.yhy.http.flare.provider.DispatcherProvider;
@@ -21,7 +22,6 @@ import com.yhy.http.flare.such.delegate.*;
 import com.yhy.http.flare.such.interceptor.HttpLoggerInterceptor;
 import com.yhy.http.flare.such.provider.VirtualThreadDispatcherProvider;
 import com.yhy.http.flare.utils.Assert;
-import com.yhy.http.flare.utils.ExceptionUtils;
 import com.yhy.http.flare.utils.Opt;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -37,7 +37,6 @@ import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.time.Duration;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 一个 HTTP 请求客户端
@@ -348,12 +347,9 @@ public class Flare {
         try {
             return proxyInvoke(proxy, method, args);
         } catch (Throwable e) {
-            if (!catchers.isEmpty()) {
-                List<Class<? extends Throwable>> catcherClasses = catchers.stream().map(Catcher::throwable).collect(Collectors.toList());
-                if (!catcherClasses.isEmpty() && ExceptionUtils.dispatch(catcherClasses, e)) {
-                    // 异常已被处理
-                    return null;
-                }
+            if (ThrowableDispatcher.dispatch(method, catchers, e, exceptionResolverDelegate)) {
+                // 异常已被处理
+                return null;
             }
             // 未被处理的异常，继续抛出
             throw e;

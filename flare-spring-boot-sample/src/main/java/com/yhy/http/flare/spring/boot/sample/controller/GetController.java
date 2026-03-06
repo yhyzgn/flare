@@ -37,7 +37,9 @@ public class GetController {
 
     @GetMapping("/query")
     public Res<String> query() {
-        return getRemote.query("李万姬", 25);
+        Res<String> res = getRemote.query("李万姬", 25);
+        log.info("query: {}", res);
+        return Res.success();
     }
 
     @GetMapping("/queryPath")
@@ -66,7 +68,8 @@ public class GetController {
     @GetMapping("/forBytes")
     public Res<String> forBytes() throws IOException {
         byte[] bytes = getRemote.forBytes();
-        return Res.success(new String(bytes));
+        log.info("forBytes: {}", bytes);
+        return Res.success();
     }
 
     @GetMapping("/forInputStream")
