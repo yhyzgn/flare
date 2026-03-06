@@ -33,7 +33,7 @@ public @interface Catcher {
      *
      * @return 异常处理器类
      */
-    Class<? extends Resolver> resolver() default Resolver.class;
+    Class<? extends Resolver> resolver();
 
     /**
      * 异常处理器接口
