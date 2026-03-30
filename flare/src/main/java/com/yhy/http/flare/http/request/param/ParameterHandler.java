@@ -78,7 +78,7 @@ public abstract class ParameterHandler<T> {
         @Override
         public void apply(RequestBuilder builder, @Nullable Object value) {
             Assert.notNull(value, ReflectUtils.parameterError(method, index, "@Url parameter is null."));
-            builder.setRelativeUrl(value);
+            builder.setAbsoluteUrl(value.toString());
         }
     }
 
@@ -129,13 +129,13 @@ public abstract class ParameterHandler<T> {
             boolean isPrimitiveOrString = ReflectUtils.isPrimitiveOrString(value.getClass());
             // 如果是基础类型或者String类型，则需要把 name 传入 converter.convert 方法，否则就省去 name 传入
             Opt.ofNullable(converter.convert(isPrimitiveOrString ? name : "", value, encoded, defaultValue))
-                    .ifValid(fieldList ->
-                            fieldList.forEach(field -> {
-                                if (field instanceof FormField.ValueFormField valueFormField) {
-                                    builder.addQueryParam(field.getName(), valueFormField);
-                                }
-                            })
-                    );
+                .ifValid(fieldList ->
+                    fieldList.forEach(field -> {
+                        if (field instanceof FormField.ValueFormField valueFormField) {
+                            builder.addQueryParam(field.getName(), valueFormField);
+                        }
+                    })
+                );
         }
     }
 
@@ -166,13 +166,13 @@ public abstract class ParameterHandler<T> {
                     continue;
                 }
                 Opt.ofNullable(converter.convert(etKey, etValue, encoded, null))
-                        .ifValid(fieldList ->
-                                fieldList.forEach(field -> {
-                                    if (field instanceof FormField.ValueFormField valueFormField) {
-                                        builder.addQueryParam(field.getName(), valueFormField);
-                                    }
-                                })
-                        );
+                    .ifValid(fieldList ->
+                        fieldList.forEach(field -> {
+                            if (field instanceof FormField.ValueFormField valueFormField) {
+                                builder.addQueryParam(field.getName(), valueFormField);
+                            }
+                        })
+                    );
             }
         }
     }
@@ -196,11 +196,11 @@ public abstract class ParameterHandler<T> {
             boolean isPrimitiveOrString = ReflectUtils.isPrimitiveOrString(value.getClass());
             // 如果是基础类型或者String类型，则需要把 name 传入 converter.convert 方法，否则就省去 name 传入
             Opt.ofNullable(converter.convert(isPrimitiveOrString ? name : "", value, encoded, defaultValue))
-                    .ifValid(fieldList ->
-                            fieldList.forEach(field ->
-                                    builder.addFiled(field.getName(), field)
-                            )
-                    );
+                .ifValid(fieldList ->
+                    fieldList.forEach(field ->
+                        builder.addFiled(field.getName(), field)
+                    )
+                );
         }
     }
 
@@ -232,11 +232,11 @@ public abstract class ParameterHandler<T> {
                     continue;
                 }
                 Opt.ofNullable(converter.convert(etKey, etValue, encoded, null))
-                        .ifValid(fieldList ->
-                                fieldList.forEach(field ->
-                                        builder.addFiled(field.getName(), field)
-                                )
-                        );
+                    .ifValid(fieldList ->
+                        fieldList.forEach(field ->
+                            builder.addFiled(field.getName(), field)
+                        )
+                    );
             }
         }
     }

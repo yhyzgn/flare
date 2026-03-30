@@ -217,7 +217,9 @@ public class RequestFactory {
             validateResolvableType(paramIndex, type);
 
             if (annotation instanceof Url) {
-                Assert.isNull(relativeUrl, ReflectUtils.parameterError(method, paramIndex, "@Url cannot be used with @%s URL", relativeUrl));
+                if (StringUtils.hasText(relativeUrl)) {
+                    log.warn("The relative url is not empty, but @Url annotation is used. The relative url will be ignored.");
+                }
                 if (type == String.class || type == HttpUrl.class || type == URI.class) {
                     return new ParameterHandler.RelativeUrl(method, paramIndex);
                 } else {

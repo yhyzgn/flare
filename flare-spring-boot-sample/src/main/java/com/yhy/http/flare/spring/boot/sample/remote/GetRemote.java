@@ -9,6 +9,7 @@ import com.yhy.http.flare.annotation.exception.ErrorIgnored;
 import com.yhy.http.flare.annotation.method.Get;
 import com.yhy.http.flare.annotation.param.Path;
 import com.yhy.http.flare.annotation.param.Query;
+import com.yhy.http.flare.annotation.param.Url;
 import com.yhy.http.flare.spring.boot.sample.header.GetDynamicHeader;
 import com.yhy.http.flare.spring.boot.sample.interceptor.GetInterceptor;
 import com.yhy.http.flare.spring.boot.sample.model.Res;
@@ -44,6 +45,10 @@ public interface GetRemote {
 
     @Get("/index")
     Res<String> index();
+
+    // 此时这里的相对 url 会被忽略
+    @Get("/asdf")
+    Res<String> indexByUrl(@Url String url);
 
     @ErrorIgnored
     @Get("/query")

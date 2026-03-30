@@ -35,6 +35,11 @@ public class GetController {
         return getRemote.index();
     }
 
+    @GetMapping("/indexByUrl")
+    public Res<String> indexByUrl() {
+        return getRemote.indexByUrl("http://localhost:8080/get/index");
+    }
+
     @GetMapping("/query")
     public Res<String> query() {
         Res<String> res = getRemote.query("李万姬", 25);
