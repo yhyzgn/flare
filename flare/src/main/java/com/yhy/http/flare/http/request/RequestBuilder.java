@@ -4,6 +4,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import com.yhy.http.flare.model.FormField;
 import com.yhy.http.flare.utils.Opt;
 import com.yhy.http.flare.utils.StringUtils;
+import lombok.Setter;
 import okhttp3.*;
 import okhttp3.internal.http.HttpMethod;
 import okio.BufferedSink;
@@ -38,7 +39,12 @@ public class RequestBuilder {
     private final Map<String, List<FormField.ValueFormField>> queryParamMap;
     private final Map<String, List<FormField<?>>> formFieldParamMap;
 
+    @Setter
     private String relativeUrl;
+
+    @Setter
+    private String absoluteUrl;
+
     private MediaType contentType;
     private RequestBody body;
     private MultipartBody.Builder multipartBuilder;
@@ -61,10 +67,6 @@ public class RequestBuilder {
         this.pathParamMap = new LinkedTreeMap<>();
         this.queryParamMap = new LinkedTreeMap<>();
         this.formFieldParamMap = new LinkedTreeMap<>();
-    }
-
-    public void setRelativeUrl(Object url) {
-        this.relativeUrl = url.toString();
     }
 
     public void addHeader(String name, String value) {
@@ -99,19 +101,7 @@ public class RequestBuilder {
     }
 
     public Request.Builder get() {
-        HttpUrl.Builder urlBuilder = baseUrl.newBuilder();
-
-        if (MapUtils.isNotEmpty(pathParamMap)) {
-            // 存在 path 参数
-            relativeUrl = StringUtils.format(relativeUrl, pathParamMap);
-        }
-        // 设置 path
-        // 去除 path 前的 /
-        if (relativeUrl.startsWith("/")) {
-            relativeUrl = relativeUrl.replaceAll("^/+", "");
-        }
-        urlBuilder.addPathSegments(relativeUrl);
-
+        HttpUrl.Builder urlBuilder = urlBuilder();
         if (MapUtils.isNotEmpty(queryParamMap)) {
             // 带参数的url
             queryParamMap.forEach((name, values) -> values.forEach(val -> {
@@ -191,9 +181,36 @@ public class RequestBuilder {
             headersBuilder.set("Content-Type", contentType.toString());
         }
         return requestBuilder
-                .url(url)
-                .headers(headersBuilder.build())
-                .method(method.toUpperCase(), body);
+            .url(url)
+            .headers(headersBuilder.build())
+            .method(method.toUpperCase(), body);
+    }
+
+    private HttpUrl.Builder urlBuilder() {
+        HttpUrl.Builder urlBuilder;
+        // 如果是绝对 url，直接使用 absolute url 构建 request
+        if (StringUtils.hasText(absoluteUrl)) {
+            // 处理 path 参数
+            if (MapUtils.isNotEmpty(pathParamMap)) {
+                // 存在 path 参数
+                absoluteUrl = StringUtils.format(absoluteUrl, pathParamMap);
+            }
+            urlBuilder = HttpUrl.get(absoluteUrl).newBuilder();
+        } else {
+            urlBuilder = baseUrl.newBuilder();
+            // 处理 path 参数
+            if (MapUtils.isNotEmpty(pathParamMap)) {
+                // 存在 path 参数
+                relativeUrl = StringUtils.format(relativeUrl, pathParamMap);
+            }
+            // 设置 path
+            // 去除 path 前的 /
+            if (relativeUrl.startsWith("/")) {
+                relativeUrl = relativeUrl.replaceAll("^/+", "");
+            }
+            urlBuilder.addPathSegments(relativeUrl);
+        }
+        return urlBuilder;
     }
 
     private String dispatchEncode(String value, boolean encoded) {
