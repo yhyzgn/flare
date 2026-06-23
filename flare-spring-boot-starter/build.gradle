@@ -53,6 +53,10 @@ tasks.withType(GenerateModuleMetadata).configureEach {
 processResources.exclude('**/rebel.xml')
 
 // https://docs.spring.io/spring-boot/docs/current/gradle-plugin/reference/htmlsingle/#packaging-executable.and-plain-archives
+bootJar {
+    enabled = false
+}
+
 jar {
     enabled true
     archiveClassifier = ''

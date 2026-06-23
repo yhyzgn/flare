@@ -51,6 +51,7 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    systemProperty "flare.mock.port", System.getProperty("flare.mock.port", "8080")
     testLogging {
         events "passed", "skipped", "failed"
         exceptionFormat "full"

@@ -181,7 +181,7 @@ public class FlarePostTest {
             if (is != null) {
                 Files.copy(is, tmp, StandardCopyOption.REPLACE_EXISTING);
             } else {
-                Files.write(tmp, new byte[0]);
+                Files.write(tmp, "flare-test-binary".getBytes(java.nio.charset.StandardCharsets.UTF_8));
             }
         }
         return tmp;

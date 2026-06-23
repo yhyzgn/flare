@@ -29,7 +29,8 @@ import java.io.InputStream;
  * @since 1.0.0
  */
 public interface MockPostApi {
-    String BASE_URL = "http://localhost:8080/post";
+    String MOCK_PORT_PROPERTY = "flare.mock.port";
+    String BASE_URL = "http://localhost:" + System.getProperty(MOCK_PORT_PROPERTY, "8080") + "/post";
 
     @Post("/index")
     @Header(dynamic = AuthorizationDynamicHeader.class)

@@ -25,7 +25,8 @@ import java.io.InputStream;
  * @since 1.0.0
  */
 public interface MockGetApi {
-    String BASE_URL = "http://localhost:8080/get";
+    String MOCK_PORT_PROPERTY = "flare.mock.port";
+    String BASE_URL = "http://localhost:" + System.getProperty(MOCK_PORT_PROPERTY, "8080") + "/get";
 
     @Get("/index")
     @Header(dynamic = AuthorizationDynamicHeader.class)
