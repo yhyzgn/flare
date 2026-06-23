@@ -18,16 +18,34 @@ import java.util.Objects;
  * @since 1.0.0
  */
 public record Invocation(Method method, List<?> arguments) {
+    /**
+     * 创建 Invocation 实例。
+     *
+     * @param method 方法
+     * @param arguments 列表
+     */
     public Invocation(Method method, List<?> arguments) {
         this.method = method;
         this.arguments = Collections.unmodifiableList(arguments);
     }
 
+    /**
+     * 转换为字符串。
+     *
+     * @return 处理结果
+     */
     @Override
     public @NotNull String toString() {
         return String.format("%s.%s() %s", method.getDeclaringClass().getName(), method.getName(), arguments);
     }
 
+    /**
+     * 创建对象。
+     *
+     * @param method 方法
+     * @param arguments 列表
+     * @return 处理结果
+     */
     public static Invocation of(Method method, List<?> arguments) {
         Objects.requireNonNull(method, "method can not be null.");
         Objects.requireNonNull(arguments, "arguments can not be null.");

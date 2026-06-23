@@ -28,16 +28,31 @@ import org.springframework.stereotype.Component;
 public class SpringStringConverterFactory implements StringConverter.Factory, InitializingBean, EnvironmentAware {
     private Environment environment;
 
+    /**
+     * 获取转换器。
+     *
+     * @param flare 值
+     * @return 处理结果
+     */
     @Override
     public StringConverter<?> converter(Flare flare) {
         return new SpringStringConverter<>(environment);
     }
 
+    /**
+     * 属性设置完成回调。
+     *
+     */
     @Override
     public void afterPropertiesSet() {
         log.debug("SpringStringConverterFactory initialized");
     }
 
+    /**
+     * 设置环境。
+     *
+     * @param environment 值
+     */
     @Override
     public void setEnvironment(@NotNull Environment environment) {
         this.environment = environment;
@@ -45,6 +60,12 @@ public class SpringStringConverterFactory implements StringConverter.Factory, In
 
     private record SpringStringConverter<T>(Environment environment) implements StringConverter<T> {
 
+        /**
+         * 转换数据。
+         *
+         * @param from 值
+         * @return 处理结果
+         */
         @Override
         public String convert(T from) {
             return null == from ? null : environment.resolvePlaceholders(from.toString());

@@ -34,10 +34,29 @@ import java.util.Objects;
  */
 public abstract class ParameterHandler<T> {
 
+    /**
+     * 应用委托。
+     *
+     * @param builder 值
+     * @param value 值
+     * @throws Exception 调用异常
+     */
     public abstract void apply(RequestBuilder builder, @Nullable T value) throws Exception;
 
+    /**
+     * iterable。
+     *
+     * @return 处理结果
+     */
     public final ParameterHandler<Iterable<T>> iterable() {
         return new ParameterHandler<>() {
+            /**
+             * 应用委托。
+             *
+             * @param builder 值
+             * @param values 值
+             * @throws Exception 调用异常
+             */
             @Override
             public void apply(RequestBuilder builder, @Nullable Iterable<T> values) throws Exception {
                 if (values == null) {
@@ -51,8 +70,20 @@ public abstract class ParameterHandler<T> {
         };
     }
 
+    /**
+     * array。
+     *
+     * @return 处理结果
+     */
     public final ParameterHandler<Object> array() {
         return new ParameterHandler<>() {
+            /**
+             * 应用委托。
+             *
+             * @param builder 值
+             * @param values 对象
+             * @throws Exception 调用异常
+             */
             @Override
             public void apply(RequestBuilder builder, @Nullable Object values) throws Exception {
                 if (values == null) return; // Skip null values.
@@ -66,15 +97,31 @@ public abstract class ParameterHandler<T> {
 
     // --- inner classes ---
 
+    /**
+     * Relative Url类。
+     *
+     */
     public static class RelativeUrl extends ParameterHandler<Object> {
         private final Method method;
         private final int index;
 
+        /**
+         * 创建 RelativeUrl 实例。
+         *
+         * @param method 方法
+         * @param index 值
+         */
         public RelativeUrl(Method method, int index) {
             this.method = method;
             this.index = index;
         }
 
+        /**
+         * 应用委托。
+         *
+         * @param builder 值
+         * @param value 对象
+         */
         @Override
         public void apply(RequestBuilder builder, @Nullable Object value) {
             Assert.notNull(value, ReflectUtils.parameterError(method, index, "@Url parameter is null."));
@@ -82,6 +129,10 @@ public abstract class ParameterHandler<T> {
         }
     }
 
+    /**
+     * Path类。
+     *
+     */
     public static class Path<T> extends ParameterHandler<T> {
         private final Method method;
         private final int index;
@@ -90,6 +141,16 @@ public abstract class ParameterHandler<T> {
         private final StringConverter<T> converter;
         private final boolean encoded;
 
+        /**
+         * 创建 Path 实例。
+         *
+         * @param method 方法
+         * @param index 值
+         * @param name 字符串
+         * @param defaultValue 字符串
+         * @param encoded 值
+         * @param converter 字符串
+         */
         public Path(Method method, int index, String name, String defaultValue, boolean encoded, StringConverter<T> converter) {
             this.method = method;
             this.index = index;
@@ -99,6 +160,13 @@ public abstract class ParameterHandler<T> {
             this.encoded = encoded;
         }
 
+        /**
+         * 应用委托。
+         *
+         * @param builder 值
+         * @param value 值
+         * @throws Exception 调用异常
+         */
         @Override
         public void apply(RequestBuilder builder, @Nullable T value) throws Exception {
             String pathValue = defaultValue;
@@ -110,12 +178,24 @@ public abstract class ParameterHandler<T> {
         }
     }
 
+    /**
+     * Query类。
+     *
+     */
     public static class Query<T> extends ParameterHandler<T> {
         private final String name;
         private final String defaultValue;
         private final FormFieldConverter<T> converter;
         private final boolean encoded;
 
+        /**
+         * 创建 Query 实例。
+         *
+         * @param name 字符串
+         * @param defaultValue 字符串
+         * @param encoded 值
+         * @param converter 值
+         */
         public Query(String name, String defaultValue, boolean encoded, FormFieldConverter<T> converter) {
             this.name = Objects.requireNonNull(name, "Query param name can not be null.");
             this.defaultValue = "".equals(defaultValue) ? null : defaultValue;
@@ -123,6 +203,13 @@ public abstract class ParameterHandler<T> {
             this.converter = converter;
         }
 
+        /**
+         * 应用委托。
+         *
+         * @param builder 值
+         * @param value 值
+         * @throws Exception 调用异常
+         */
         @Override
         public void apply(RequestBuilder builder, @Nullable T value) throws Exception {
             Assert.notNull(value, "Query parameter value must not be null.");
@@ -139,12 +226,24 @@ public abstract class ParameterHandler<T> {
         }
     }
 
+    /**
+     * Query Map类。
+     *
+     */
     public static class QueryMap<T> extends ParameterHandler<Map<String, T>> {
         private final Method method;
         private final int index;
         private final FormFieldConverter<T> converter;
         private final boolean encoded;
 
+        /**
+         * 创建 QueryMap 实例。
+         *
+         * @param method 方法
+         * @param index 值
+         * @param converter 值
+         * @param encoded 值
+         */
         public QueryMap(Method method, int index, FormFieldConverter<T> converter, boolean encoded) {
             this.method = method;
             this.index = index;
@@ -152,6 +251,13 @@ public abstract class ParameterHandler<T> {
             this.encoded = encoded;
         }
 
+        /**
+         * 应用委托。
+         *
+         * @param builder 值
+         * @param value 字符串
+         * @throws Exception 调用异常
+         */
         @Override
         public void apply(RequestBuilder builder, @Nullable Map<String, T> value) throws Exception {
             if (value == null) {
@@ -177,12 +283,24 @@ public abstract class ParameterHandler<T> {
         }
     }
 
+    /**
+     * Field类。
+     *
+     */
     public static class Field<T> extends ParameterHandler<T> {
         private final String name;
         private final String defaultValue;
         private final FormFieldConverter<T> converter;
         private final boolean encoded;
 
+        /**
+         * 创建 Field 实例。
+         *
+         * @param name 字符串
+         * @param defaultValue 字符串
+         * @param encoded 值
+         * @param converter 值
+         */
         public Field(String name, String defaultValue, boolean encoded, FormFieldConverter<T> converter) {
             this.name = Objects.requireNonNull(name, "Filed name can not be null.");
             this.defaultValue = "".equals(defaultValue) ? null : defaultValue;
@@ -190,6 +308,13 @@ public abstract class ParameterHandler<T> {
             this.encoded = encoded;
         }
 
+        /**
+         * 应用委托。
+         *
+         * @param builder 值
+         * @param value 值
+         * @throws Exception 调用异常
+         */
         @Override
         public void apply(RequestBuilder builder, @Nullable T value) throws Exception {
             Assert.notNull(value, "Field parameter value must not be null.");
@@ -204,12 +329,24 @@ public abstract class ParameterHandler<T> {
         }
     }
 
+    /**
+     * Field Map类。
+     *
+     */
     public static class FieldMap<T> extends ParameterHandler<Map<String, T>> {
         private final Method method;
         private final int index;
         private final FormFieldConverter<T> converter;
         private final boolean encoded;
 
+        /**
+         * 创建 FieldMap 实例。
+         *
+         * @param method 方法
+         * @param index 值
+         * @param converter 值
+         * @param encoded 值
+         */
         public FieldMap(Method method, int index, FormFieldConverter<T> converter, boolean encoded) {
             this.method = method;
             this.index = index;
@@ -217,6 +354,13 @@ public abstract class ParameterHandler<T> {
             this.encoded = encoded;
         }
 
+        /**
+         * 应用委托。
+         *
+         * @param builder 值
+         * @param value 字符串
+         * @throws Exception 调用异常
+         */
         @Override
         public void apply(RequestBuilder builder, @Nullable Map<String, T> value) throws Exception {
             if (value == null) {
@@ -241,15 +385,32 @@ public abstract class ParameterHandler<T> {
         }
     }
 
+    /**
+     * Multipart类。
+     *
+     */
     public static class Multipart<T> extends ParameterHandler<T> {
         private final String name;
         private final String filename;
 
+        /**
+         * 创建 Multipart 实例。
+         *
+         * @param name 字符串
+         * @param filename 字符串
+         */
         public Multipart(String name, String filename) {
             this.name = Objects.requireNonNull(name, "Filed name can not be null.");
             this.filename = filename;
         }
 
+        /**
+         * 应用委托。
+         *
+         * @param builder 值
+         * @param value 值
+         * @throws Exception 调用异常
+         */
         @Override
         public void apply(RequestBuilder builder, @Nullable T value) throws Exception {
             Assert.notNull(value, "Field parameter value must not be null.");
@@ -274,15 +435,32 @@ public abstract class ParameterHandler<T> {
         }
     }
 
+    /**
+     * Header类。
+     *
+     */
     public static class Header<T> extends ParameterHandler<T> {
         private final String name;
         private final StringConverter<T> converter;
 
+        /**
+         * 创建 Header 实例。
+         *
+         * @param name 字符串
+         * @param converter 字符串
+         */
         public Header(String name, StringConverter<T> converter) {
             this.name = name;
             this.converter = converter;
         }
 
+        /**
+         * 应用委托。
+         *
+         * @param builder 值
+         * @param value 值
+         * @throws Exception 调用异常
+         */
         @Override
         public void apply(RequestBuilder builder, @Nullable T value) throws Exception {
             String headerValue = null == value ? null : converter.convert(value);
@@ -290,17 +468,35 @@ public abstract class ParameterHandler<T> {
         }
     }
 
+    /**
+     * Header Map类。
+     *
+     */
     public static class HeaderMap<T> extends ParameterHandler<Map<String, T>> {
         private final Method method;
         private final int index;
         private final StringConverter<T> converter;
 
+        /**
+         * 创建 HeaderMap 实例。
+         *
+         * @param method 方法
+         * @param index 值
+         * @param converter 字符串
+         */
         public HeaderMap(Method method, int index, StringConverter<T> converter) {
             this.method = method;
             this.index = index;
             this.converter = converter;
         }
 
+        /**
+         * 应用委托。
+         *
+         * @param builder 值
+         * @param value 字符串
+         * @throws Exception 调用异常
+         */
         @Override
         public void apply(RequestBuilder builder, @Nullable Map<String, T> value) throws Exception {
             if (value == null) {
@@ -320,15 +516,31 @@ public abstract class ParameterHandler<T> {
         }
     }
 
+    /**
+     * Headers类。
+     *
+     */
     public static final class Headers extends ParameterHandler<okhttp3.Headers> {
         private final Method method;
         private final int index;
 
+        /**
+         * 创建 Headers 实例。
+         *
+         * @param method 方法
+         * @param index 值
+         */
         public Headers(Method method, int index) {
             this.method = method;
             this.index = index;
         }
 
+        /**
+         * 应用委托。
+         *
+         * @param builder 值
+         * @param headers 值
+         */
         @Override
         public void apply(RequestBuilder builder, @Nullable okhttp3.Headers headers) {
             Assert.notNull(headers, ReflectUtils.parameterError(method, index, "Headers parameter must not be null."));
@@ -336,17 +548,35 @@ public abstract class ParameterHandler<T> {
         }
     }
 
+    /**
+     * Body类。
+     *
+     */
     public static class Body<T> extends ParameterHandler<T> {
         private final Method method;
         private final int index;
         private final BodyConverter<T, RequestBody> converter;
 
+        /**
+         * 创建 Body 实例。
+         *
+         * @param method 方法
+         * @param index 值
+         * @param converter 请求体
+         */
         public Body(Method method, int index, BodyConverter<T, RequestBody> converter) {
             this.method = method;
             this.index = index;
             this.converter = converter;
         }
 
+        /**
+         * 应用委托。
+         *
+         * @param builder 值
+         * @param value 值
+         * @throws Exception 调用异常
+         */
         @Override
         public void apply(RequestBuilder builder, @Nullable T value) throws IOException {
             Assert.notNull(value, ReflectUtils.parameterError(method, index, "Body parameter value must not be null."));
@@ -355,28 +585,64 @@ public abstract class ParameterHandler<T> {
         }
     }
 
+    /**
+     * Tag类。
+     *
+     */
     public static final class Tag<T> extends ParameterHandler<T> {
+        /**
+         * clazz。
+         *
+         */
         public final Class<T> clazz;
 
+        /**
+         * 创建 Tag 实例。
+         *
+         * @param clazz 类型
+         */
         public Tag(Class<T> clazz) {
             this.clazz = clazz;
         }
 
+        /**
+         * 应用委托。
+         *
+         * @param builder 值
+         * @param value 值
+         */
         @Override
         public void apply(RequestBuilder builder, @Nullable T value) {
             builder.addTag(clazz, value);
         }
     }
 
+    /**
+     * Binary类。
+     *
+     */
     public static final class Binary<T> extends ParameterHandler<T> {
         private final Method method;
         private final int index;
 
+        /**
+         * 创建 Binary 实例。
+         *
+         * @param method 方法
+         * @param index 值
+         */
         public Binary(Method method, int index) {
             this.method = method;
             this.index = index;
         }
 
+        /**
+         * 应用委托。
+         *
+         * @param builder 值
+         * @param value 值
+         * @throws Exception 调用异常
+         */
         @Override
         public void apply(RequestBuilder builder, @Nullable T value) throws Exception {
             Assert.notNull(value, ReflectUtils.parameterError(method, index, "Binary parameter value must not be null."));
@@ -385,11 +651,22 @@ public abstract class ParameterHandler<T> {
                 case byte[] bytes -> builder.body(RequestBody.create(bytes, MediaType.parse("application/octet-stream")));
                 case InputStream inputStream -> {
                     RequestBody streamBody = new RequestBody() {
+                        /**
+                         * content Type。
+                         *
+                         * @return 处理结果
+                         */
                         @Override
                         public MediaType contentType() {
                             return MediaType.parse("application/octet-stream");
                         }
 
+                        /**
+                         * write To。
+                         *
+                         * @param sink 值
+                         * @throws Exception 调用异常
+                         */
                         @Override
                         public void writeTo(@NotNull BufferedSink sink) throws IOException {
                             byte[] buffer = new byte[8192];

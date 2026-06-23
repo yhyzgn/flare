@@ -36,20 +36,45 @@ import java.nio.charset.StandardCharsets;
 public class GsonConverterFactory implements BodyConverter.Factory {
     private final Gson gson;
 
+    /**
+     * 创建 GsonConverterFactory 实例。
+     *
+     */
     public GsonConverterFactory() {
         this(new Gson());
     }
 
+    /**
+     * 创建 GsonConverterFactory 实例。
+     *
+     * @param gson 值
+     */
     public GsonConverterFactory(Gson gson) {
         this.gson = gson;
     }
 
+    /**
+     * request Body Converter。
+     *
+     * @param type 值
+     * @param annotations 注解
+     * @param flare 值
+     * @return 处理结果
+     */
     @Override
     public BodyConverter<?, RequestBody> requestBodyConverter(Type type, Annotation[] annotations, Flare flare) {
         TypeAdapter<?> adapter = gson.getAdapter(TypeToken.get(type));
         return new GsonRequestBodyBodyConverter<>(gson, adapter, type, flare);
     }
 
+    /**
+     * response Body Converter。
+     *
+     * @param type 值
+     * @param annotations 注解
+     * @param flare 值
+     * @return 处理结果
+     */
     @Override
     public BodyConverter<ResponseBody, ?> responseBodyConverter(Type type, Annotation[] annotations, Flare flare) {
         TypeAdapter<?> adapter = gson.getAdapter(TypeToken.get(type));
@@ -60,11 +85,23 @@ public class GsonConverterFactory implements BodyConverter.Factory {
         private static final MediaType MEDIA_TYPE = MediaType.get("application/json; charset=UTF-8");
         private static final Charset UTF_8 = StandardCharsets.UTF_8;
 
+        /**
+         * result Type。
+         *
+         * @return 处理结果
+         */
         @Override
         public Class<?> resultType() {
             return (Class<?>) type;
         }
 
+        /**
+         * 转换数据。
+         *
+         * @param from 值
+         * @return 处理结果
+         * @throws Exception 调用异常
+         */
         @Override
         public RequestBody convert(T from) throws IOException {
             switch (from) {
@@ -95,11 +132,23 @@ public class GsonConverterFactory implements BodyConverter.Factory {
 
     private record GsonResponseBodyBodyConverter<T>(Gson gson, TypeAdapter<T> adapter, Type type, Annotation[] annotations, Flare flare) implements BodyConverter<ResponseBody, T> {
 
+        /**
+         * result Type。
+         *
+         * @return 处理结果
+         */
         @Override
         public Class<?> resultType() {
             return (Class<?>) type;
         }
 
+        /**
+         * 转换数据。
+         *
+         * @param from 响应体
+         * @return 处理结果
+         * @throws Exception 调用异常
+         */
         @Nullable
         @Override
         public T convert(ResponseBody from) throws IOException {

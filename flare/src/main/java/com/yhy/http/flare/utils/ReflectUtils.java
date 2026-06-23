@@ -22,7 +22,9 @@ public abstract class ReflectUtils {
     private static final Type[] EMPTY_TYPE_ARRAY = new Type[0];
 
     /**
-     * Prevent instantiation
+
+     * * Prevent instantiation
+
      */
     private ReflectUtils() {
         throw new UnsupportedOperationException("Instantiation is not allowed");
@@ -90,6 +92,12 @@ public abstract class ReflectUtils {
         };
     }
 
+    /**
+     * 判断是否存在不可解析类型。
+     *
+     * @param type 值
+     * @return 判断是否存在不可解析类型
+     */
     public static boolean hasUnresolvableType(@Nullable Type type) {
         if (type instanceof Class<?>) {
             return false;
@@ -162,6 +170,13 @@ public abstract class ReflectUtils {
         return toResolve;
     }
 
+    /**
+     * 查找索引。
+     *
+     * @param array 对象
+     * @param toFind 对象
+     * @return 处理结果
+     */
     public static int indexOf(Object[] array, Object toFind) {
         for (int i = 0; i < array.length; i++) {
             if (toFind.equals(array[i])) return i;
@@ -169,6 +184,12 @@ public abstract class ReflectUtils {
         throw new NoSuchElementException();
     }
 
+    /**
+     * 类型转字符串。
+     *
+     * @param type 值
+     * @return 处理结果
+     */
     public static String typeToString(Type type) {
         return type instanceof Class ? ((Class<?>) type).getName() : type.toString();
     }
@@ -178,12 +199,24 @@ public abstract class ReflectUtils {
         return genericDeclaration instanceof Class ? (Class<?>) genericDeclaration : null;
     }
 
+    /**
+     * 检查非基本类型。
+     *
+     * @param type 值
+     */
     public static void checkNotPrimitive(Type type) {
         if (type instanceof Class<?> && ((Class<?>) type).isPrimitive()) {
             throw new IllegalArgumentException();
         }
     }
 
+    /**
+     * 判断注解是否存在。
+     *
+     * @param annotations 注解
+     * @param cls 类型
+     * @return 判断注解是否存在
+     */
     public static boolean isAnnotationPresent(Annotation[] annotations, Class<? extends Annotation> cls) {
         for (Annotation annotation : annotations) {
             if (cls.isInstance(annotation)) {
@@ -193,6 +226,13 @@ public abstract class ReflectUtils {
         return false;
     }
 
+    /**
+     * 判断相等。
+     *
+     * @param a 值
+     * @param b 值
+     * @return 处理结果
+     */
     public static boolean equals(Type a, Type b) {
         if (a == b) {
             return true; // Also handles (a == null && b == null).
@@ -217,11 +257,27 @@ public abstract class ReflectUtils {
         }
     }
 
+    /**
+     * 获取父类型。
+     *
+     * @param context 值
+     * @param contextRawType 类型
+     * @param supertype 类型
+     * @return 处理结果
+     */
     public static Type getSupertype(Type context, Class<?> contextRawType, Class<?> supertype) {
         if (!supertype.isAssignableFrom(contextRawType)) throw new IllegalArgumentException();
         return resolve(context, contextRawType, getGenericSupertype(context, contextRawType, supertype));
     }
 
+    /**
+     * 处理异常。
+     *
+     * @param context 值
+     * @param contextRawType 类型
+     * @param toResolve 值
+     * @return 处理结果
+     */
     public static Type resolve(Type context, Class<?> contextRawType, Type toResolve) {
         // This implementation is made a little more complicated in an attempt to avoid object-creation.
         while (true) {
@@ -291,10 +347,27 @@ public abstract class ReflectUtils {
         }
     }
 
+    /**
+     * 创建方法错误。
+     *
+     * @param method 方法
+     * @param message 字符串
+     * @param args 对象
+     * @return 处理结果
+     */
     public static RuntimeException methodError(Method method, String message, Object... args) {
         return methodError(method, null, message, args);
     }
 
+    /**
+     * 创建方法错误。
+     *
+     * @param method 方法
+     * @param cause 异常
+     * @param message 字符串
+     * @param args 对象
+     * @return 处理结果
+     */
     public static RuntimeException methodError(Method method, @Nullable Throwable cause, String message, Object... args) {
         message = String.format(message, args);
         return new IllegalArgumentException(message
@@ -304,10 +377,29 @@ public abstract class ReflectUtils {
             + method.getName(), cause);
     }
 
+    /**
+     * 创建参数错误。
+     *
+     * @param method 方法
+     * @param cause 异常
+     * @param position 值
+     * @param message 字符串
+     * @param args 对象
+     * @return 处理结果
+     */
     public static RuntimeException parameterError(Method method, Throwable cause, int position, String message, Object... args) {
         return methodError(method, cause, message + " (parameter #" + (position + 1) + ")", args);
     }
 
+    /**
+     * 创建参数错误。
+     *
+     * @param method 方法
+     * @param position 值
+     * @param message 字符串
+     * @param args 对象
+     * @return 处理结果
+     */
     public static RuntimeException parameterError(Method method, int position, String message, Object... args) {
         return methodError(method, message + " (parameter #" + (position + 1) + ")", args);
     }
@@ -358,6 +450,13 @@ public abstract class ReflectUtils {
             || clazz == String.class;
     }
 
+    /**
+     * 获取字段值。
+     *
+     * @param field 值
+     * @param obj 对象
+     * @return 处理结果
+     */
     public static Object getValue(Field field, Object obj) {
         if (null == obj || null == field) {
             return null;
@@ -393,11 +492,21 @@ public abstract class ReflectUtils {
             this.typeArguments = typeArguments.clone();
         }
 
+        /**
+         * get Actual Type Arguments。
+         *
+         * @return 处理结果
+         */
         @Override
         public Type @NotNull [] getActualTypeArguments() {
             return typeArguments.clone();
         }
 
+        /**
+         * get Raw Type。
+         *
+         * @return 处理结果
+         */
         @Override
         public @NotNull Type getRawType() {
             return rawType;
@@ -409,11 +518,22 @@ public abstract class ReflectUtils {
             return ownerType;
         }
 
+        /**
+         * 判断相等。
+         *
+         * @param other 对象
+         * @return 处理结果
+         */
         @Override
         public boolean equals(Object other) {
             return other instanceof ParameterizedType && ReflectUtils.equals(this, (ParameterizedType) other);
         }
 
+        /**
+         * 获取哈希值。
+         *
+         * @return 获取哈希值
+         */
         @Override
         public int hashCode() {
             return Arrays.hashCode(typeArguments)
@@ -421,6 +541,11 @@ public abstract class ReflectUtils {
                 ^ (ownerType != null ? ownerType.hashCode() : 0);
         }
 
+        /**
+         * 转换为字符串。
+         *
+         * @return 处理结果
+         */
         @Override
         public String toString() {
             if (typeArguments.length == 0) return typeToString(rawType);
@@ -436,16 +561,32 @@ public abstract class ReflectUtils {
 
     private record GenericArrayTypeImpl(Type componentType) implements GenericArrayType {
 
+        /**
+         * get Generic Component Type。
+         *
+         * @return 处理结果
+         */
         @Override
         public @NotNull Type getGenericComponentType() {
             return componentType;
         }
 
+        /**
+         * 判断相等。
+         *
+         * @param o 对象
+         * @return 处理结果
+         */
         @Override
         public boolean equals(Object o) {
             return o instanceof GenericArrayType && ReflectUtils.equals(this, (GenericArrayType) o);
         }
 
+        /**
+         * 转换为字符串。
+         *
+         * @return 处理结果
+         */
         @Override
         public @NotNull String toString() {
             return typeToString(componentType) + "[]";
@@ -475,27 +616,53 @@ public abstract class ReflectUtils {
             }
         }
 
+        /**
+         * get Upper Bounds。
+         *
+         * @return 处理结果
+         */
         @Override
         public Type @NotNull [] getUpperBounds() {
             return new Type[]{upperBound};
         }
 
+        /**
+         * get Lower Bounds。
+         *
+         * @return 处理结果
+         */
         @Override
         public Type @NotNull [] getLowerBounds() {
             return lowerBound != null ? new Type[]{lowerBound} : EMPTY_TYPE_ARRAY;
         }
 
+        /**
+         * 判断相等。
+         *
+         * @param other 对象
+         * @return 处理结果
+         */
         @Override
         public boolean equals(Object other) {
             return other instanceof WildcardType && ReflectUtils.equals(this, (WildcardType) other);
         }
 
+        /**
+         * 获取哈希值。
+         *
+         * @return 获取哈希值
+         */
         @Override
         public int hashCode() {
             // This equals Arrays.hashCode(getLowerBounds()) ^ Arrays.hashCode(getUpperBounds()).
             return (lowerBound != null ? 31 + lowerBound.hashCode() : 1) ^ (31 + upperBound.hashCode());
         }
 
+        /**
+         * 转换为字符串。
+         *
+         * @return 处理结果
+         */
         @Override
         public String toString() {
             if (lowerBound != null) return "? super " + typeToString(lowerBound);

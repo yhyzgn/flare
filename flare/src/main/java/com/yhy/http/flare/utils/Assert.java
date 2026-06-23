@@ -24,7 +24,9 @@ import java.util.function.Supplier;
 public abstract class Assert {
 
     /**
-     * Prevent instantiation.
+
+     * * Prevent instantiation.
+
      */
     private Assert() {
         throw new UnsupportedOperationException("Cannot instantiate utility class");

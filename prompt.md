@@ -13,7 +13,7 @@ This is an existing legacy-style multi-module library. Do not perform broad refa
 - Repository: `flare`, upstream `git@github.com:yhyzgn/flare.git`, branch `main` tracking `origin/main`.
 - Build system: Gradle multi-project build with wrapper `gradle-8.14.4`.
 - Java baseline: Java 21 (`sourceCompatibility`/`targetCompatibility` both set to `JavaVersion.VERSION_21`).
-- Publish coordinates: `group = com.yhyzgn.http`, `version = 1.0.0` in `ext.gradle`.
+- Publish coordinates: `group = com.yhyzgn.http`, `version = 2.0.0` in `ext.gradle`.
 - Primary product: annotation-driven Java HTTP client based on OkHttp, Jackson/Gson conversion, and dynamic proxy interfaces.
 - Spring product: Spring helper module plus Spring Boot starter that scans `@Flare` interfaces and registers proxy beans.
 - Database: none identified. No persistence layer or datasource configuration was found.
@@ -125,7 +125,7 @@ No tests were found in the Spring integration, starter, mock server, or sample m
 - `@Flare` interfaces must be interfaces. Generic API interfaces are rejected.
 - Tests assume mock server endpoints and ports (`localhost:8080`) unless using the helper script.
 - Download examples still contain absolute `/home/neo/Downloads/...` paths in API annotations and sample controllers; treat them as local-environment coupling.
-- README badges mention Spring Boot `3.5.5`, while `build.gradle` applies Spring Boot `3.5.11`. Treat docs/version mismatch as a known documentation risk.
+- README badges mention Spring Boot `3.5.5`, while `build.gradle` applies Spring Boot `4.1.0`. Treat docs/version mismatch as a known documentation risk.
 
 ## 7. Risk areas
 
@@ -189,3 +189,47 @@ git diff --check
 ```
 
 Observed environment note: on 2026-06-23, port 8080 was occupied by an unrelated Java debug process from `/home/neo/Projects/recycloud/strip/ops`; the helper script selected port 18080 and all 24 `flare` integration tests passed.
+
+
+## 11. Spring Boot 4 / Jackson 3 migration state (2026-06-23)
+
+Current migration work is intentionally left uncommitted for human review.
+
+Key changes staged in the working tree:
+
+- Project version is now `2.0.0` in `ext.gradle` and `Version.java`.
+- Spring Boot Gradle plugin is `4.1.0`; Spring Framework property is `7.0.8`.
+- Boot web starter usages were changed from `spring-boot-starter-web` to `spring-boot-starter-webmvc`.
+- Jackson core/databind imports moved from `com.fasterxml.jackson.databind.ObjectMapper` to `tools.jackson.databind.json.JsonMapper`; Jackson annotations still use the `com.fasterxml.jackson.annotation` namespace, as required by Jackson 3 artifacts.
+- Spring converter was renamed from `ObjectMapperConverterFactory` to `JsonMapperConverterFactory`; `FlareFactoryBean` now resolves `JsonMapper`.
+- Default non-Spring `Flare.Builder` now creates `JsonMapper.builderWithJackson2Defaults().build()` to reduce Jackson 2 -> 3 behavior drift.
+- Sample `Res` DTO has explicit `@JsonCreator` / `@JsonProperty` constructor metadata because Jackson 3 does not infer its private final-field constructor.
+- GitHub Release workflow now uses release name `${{ env.TAG_NAME }}` (for tags like `v2.0.0`) without the old `Release ` prefix.
+- Vanniktech publish plugin 0.37.0 required the `mavenPublishing.configure(new JavaLibrary(...))` call to avoid the old Groovy closure coercion failure.
+
+Validation already passed after migration:
+
+```bash
+git diff --check
+./gradlew clean compileJava
+./gradlew build -x test
+./scripts/run-tests.sh
+# smoke:
+# mock:   ./gradlew :flare-mock-server:bootRun --args='--server.port=18080'
+# sample: ./gradlew :flare-spring-boot-sample:bootRun --args='--server.port=18082 --flare.remote-host=http://localhost:18080 --flare.download-dir=/tmp'
+# curl -fsS http://localhost:18082/get/index
+# curl -fsS -X POST http://localhost:18082/post/index
+```
+
+Smoke responses observed:
+
+```json
+{"code":0,"message":"OK","data":"GET 请求 /get/index"}
+{"code":0,"message":"OK","data":"POST 请求 /post/index"}
+```
+
+Known review risks:
+
+- Boot 4.1 BOM resolves Jackson 3 to `3.1.4`; do not force `3.2.0` unless the whole Boot BOM is verified with that override.
+- Jackson 3 no longer constructs private final-field DTOs without explicit creator metadata; downstream users may need `@JsonCreator`, records, public constructors, or custom mapper configuration.
+- `AGENTS.md` is untracked local orchestration context and should not be included in release commits unless intentionally adopted.

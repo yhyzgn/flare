@@ -18,6 +18,14 @@ import java.nio.file.Files;
  */
 public class TempFileCreator implements FileCreator<Void> {
 
+    /**
+     * create。
+     *
+     * @param unused 值
+     * @param stringConverter 字符串
+     * @return 处理结果
+     * @throws Exception 调用异常
+     */
     @Override
     public File create(Void unused, StringConverter<String> stringConverter) throws IOException {
         return Files.createTempFile("flare-download-", ".tmp").toFile();

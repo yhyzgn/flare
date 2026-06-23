@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0 # 必须拉取所有历史，否则生成 Release Note 会为空
 
@@ -42,7 +42,7 @@ jobs:
           cat ./flare/src/main/java/com/yhy/http/flare/utils/Version.java
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
@@ -60,10 +60,10 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ env.TAG_NAME }}
-          name: Release ${{ env.TAG_NAME }}
+          name: ${{ env.TAG_NAME }}
           # 自动生成更新日志（基于 commit 记录）
           generate_release_notes: true
           # 把编译出的 jar 包也传到 Release 里（通配符递归查找所有 jar 包）

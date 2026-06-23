@@ -46,7 +46,9 @@ public interface Caller<T> extends Cloneable {
     boolean isExecuted();
 
     /**
-     * 取消请求
+
+     * * 取消请求
+
      */
     void cancel();
 

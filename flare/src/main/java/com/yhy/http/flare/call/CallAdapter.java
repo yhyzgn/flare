@@ -36,7 +36,9 @@ public interface CallAdapter<R, T> {
     T adapt(Caller<R> caller, Object[] args) throws Exception;
 
     /**
-     * 适配器工厂
+
+     * * 适配器工厂
+
      */
     interface Factory {
 

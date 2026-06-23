@@ -22,24 +22,49 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/get")
 public class GetController {
 
+    /**
+     * 首页接口。
+     *
+     * @return 处理结果
+     */
     @GetMapping("/index")
     public Res<String> index() {
         log.info("GET 请求 /get/index");
         return Res.success("GET 请求 /get/index");
     }
 
+    /**
+     * 查询接口。
+     *
+     * @param name 字符串
+     * @param age 整数
+     * @return 处理结果
+     */
     @GetMapping("/query")
     public Res<String> query(String name, Integer age) {
         log.info("GET 请求 /get/query?name={}&age={}", name, age);
         return Res.success("GET 请求 /get/query?name=" + name + "&age=" + age);
     }
 
+    /**
+     * 查询接口。
+     *
+     * @param user 值
+     * @return 处理结果
+     */
     @GetMapping("/queryUser")
     public Res<User> query(User user) {
         log.info("GET 请求 /get/queryUser?user={}", user);
         return Res.success(user);
     }
 
+    /**
+     * 路径查询接口。
+     *
+     * @param name 字符串
+     * @param age 整数
+     * @return 处理结果
+     */
     @GetMapping("/query/{name}/{age}")
     public Res<String> queryPath(@PathVariable("name") String name, @PathVariable("age") Integer age) {
         log.info("GET 请求 /get/query/{}/{}", name, age);

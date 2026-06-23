@@ -17,6 +17,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class TimeoutExceptionResolver implements Catcher.Resolver {
 
+    /**
+     * 处理异常。
+     *
+     * @param throwable 异常
+     * @throws Throwable 处理异常
+     */
     @Override
     public void resolve(Throwable throwable) throws Throwable {
         log.error("超时异常处理", throwable);

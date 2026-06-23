@@ -15,6 +15,13 @@ import com.yhy.http.flare.utils.ReflectUtils;
  */
 public class ConstructorExceptionResolverDelegate implements ExceptionResolverDelegate {
 
+    /**
+     * 应用委托。
+     *
+     * @param clazz 类型
+     * @return 处理结果
+     * @throws Exception 调用异常
+     */
     @Override
     public <T extends Catcher.Resolver> T apply(Class<T> clazz) throws Exception {
         return ReflectUtils.newInstance(clazz);

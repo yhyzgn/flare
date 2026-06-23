@@ -1,12 +1,11 @@
-import com.vanniktech.maven.publish.JavaLibrary
 import com.vanniktech.maven.publish.JavadocJar
-import com.vanniktech.maven.publish.DeploymentValidation
+import com.vanniktech.maven.publish.SourcesJar
 
 plugins {
-    id "org.zeroturnaround.gradle.jrebel" version "1.2.0" apply false
-    id 'org.springframework.boot' version '3.5.11' apply false
+    id "org.zeroturnaround.gradle.jrebel" version "1.2.2" apply false
+    id 'org.springframework.boot' version '4.1.0' apply false
     id 'io.spring.dependency-management' version '1.1.7' apply false
-    id "com.vanniktech.maven.publish" version "0.36.0" apply false
+    id "com.vanniktech.maven.publish" version "0.37.0" apply false
     id 'java-library'
 }
 
@@ -45,11 +44,9 @@ subprojects {
         apply plugin: "com.vanniktech.maven.publish"
 
         mavenPublishing {
-            configure(new JavaLibrary(new JavadocJar.Javadoc(), true))
-            // or when publishing to https://central.sonatype.com/
-            // 第一个参数 true: 成功后自动 Release
-            // 第二个参数 DeploymentValidation.PUBLISHED: 等待直到项目真正发布成功
-            publishToMavenCentral(true, DeploymentValidation.PUBLISHED)
+            configureBasedOnAppliedPlugins(new JavadocJar.Javadoc(), new SourcesJar.Sources())
+            // Maven Central publishing is enabled through gradle.properties.
+            // This avoids Groovy/IDE false positives around the Kotlin overloaded publishToMavenCentral API.
 
             signAllPublications()
 

@@ -19,10 +19,22 @@ public class UrlUtils {
         throw new UnsupportedOperationException("Can not instantiate utils class");
     }
 
+    /**
+     * 编码。
+     *
+     * @param url 字符串
+     * @return 处理结果
+     */
     public static String encode(String url) {
         return URLEncoder.encode(url, StandardCharsets.UTF_8);
     }
 
+    /**
+     * 解码。
+     *
+     * @param url 字符串
+     * @return 处理结果
+     */
     public static String decode(String url) {
         return URLDecoder.decode(url, StandardCharsets.UTF_8);
     }

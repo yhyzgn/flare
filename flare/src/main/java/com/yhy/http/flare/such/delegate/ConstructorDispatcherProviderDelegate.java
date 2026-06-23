@@ -15,6 +15,12 @@ import com.yhy.http.flare.utils.ReflectUtils;
  */
 public class ConstructorDispatcherProviderDelegate implements DispatcherProviderDelegate {
 
+    /**
+     * 应用委托。
+     *
+     * @param clazz 类型
+     * @return 处理结果
+     */
     @Override
     public <T extends DispatcherProvider> T apply(Class<T> clazz) {
         return ReflectUtils.newInstance(clazz);

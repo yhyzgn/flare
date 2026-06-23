@@ -1,29 +1,29 @@
 ext {
     group = "com.yhyzgn.http"
-    version = "1.0.0"
+    version = "2.0.0"
     url = "github.com/yhyzgn/flare" as Object
     repository = [
             release : "https://oss.sonatype.org/service/local/staging/deploy/maven2/",
             snapshot: "https://oss.sonatype.org/content/repositories/snapshots/"
     ] as LinkedHashMap
     lib = [
-            caffeine           : "3.2.3",
-            commonsCodec       : "1.21.0",
+            caffeine           : "3.2.4",
+            commonsCodec       : "1.22.0",
             commonsCollections4: "4.5.0",
             commonsCompress    : "1.28.0",
-            commonsIo          : "2.21.0",
+            commonsIo          : "2.22.0",
             commonsLang3       : "3.20.0",
             commonsText        : "1.15.0",
-            gson               : "2.13.2",
-            guava              : "33.5.0-jre",
-            jackson            : "2.21.1",
+            gson               : "2.14.0",
+            guava              : "33.6.0-jre",
+            jackson            : "3.1.4",
             jetbrains          : "26.1.0",
-            junit              : "6.0.3",
-            logback            : "1.5.24",
-            lombok             : "1.18.42",
-            okhttp3            : "5.3.2",
-            slf4j              : "2.0.17",
-            spring             : "6.2.11",
+            junit              : "6.1.0",
+            logback            : "1.5.34",
+            lombok             : "1.18.46",
+            okhttp3            : "5.4.0",
+            slf4j              : "2.0.18",
+            spring             : "7.0.8",
             ttl                : "2.14.5",
     ]
     flare = [

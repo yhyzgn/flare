@@ -21,6 +21,13 @@ import java.io.IOException;
 @Component
 public class GetInterceptor implements Interceptor {
 
+    /**
+     * 拦截请求。
+     *
+     * @param chain 值
+     * @return 处理结果
+     * @throws IOException IO 异常
+     */
     @Override
     public @NotNull Response intercept(@NotNull Interceptor.Chain chain) throws IOException {
         log.info("GetInterceptor executing");

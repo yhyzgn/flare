@@ -158,3 +158,23 @@ Current safe baseline:
 - `flare/build.gradle` forwards `flare.mock.port` into the Gradle test JVM.
 - `scripts/run-tests.sh` auto-selects a free port if default 8080 is occupied, passes that port to mock server and tests, cleans known download-test artifacts, and traps exit to stop the mock server.
 - `FlarePostTest#createTempSampleFile` writes non-empty fallback bytes when the classpath sample file is absent.
+
+
+### 10. Spring Boot 4 / Jackson 3 migration
+
+Files:
+
+- `flare/src/main/java/com/yhy/http/flare/Flare.java`
+- `flare/src/main/java/com/yhy/http/flare/such/convert/JacksonConverterFactory.java`
+- `flare-spring/src/main/java/com/yhy/http/flare/spring/convert/JsonMapperConverterFactory.java`
+- `flare-spring-starter-abstract/.../FlareFactoryBean.java`
+- `flare-spring-boot-sample/.../model/Res.java`
+
+Risks:
+
+- `ObjectMapper` -> `JsonMapper` is not a pure rename; Jackson 3 constructor inference is stricter. Private final-field classes without explicit creator metadata can fail at runtime with `InvalidDefinitionException`.
+- Jackson annotations remain `com.fasterxml.jackson.annotation` in Jackson 3, while core/databind imports move to `tools.jackson.*`; do not mass-rename annotations to `tools.jackson.annotation`.
+- Spring Boot 4 starter split requires MVC apps to use `spring-boot-starter-webmvc`; using the old starter name may hide dependency shape changes.
+- Boot 4.1 BOM resolves Jackson 3 to `3.1.4`; forcing a newer Jackson line should be a separate compatibility task.
+
+Safe rule: after any Jackson/Spring starter change, run compile, `build -x test`, `scripts/run-tests.sh`, and sample GET/POST smoke through the starter proxy.

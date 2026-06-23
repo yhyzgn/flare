@@ -91,10 +91,25 @@ public class RequestFactory {
         }
     }
 
+    /**
+     * 解析注解。
+     *
+     * @param flare 值
+     * @param method 方法
+     * @return 处理结果
+     */
     public static RequestFactory parseAnnotations(Flare flare, Method method) {
         return new Builder(flare, method).build();
     }
 
+    /**
+     * create。
+     *
+     * @param clientBuilder 值
+     * @param args 对象
+     * @return 处理结果
+     * @throws Exception 调用异常
+     */
     public Request create(OkHttpClient.Builder clientBuilder, Object[] args) throws Exception {
         // 自定义设置拦截器
         if (!netInterceptors.isEmpty()) {

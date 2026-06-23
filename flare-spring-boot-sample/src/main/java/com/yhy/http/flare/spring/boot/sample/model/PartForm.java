@@ -22,14 +22,26 @@ public class PartForm implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 名称。
+     */
     private String name;
 
+    /**
+     * 文件。
+     */
     @Multipart
     private File file;
 
+    /**
+     * 字节文件。
+     */
     @Multipart(filename = "bytes.webp")
     private byte[] bytesFile;
 
+    /**
+     * 临时输入流文件。
+     */
     @Multipart(value = "inputStreamFile", filename = "tempInputStreamFile.webp")
     private FileInputStream tempInputStreamFile;
 }

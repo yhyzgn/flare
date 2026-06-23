@@ -18,6 +18,11 @@ import java.util.concurrent.Executors;
  */
 public class VirtualThreadDispatcherProvider implements DispatcherProvider {
 
+    /**
+     * provide。
+     *
+     * @return 处理结果
+     */
     @Override
     public Dispatcher provide() {
         ExecutorService executorService = TtlExecutors.getTtlExecutorService(Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("flare-vt-", 0).factory()));

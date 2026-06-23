@@ -15,6 +15,13 @@ import okhttp3.Interceptor;
  */
 public class ConstructorInterceptorDelegate implements InterceptorDelegate {
 
+    /**
+     * 应用委托。
+     *
+     * @param clazz 类型
+     * @return 处理结果
+     * @throws Exception 调用异常
+     */
     @Override
     public <T extends Interceptor> T apply(Class<T> clazz) throws Exception {
         return ReflectUtils.newInstance(clazz);

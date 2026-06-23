@@ -30,16 +30,31 @@ import java.io.InputStream;
 public class GetController {
     private final GetRemote getRemote;
 
+    /**
+     * 首页接口。
+     *
+     * @return 处理结果
+     */
     @GetMapping("/index")
     public Res<String> index() {
         return getRemote.index();
     }
 
+    /**
+     * index By Url。
+     *
+     * @return 处理结果
+     */
     @GetMapping("/indexByUrl")
     public Res<String> indexByUrl() {
         return getRemote.indexByUrl("http://localhost:8080/get/index");
     }
 
+    /**
+     * 查询接口。
+     *
+     * @return 处理结果
+     */
     @GetMapping("/query")
     public Res<String> query() {
         Res<String> res = getRemote.query("李万姬", 25);
@@ -47,11 +62,21 @@ public class GetController {
         return Res.success();
     }
 
+    /**
+     * 路径查询接口。
+     *
+     * @return 处理结果
+     */
     @GetMapping("/queryPath")
     public Res<String> queryPath() {
         return getRemote.queryPath("李/万姬", 25);
     }
 
+    /**
+     * 用户查询接口。
+     *
+     * @return 处理结果
+     */
     @GetMapping("/queryUser")
     public Res<User> queryUser() {
         Cat cat = new Cat("Tom", "white");
@@ -59,17 +84,34 @@ public class GetController {
         return getRemote.queryUser(user);
     }
 
+    /**
+     * 默认查询接口。
+     *
+     * @return 处理结果
+     */
     @GetMapping("/queryDefault")
     public Res<String> queryDefault() {
         return getRemote.queryDefault("李/万姬", 25);
     }
 
+    /**
+     * 响应体示例接口。
+     *
+     * @return 处理结果
+     * @throws IOException IO 异常
+     */
     @GetMapping("/forBody")
     public Res<String> forBody() throws IOException {
         okhttp3.ResponseBody body = getRemote.forBody();
         return Res.success(body.string());
     }
 
+    /**
+     * 字节数组示例接口。
+     *
+     * @return 处理结果
+     * @throws IOException IO 异常
+     */
     @GetMapping("/forBytes")
     public Res<String> forBytes() throws IOException {
         byte[] bytes = getRemote.forBytes();
@@ -77,24 +119,48 @@ public class GetController {
         return Res.success();
     }
 
+    /**
+     * 输入流示例接口。
+     *
+     * @return 处理结果
+     * @throws IOException IO 异常
+     */
     @GetMapping("/forInputStream")
     public Res<String> forInputStream() throws IOException {
         InputStream inputStream = getRemote.forInputStream();
         return Res.success(new String(inputStream.readAllBytes()));
     }
 
+    /**
+     * 文件示例接口。
+     *
+     * @return 处理结果
+     * @throws IOException IO 异常
+     */
     @GetMapping("/forFile")
     public Res<String> forFile() throws IOException {
         File file = getRemote.forFile();
         return Res.success(file.getAbsolutePath());
     }
 
+    /**
+     * 文件下载示例接口。
+     *
+     * @return 处理结果
+     * @throws IOException IO 异常
+     */
     @GetMapping("/forFileDownload")
     public Res<String> forFileDownload() throws IOException {
         File file = getRemote.forFileDownload();
         return Res.success(file.getAbsolutePath());
     }
 
+    /**
+     * 无返回文件下载示例接口。
+     *
+     * @return 处理结果
+     * @throws IOException IO 异常
+     */
     @GetMapping("/forVoidFileDownload")
     public Res<String> forVoidFileDownload() throws IOException {
         getRemote.forVoidFileDownload();

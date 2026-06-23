@@ -19,6 +19,12 @@ import java.lang.reflect.Method;
 @Component
 public class PostDynamicHeader implements Header.Dynamic {
 
+    /**
+     * 生成请求头。
+     *
+     * @param method 方法
+     * @return 处理结果
+     */
     @Override
     public HttpHeader header(Method method) {
         return HttpHeader.of("Post-Dynamic-Header", "POST - " + RandomStringUtils.secure().nextPrint(32));

@@ -16,11 +16,21 @@ import java.lang.annotation.Annotation;
  */
 public class FlareAutoRegister extends AbstractFlareAutoRegister {
 
+    /**
+     * 获取启用注解类型。
+     *
+     * @return 处理结果
+     */
     @Override
     public Class<? extends Annotation> enableAnnotation() {
         return EnableFlare.class;
     }
 
+    /**
+     * 获取 Flare 注解类型。
+     *
+     * @return 处理结果
+     */
     @Override
     public Class<? extends Annotation> flareAnnotation() {
         return Flare.class;

@@ -44,13 +44,13 @@ Spring topology:
 
 - Gradle wrapper: 8.14.4.
 - Java: 21.
-- Spring Boot plugin: 3.5.11.
-- Spring framework version property: 6.2.11.
-- OkHttp BOM: 5.3.2.
-- Jackson: 2.21.1.
-- Gson: 2.13.2.
-- JUnit: 6.0.3.
-- Lombok: 1.18.42.
+- Spring Boot plugin: 4.1.0.
+- Spring framework version property: 7.0.8.
+- OkHttp BOM: 5.4.0.
+- Jackson: 3.1.4 (`tools.jackson.*`, `JsonMapper`; annotations remain `com.fasterxml.jackson.annotation`).
+- Gson: 2.14.0.
+- JUnit: 6.1.0.
+- Lombok: 1.18.46.
 
 ## Database / persistence
 
@@ -63,3 +63,11 @@ No database, ORM, migration, datasource, or repository layer was found in the sc
 - `./scripts/run-tests.sh`
 - `./gradlew :flare-mock-server:bootRun`
 - `./gradlew :flare-spring-boot-sample:bootRun`
+
+
+## Spring Boot 4 migration memory
+
+- Boot 4 starter split: use `spring-boot-starter-webmvc` for servlet MVC apps/starter paths instead of the old broad `spring-boot-starter-web`.
+- Spring Boot 4.1.0 runtime uses Tomcat 11 and Spring Framework 7.0.x.
+- Jackson 3 package migration: databind/core classes are under `tools.jackson.*`; annotation artifacts remain under `com.fasterxml.jackson.annotation`.
+- Boot 4.1 BOM currently aligns Jackson 3 to `3.1.4`; keep project property aligned unless deliberately overriding and revalidating all Boot modules.

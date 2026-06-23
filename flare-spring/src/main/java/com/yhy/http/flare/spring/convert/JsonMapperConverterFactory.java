@@ -1,6 +1,6 @@
 package com.yhy.http.flare.spring.convert;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.yhy.http.flare.convert.BodyConverter;
 import com.yhy.http.flare.such.convert.JacksonConverterFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Role;
 import org.springframework.stereotype.Component;
 
 /**
- * ObjectMapper 实现的 Body 转换器
+ * JsonMapper 实现的 Body 转换器
  * <p>
  * Created on 2025-09-17 17:26
  *
@@ -23,14 +23,23 @@ import org.springframework.stereotype.Component;
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 @Component
 @ConditionalOnMissingBean(BodyConverter.Factory.class)
-public class ObjectMapperConverterFactory extends JacksonConverterFactory implements InitializingBean {
+public class JsonMapperConverterFactory extends JacksonConverterFactory implements InitializingBean {
 
-    public ObjectMapperConverterFactory(ObjectMapper mapper) {
+    /**
+     * 创建 JsonMapperConverterFactory 实例。
+     *
+     * @param mapper 映射
+     */
+    public JsonMapperConverterFactory(JsonMapper mapper) {
         super(mapper);
     }
 
+    /**
+     * 属性设置完成回调。
+     *
+     */
     @Override
     public void afterPropertiesSet() {
-        log.debug("ObjectMapperConverterFactory initialized");
+        log.debug("JsonMapperConverterFactory initialized");
     }
 }

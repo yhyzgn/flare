@@ -34,14 +34,36 @@ public abstract class HttpHandlerAdapter<R, T> implements HttpHandler<T> {
         this.responseConverter = responseConverter;
     }
 
+    /**
+     * 执行调用。
+     *
+     * @param args 对象
+     * @return 处理结果
+     * @throws Exception 调用异常
+     */
     @Override
     public T invoke(Object[] args) throws Exception {
         OkCaller<R> call = new OkCaller<>(requestFactory, flare, responseConverter, args);
         return adapt(call, args);
     }
 
+    /**
+     * 适配调用。
+     *
+     * @param caller 值
+     * @param args 对象
+     * @return 处理结果
+     * @throws Exception 调用异常
+     */
     protected abstract T adapt(Caller<R> caller, Object[] args) throws Exception;
 
+    /**
+     * 解析注解。
+     *
+     * @param flare 值
+     * @param method 方法
+     * @return 处理结果
+     */
     public static HttpHandler<?> parseAnnotations(Flare flare, Method method) {
         Type returnType = method.getGenericReturnType();
         Assert.isFalse(ReflectUtils.hasUnresolvableType(returnType), ReflectUtils.methodError(method, "Method return type must not include a type variable or wildcard: %s", returnType));
@@ -67,6 +89,10 @@ public abstract class HttpHandlerAdapter<R, T> implements HttpHandler<T> {
         return (CallAdapter<R, T>) flare.callAdapter(returnType, annotations);
     }
 
+    /**
+     * Adapted Caller类。
+     *
+     */
     public static class AdaptedCaller<R, T> extends HttpHandlerAdapter<R, T> {
         private final CallAdapter<R, T> callAdapter;
 
@@ -75,6 +101,14 @@ public abstract class HttpHandlerAdapter<R, T> implements HttpHandler<T> {
             this.callAdapter = callAdapter;
         }
 
+        /**
+         * 适配调用。
+         *
+         * @param call 值
+         * @param args 对象
+         * @return 处理结果
+         * @throws Exception 调用异常
+         */
         @Override
         protected T adapt(Caller<R> call, Object[] args) throws Exception {
             return callAdapter.adapt(call, args);

@@ -16,30 +16,81 @@ import java.security.cert.X509Certificate;
  * @since 1.0.0
  */
 public final class VoidSSLX509TrustManager extends X509ExtendedTrustManager {
+    /**
+     * check Client Trusted。
+     *
+     * @param chain 值
+     * @param authType 字符串
+     * @param socket 值
+     * @throws Exception 调用异常
+     */
     @Override
     public void checkClientTrusted(X509Certificate[] chain, String authType, Socket socket) throws CertificateException {
     }
 
+    /**
+     * check Server Trusted。
+     *
+     * @param chain 值
+     * @param authType 字符串
+     * @param socket 值
+     * @throws Exception 调用异常
+     */
     @Override
     public void checkServerTrusted(X509Certificate[] chain, String authType, Socket socket) throws CertificateException {
     }
 
+    /**
+     * check Client Trusted。
+     *
+     * @param chain 值
+     * @param authType 字符串
+     * @param engine 值
+     * @throws Exception 调用异常
+     */
     @Override
     public void checkClientTrusted(X509Certificate[] chain, String authType, SSLEngine engine) throws CertificateException {
     }
 
+    /**
+     * check Server Trusted。
+     *
+     * @param chain 值
+     * @param authType 字符串
+     * @param engine 值
+     * @throws Exception 调用异常
+     */
     @Override
     public void checkServerTrusted(X509Certificate[] chain, String authType, SSLEngine engine) throws CertificateException {
     }
 
+    /**
+     * check Client Trusted。
+     *
+     * @param chain 值
+     * @param authType 字符串
+     * @throws Exception 调用异常
+     */
     @Override
     public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
     }
 
+    /**
+     * check Server Trusted。
+     *
+     * @param chain 值
+     * @param authType 字符串
+     * @throws Exception 调用异常
+     */
     @Override
     public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
     }
 
+    /**
+     * get Accepted Issuers。
+     *
+     * @return 处理结果
+     */
     @Override
     public X509Certificate[] getAcceptedIssuers() {
         return new X509Certificate[0];

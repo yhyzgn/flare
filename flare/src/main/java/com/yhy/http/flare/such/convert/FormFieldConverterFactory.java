@@ -29,6 +29,14 @@ import java.util.Map;
  */
 public class FormFieldConverterFactory implements FormFieldConverter.Factory {
 
+    /**
+     * 获取转换器。
+     *
+     * @param type 值
+     * @param annotations 注解
+     * @param flare 值
+     * @return 处理结果
+     */
     @Override
     public FormFieldConverter<?> converter(Type type, Annotation[] annotations, Flare flare) {
         return new InternalFormFieldConverter<>();
@@ -36,10 +44,19 @@ public class FormFieldConverterFactory implements FormFieldConverter.Factory {
 
     private record InternalFormFieldConverter<T>() implements FormFieldConverter<T> {
         /**
-         * 递归后的默认值
+         * * 递归后的默认值
          */
         private static final String DEFAULT_VALUE = null;
 
+        /**
+         * 转换数据。
+         *
+         * @param name 字符串
+         * @param value 值
+         * @param encoded 值
+         * @param defaultValue 字符串
+         * @return 处理结果
+         */
         @Override
         public List<FormField<?>> convert(String name, T value, boolean encoded, String defaultValue) {
             List<FormField<?>> formFields = new ArrayList<>();

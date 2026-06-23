@@ -32,10 +32,20 @@ public class SystemClock {
         schedule();
     }
 
+    /**
+     * 获取当前时间戳。
+     *
+     * @return 处理结果
+     */
     public static long now() {
         return INSTANCE.now.get();
     }
 
+    /**
+     * 获取当前日期。
+     *
+     * @return 处理结果
+     */
     public static Date nowDate() {
         return new Date(now());
     }

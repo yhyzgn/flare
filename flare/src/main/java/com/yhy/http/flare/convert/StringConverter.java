@@ -23,7 +23,9 @@ public interface StringConverter<T> {
     String convert(T value) throws Exception;
 
     /**
-     * 转换工厂接口
+
+     * * 转换工厂接口
+
      */
     interface Factory {
 

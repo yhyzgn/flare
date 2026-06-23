@@ -32,6 +32,13 @@ import java.util.Objects;
 @ConditionalOnMissingBean(MethodAnnotationDelegate.class)
 public class SpringMethodAnnotationDelegate implements MethodAnnotationDelegate, InitializingBean {
 
+    /**
+     * 应用委托。
+     *
+     * @param method 方法
+     * @param annotationClass 类型
+     * @return 处理结果
+     */
     @Override
     public <T extends Annotation> List<T> apply(Method method, Class<T> annotationClass) {
         MergedAnnotations annotations = MergedAnnotations.from(method, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
@@ -42,6 +49,10 @@ public class SpringMethodAnnotationDelegate implements MethodAnnotationDelegate,
         return (CollectionUtils.isEmpty(result) ? Collections.singletonList(method.getAnnotation(annotationClass)) : result).stream().filter(Objects::nonNull).toList();
     }
 
+    /**
+     * 属性设置完成回调。
+     *
+     */
     @Override
     public void afterPropertiesSet() {
         log.debug("SpringMethodAnnotationDelegate initialized");

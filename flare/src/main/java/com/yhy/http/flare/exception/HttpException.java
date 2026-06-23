@@ -18,6 +18,11 @@ public class HttpException extends RuntimeException {
     private final int code;
     private final InternalResponse<?> response;
 
+    /**
+     * 创建 HttpException 实例。
+     *
+     * @param response 值
+     */
     public HttpException(InternalResponse<?> response) {
         super(parseMessage(response));
         this.code = response.getStatusCode();

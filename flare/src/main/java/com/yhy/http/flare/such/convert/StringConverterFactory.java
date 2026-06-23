@@ -15,6 +15,12 @@ import com.yhy.http.flare.utils.Opt;
  */
 public class StringConverterFactory implements StringConverter.Factory {
 
+    /**
+     * 获取转换器。
+     *
+     * @param flare 值
+     * @return 处理结果
+     */
     @Override
     public StringConverter<?> converter(Flare flare) {
         return new ToStringConverter<>();
@@ -22,6 +28,12 @@ public class StringConverterFactory implements StringConverter.Factory {
 
     private record ToStringConverter<T>() implements StringConverter<T> {
 
+        /**
+         * 转换数据。
+         *
+         * @param value 值
+         * @return 处理结果
+         */
         @Override
         public String convert(T value) {
             return Opt.ofNullable(value).map(Object::toString).orElse("");

@@ -19,6 +19,13 @@ import java.util.stream.Stream;
  */
 public class ConstructorMethodAnnotationDelegate implements MethodAnnotationDelegate {
 
+    /**
+     * 应用委托。
+     *
+     * @param method 方法
+     * @param annotationClass 类型
+     * @return 处理结果
+     */
     @Override
     public <T extends Annotation> List<T> apply(Method method, Class<T> annotationClass) {
         return Stream.of(method.getAnnotation(annotationClass)).filter(Objects::nonNull).toList();

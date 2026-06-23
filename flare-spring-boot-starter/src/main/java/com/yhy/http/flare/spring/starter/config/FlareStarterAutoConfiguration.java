@@ -20,6 +20,10 @@ import org.springframework.context.annotation.Role;
 @Configuration
 public class FlareStarterAutoConfiguration implements InitializingBean {
 
+    /**
+     * 属性设置完成回调。
+     *
+     */
     @Override
     public void afterPropertiesSet() {
         log.info("Flare starter auto configuration is loaded.");

@@ -44,3 +44,10 @@ Date: 2026-06-23
 - `prompt.md` is the AI handover entry point.
 - `.memory/` stores durable project memory and constraints.
 - `.prompt/` stores staged task prompts. Append a new numbered prompt per phase and repair the chain when rework changes assumptions.
+
+
+## Release conventions
+
+- Current intended Flare version for the Boot 4 migration line is `2.0.0`.
+- GitHub release names should be exactly the tag, e.g. `v2.0.0`, without a `Release ` prefix.
+- Do not run Maven Central publish tasks during local migration validation.

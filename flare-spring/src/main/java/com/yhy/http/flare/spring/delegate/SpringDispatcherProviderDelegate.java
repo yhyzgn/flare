@@ -29,16 +29,32 @@ import org.springframework.stereotype.Component;
 public class SpringDispatcherProviderDelegate implements DispatcherProviderDelegate, InitializingBean, ApplicationContextAware {
     private ApplicationContext context;
 
+    /**
+     * 应用委托。
+     *
+     * @param clazz 类型
+     * @return 处理结果
+     */
     @Override
     public <T extends DispatcherProvider> T apply(Class<T> clazz) {
         return context.getBean(clazz);
     }
 
+    /**
+     * 属性设置完成回调。
+     *
+     */
     @Override
     public void afterPropertiesSet() {
         log.debug("SpringDispatcherProviderDelegate initialized");
     }
 
+    /**
+     * 设置应用上下文。
+     *
+     * @param context 值
+     * @throws Exception 调用异常
+     */
     @Override
     public void setApplicationContext(@NotNull ApplicationContext context) throws BeansException {
         this.context = context;

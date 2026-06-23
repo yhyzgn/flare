@@ -1,8 +1,8 @@
 package com.yhy.http.flare.such.convert;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.json.JsonMapper;
 import com.yhy.http.flare.Flare;
 import com.yhy.http.flare.convert.BodyConverter;
 import okhttp3.MediaType;
@@ -30,33 +30,66 @@ import java.nio.charset.StandardCharsets;
  * @since 1.0.0
  */
 public class JacksonConverterFactory implements BodyConverter.Factory {
-    private final ObjectMapper objectMapper;
+    private final JsonMapper mapper;
 
-    public JacksonConverterFactory(ObjectMapper mapper) {
-        this.objectMapper = mapper;
+    /**
+     * 创建 JacksonConverterFactory 实例。
+     *
+     * @param mapper 映射
+     */
+    public JacksonConverterFactory(JsonMapper mapper) {
+        this.mapper = mapper;
     }
 
+    /**
+     * request Body Converter。
+     *
+     * @param type 值
+     * @param parameterAnnotations 注解
+     * @param flare 值
+     * @return 处理结果
+     */
     @Override
     public @Nullable BodyConverter<?, RequestBody> requestBodyConverter(Type type, Annotation[] parameterAnnotations, Flare flare) {
-        JavaType javaType = objectMapper.getTypeFactory().constructType(type);
-        return new JacksonRequestBodyBodyConverter<>(objectMapper, javaType, flare);
+        JavaType javaType = mapper.getTypeFactory().constructType(type);
+        return new JacksonRequestBodyBodyConverter<>(mapper, javaType, flare);
     }
 
+    /**
+     * response Body Converter。
+     *
+     * @param type 值
+     * @param annotations 注解
+     * @param flare 值
+     * @return 处理结果
+     */
     @Override
     public @Nullable BodyConverter<ResponseBody, ?> responseBodyConverter(Type type, Annotation[] annotations, Flare flare) {
-        JavaType javaType = objectMapper.getTypeFactory().constructType(type);
-        return new JacksonResponseBodyBodyConverter<>(objectMapper, javaType, annotations, flare);
+        JavaType javaType = mapper.getTypeFactory().constructType(type);
+        return new JacksonResponseBodyBodyConverter<>(mapper, javaType, annotations, flare);
     }
 
-    private record JacksonRequestBodyBodyConverter<T>(ObjectMapper mapper, JavaType type, Flare flare) implements BodyConverter<T, RequestBody> {
+    private record JacksonRequestBodyBodyConverter<T>(JsonMapper mapper, JavaType type, Flare flare) implements BodyConverter<T, RequestBody> {
         private static final MediaType MEDIA_TYPE = MediaType.get("application/json; charset=UTF-8");
         private static final Charset UTF_8 = StandardCharsets.UTF_8;
 
+        /**
+         * result Type。
+         *
+         * @return 处理结果
+         */
         @Override
         public Class<?> resultType() {
             return type.getRawClass();
         }
 
+        /**
+         * 转换数据。
+         *
+         * @param from 值
+         * @return 处理结果
+         * @throws Exception 调用异常
+         */
         @Override
         public @NotNull RequestBody convert(T from) throws IOException {
             switch (from) {
@@ -85,13 +118,25 @@ public class JacksonConverterFactory implements BodyConverter.Factory {
         }
     }
 
-    private record JacksonResponseBodyBodyConverter<T>(ObjectMapper mapper, JavaType type, Annotation[] annotations, Flare flare) implements BodyConverter<ResponseBody, T> {
+    private record JacksonResponseBodyBodyConverter<T>(JsonMapper mapper, JavaType type, Annotation[] annotations, Flare flare) implements BodyConverter<ResponseBody, T> {
 
+        /**
+         * result Type。
+         *
+         * @return 处理结果
+         */
         @Override
         public Class<?> resultType() {
             return type.getRawClass();
         }
 
+        /**
+         * 转换数据。
+         *
+         * @param from 响应体
+         * @return 处理结果
+         * @throws Exception 调用异常
+         */
         @Nullable
         @Override
         public T convert(ResponseBody from) throws IOException {

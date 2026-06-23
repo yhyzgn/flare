@@ -14,6 +14,13 @@ import javax.net.ssl.SSLSession;
  */
 public final class VoidSSLHostnameVerifier implements HostnameVerifier {
 
+    /**
+     * verify。
+     *
+     * @param hostname 字符串
+     * @param session 值
+     * @return 处理结果
+     */
     @Override
     public boolean verify(String hostname, SSLSession session) {
         return false;

@@ -21,7 +21,9 @@ import java.util.Objects;
 public abstract class StringUtils {
 
     /**
-     * Prevent instantiation
+
+     * * Prevent instantiation
+
      */
     private StringUtils() {
         throw new UnsupportedOperationException("This class is not for instantiation");
@@ -54,28 +56,36 @@ public abstract class StringUtils {
     }
 
     /**
-     * 判断字符串是否为 null 或空
+
+     * * 判断字符串是否为 null 或空
+
      */
     public static boolean isEmpty(CharSequence str) {
         return str == null || str.isEmpty();
     }
 
     /**
-     * 判断字符串是否为 null、空串、或全空白字符
+
+     * * 判断字符串是否为 null、空串、或全空白字符
+
      */
     public static boolean isBlank(CharSequence str) {
         return str == null || str.toString().trim().isEmpty();
     }
 
     /**
-     * 判断字符串非空
+
+     * * 判断字符串非空
+
      */
     public static boolean isNotEmpty(CharSequence str) {
         return !isEmpty(str);
     }
 
     /**
-     * 判断字符串非空白
+
+     * * 判断字符串非空白
+
      */
     public static boolean isNotBlank(CharSequence str) {
         return !isBlank(str);
@@ -94,7 +104,9 @@ public abstract class StringUtils {
     // ==================== 常用处理 ====================
 
     /**
-     * 将 null 转为空串
+
+     * * 将 null 转为空串
+
      */
     public static String nullToEmpty(String str) {
         return str == null ? "" : str;
@@ -257,7 +269,9 @@ public abstract class StringUtils {
     }
 
     /**
-     * 转换对象为字符串，支持 null
+
+     * * 转换对象为字符串，支持 null
+
      */
     private static String objectToString(Object obj) {
         if (obj == null) return "null";
@@ -271,21 +285,27 @@ public abstract class StringUtils {
     // ==================== 额外方法示例 ====================
 
     /**
-     * 将字符串编码为 UTF-8 字节数组
+
+     * * 将字符串编码为 UTF-8 字节数组
+
      */
     public static byte[] toUtf8Bytes(String str) {
         return str == null ? new byte[0] : str.getBytes(StandardCharsets.UTF_8);
     }
 
     /**
-     * 判断两个字符串相等（忽略大小写）
+
+     * * 判断两个字符串相等（忽略大小写）
+
      */
     public static boolean equalsIgnoreCase(String a, String b) {
         return a == null ? b == null : a.equalsIgnoreCase(b);
     }
 
     /**
-     * 判断字符串是否是数字
+
+     * * 判断字符串是否是数字
+
      */
     public static boolean isNumeric(String str) {
         if (isBlank(str)) return false;
@@ -462,6 +482,12 @@ public abstract class StringUtils {
         return trimStart(trimEnd(cs));
     }
 
+    /**
+     * 判断布尔字符串。
+     *
+     * @param text 字符串
+     * @return 判断布尔字符串
+     */
     public static boolean isBoolean(String text) {
         return "true".equalsIgnoreCase(text) || "false".equalsIgnoreCase(text);
     }

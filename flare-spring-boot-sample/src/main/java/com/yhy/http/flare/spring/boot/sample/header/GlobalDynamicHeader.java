@@ -19,6 +19,12 @@ import java.lang.reflect.Method;
 @Component
 public class GlobalDynamicHeader implements Header.Dynamic {
 
+    /**
+     * 生成请求头。
+     *
+     * @param method 方法
+     * @return 处理结果
+     */
     @Override
     public HttpHeader header(Method method) {
         return HttpHeader.of("Global-Dynamic-Header", RandomStringUtils.secure().nextPrint(32));

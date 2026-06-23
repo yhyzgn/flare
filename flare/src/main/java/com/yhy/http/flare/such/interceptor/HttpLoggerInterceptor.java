@@ -29,6 +29,13 @@ import java.util.*;
 public class HttpLoggerInterceptor implements Interceptor {
     private final static SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss E", Locale.getDefault());
 
+    /**
+     * 拦截请求。
+     *
+     * @param chain 值
+     * @return 处理结果
+     * @throws Exception 调用异常
+     */
     @Override
     public @NotNull Response intercept(@NotNull Interceptor.Chain chain) throws IOException {
         // 开始时间

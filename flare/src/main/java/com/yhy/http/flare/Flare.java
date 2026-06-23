@@ -1,6 +1,6 @@
 package com.yhy.http.flare;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.yhy.http.flare.annotation.Header;
 import com.yhy.http.flare.annotation.exception.Catcher;
 import com.yhy.http.flare.annotation.exception.Catchers;
@@ -372,6 +372,10 @@ public class Flare {
         return loadHttpMethod(method).invoke(null != args ? args : new Object[0]);
     }
 
+    /**
+     * Builder类。
+     *
+     */
     public static class Builder {
         private final List<Interceptor> netInterceptors = new ArrayList<>();
         private final List<Interceptor> interceptors = new ArrayList<>();
@@ -382,6 +386,11 @@ public class Flare {
         private DynamicHeaderDelegate dynamicHeaderDelegate;
         private InterceptorDelegate interceptorDelegate;
         private MethodAnnotationDelegate methodAnnotationDelegate;
+
+        /**
+         * exception Resolver Delegate。
+         *
+         */
         public ExceptionResolverDelegate exceptionResolverDelegate;
         private Dispatcher dispatcher;
         private DispatcherProviderDelegate dispatcherProviderDelegate;
@@ -678,7 +687,7 @@ public class Flare {
             Assert.notNull(baseUrl, "baseUrl cannot be null");
 
             callAdapterFactory = Opt.ofNullable(callAdapterFactory).orElse(new GuavaCallAdapter());
-            bodyConverterFactory = Opt.ofNullable(bodyConverterFactory).orElse(new JacksonConverterFactory(new ObjectMapper()));
+            bodyConverterFactory = Opt.ofNullable(bodyConverterFactory).orElse(new JacksonConverterFactory(JsonMapper.builderWithJackson2Defaults().build()));
             stringConverterFactory = Opt.ofNullable(stringConverterFactory).orElse(new StringConverterFactory());
             formFieldConverterFactory = Opt.ofNullable(formFieldConverterFactory).orElse(new FormFieldConverterFactory());
 

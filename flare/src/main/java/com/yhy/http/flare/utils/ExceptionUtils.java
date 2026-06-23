@@ -22,7 +22,9 @@ import java.util.stream.Collectors;
 public abstract class ExceptionUtils {
 
     /**
-     * 工具类，不允许实例化
+
+     * * 工具类，不允许实例化
+
      */
     private ExceptionUtils() {
         throw new UnsupportedOperationException("Utility class, not instantiable");

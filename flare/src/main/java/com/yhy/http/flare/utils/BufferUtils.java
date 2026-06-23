@@ -20,6 +20,13 @@ public abstract class BufferUtils {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 
+    /**
+     * 缓存响应体。
+     *
+     * @param rawBody 响应体
+     * @return 处理结果
+     * @throws Exception 调用异常
+     */
     public static ResponseBody buffer(ResponseBody rawBody) throws IOException {
         Buffer buffer = new Buffer();
         rawBody.source().readAll(buffer);

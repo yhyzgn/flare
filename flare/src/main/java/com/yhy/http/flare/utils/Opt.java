@@ -352,6 +352,12 @@ public final class Opt<T> {
         }
     }
 
+    /**
+     * 判断相等。
+     *
+     * @param obj 对象
+     * @return 处理结果
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
@@ -359,11 +365,21 @@ public final class Opt<T> {
         return Objects.equals(value, other.value);
     }
 
+    /**
+     * 获取哈希值。
+     *
+     * @return 获取哈希值
+     */
     @Override
     public int hashCode() {
         return value.hashCode();
     }
 
+    /**
+     * 转换为字符串。
+     *
+     * @return 处理结果
+     */
     @Override
     public String toString() {
         return value != null
@@ -371,9 +387,19 @@ public final class Opt<T> {
             : "Opt.empty";
     }
 
+    /**
+     * Non Null Function接口。
+     *
+     */
     @FunctionalInterface
     public interface NonNullFunction<T, R> {
 
+        /**
+         * 应用函数。
+         *
+         * @param t 输入值
+         * @return 输出值
+         */
         @Nullable
         R apply(@NotNull T t);
     }

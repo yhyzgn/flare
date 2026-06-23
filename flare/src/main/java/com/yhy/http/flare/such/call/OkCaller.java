@@ -48,6 +48,14 @@ public class OkCaller<T> implements Caller<T> {
     private Throwable failureHandler;
     private boolean executed;
 
+    /**
+     * 创建 OkCaller 实例。
+     *
+     * @param requestFactory 值
+     * @param flare 值
+     * @param responseConverter 响应体
+     * @param args 对象
+     */
     public OkCaller(RequestFactory requestFactory, Flare flare, BodyConverter<ResponseBody, T> responseConverter, Object[] args) {
         this.requestFactory = requestFactory;
         this.flare = flare;
@@ -55,6 +63,12 @@ public class OkCaller<T> implements Caller<T> {
         this.args = args;
     }
 
+    /**
+     * execute。
+     *
+     * @return 处理结果
+     * @throws Exception 调用异常
+     */
     @Override
     public InternalResponse<T> execute() throws IOException {
         okhttp3.Call call;
@@ -86,6 +100,11 @@ public class OkCaller<T> implements Caller<T> {
         return parseResponse(call.execute());
     }
 
+    /**
+     * request。
+     *
+     * @return 处理结果
+     */
     @Override
     public synchronized Request request() {
         okhttp3.Call call = rawCall;
@@ -110,6 +129,11 @@ public class OkCaller<T> implements Caller<T> {
         }
     }
 
+    /**
+     * enqueue。
+     *
+     * @param callback 值
+     */
     @Override
     public void enqueue(Callback<T> callback) {
         Objects.requireNonNull(callback, "callback can not be null.");
@@ -139,11 +163,23 @@ public class OkCaller<T> implements Caller<T> {
         }
 
         call.enqueue(new okhttp3.Callback() {
+            /**
+             * 处理失败。
+             *
+             * @param call 值
+             * @param e 值
+             */
             @Override
             public void onFailure(@NotNull okhttp3.Call call, @NotNull IOException e) {
                 callFailure(e);
             }
 
+            /**
+             * 处理响应。
+             *
+             * @param call 值
+             * @param rawResponse 值
+             */
             @Override
             public void onResponse(@NotNull okhttp3.Call call, @NotNull okhttp3.Response rawResponse) {
                 InternalResponse<T> response;
@@ -170,11 +206,20 @@ public class OkCaller<T> implements Caller<T> {
         });
     }
 
+    /**
+     * is Executed。
+     *
+     * @return is Executed
+     */
     @Override
     public synchronized boolean isExecuted() {
         return executed;
     }
 
+    /**
+     * cancel。
+     *
+     */
     @Override
     public void cancel() {
         canceled = true;
@@ -187,6 +232,11 @@ public class OkCaller<T> implements Caller<T> {
         }
     }
 
+    /**
+     * is Canceled。
+     *
+     * @return is Canceled
+     */
     @Override
     public boolean isCanceled() {
         if (canceled) {
@@ -197,6 +247,11 @@ public class OkCaller<T> implements Caller<T> {
         }
     }
 
+    /**
+     * clone。
+     *
+     * @return 处理结果
+     */
     @Override
     @SuppressWarnings("MethodDoesntCallSuperMethod")
     public OkCaller<T> clone() {
@@ -293,16 +348,31 @@ public class OkCaller<T> implements Caller<T> {
             this.contentLength = contentLength;
         }
 
+        /**
+         * content Type。
+         *
+         * @return 处理结果
+         */
         @Override
         public MediaType contentType() {
             return contentType;
         }
 
+        /**
+         * content Length。
+         *
+         * @return 处理结果
+         */
         @Override
         public long contentLength() {
             return contentLength;
         }
 
+        /**
+         * source。
+         *
+         * @return 处理结果
+         */
         @Override
         public @NotNull BufferedSource source() {
             throw new IllegalStateException("Cannot read raw response body of a converted body.");
@@ -318,6 +388,14 @@ public class OkCaller<T> implements Caller<T> {
         ExceptionCatchingResponseBody(ResponseBody delegate) {
             this.delegate = delegate;
             this.delegateSource = Okio.buffer(new ForwardingSource(delegate.source()) {
+                /**
+                 * read。
+                 *
+                 * @param sink 值
+                 * @param byteCount 值
+                 * @return 处理结果
+                 * @throws Exception 调用异常
+                 */
                 @Override
                 public long read(@NotNull Buffer sink, long byteCount) throws IOException {
                     try {
@@ -330,21 +408,40 @@ public class OkCaller<T> implements Caller<T> {
             });
         }
 
+        /**
+         * content Type。
+         *
+         * @return 处理结果
+         */
         @Override
         public MediaType contentType() {
             return delegate.contentType();
         }
 
+        /**
+         * content Length。
+         *
+         * @return 处理结果
+         */
         @Override
         public long contentLength() {
             return delegate.contentLength();
         }
 
+        /**
+         * source。
+         *
+         * @return 处理结果
+         */
         @Override
         public @NotNull BufferedSource source() {
             return delegateSource;
         }
 
+        /**
+         * close。
+         *
+         */
         @Override
         public void close() {
             delegate.close();

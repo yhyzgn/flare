@@ -69,6 +69,12 @@ public class RequestBuilder {
         this.formFieldParamMap = new LinkedTreeMap<>();
     }
 
+    /**
+     * add Header。
+     *
+     * @param name 字符串
+     * @param value 字符串
+     */
     public void addHeader(String name, String value) {
         if ("Content-Type".equalsIgnoreCase(name)) {
             contentType = MediaType.get(value);
@@ -76,30 +82,70 @@ public class RequestBuilder {
         headersBuilder.set(name, value);
     }
 
+    /**
+     * add Headers。
+     *
+     * @param headers 值
+     */
     public void addHeaders(Headers headers) {
         headersBuilder.addAll(headers);
     }
 
+    /**
+     * add Path Param。
+     *
+     * @param name 字符串
+     * @param value 字符串
+     * @param encoded 值
+     */
     public void addPathParam(String name, String value, boolean encoded) {
         pathParamMap.put(name, dispatchEncode(value, encoded));
     }
 
+    /**
+     * add Query Param。
+     *
+     * @param name 字符串
+     * @param value 值
+     */
     public void addQueryParam(String name, FormField.ValueFormField value) {
         queryParamMap.computeIfAbsent(name, k -> new ArrayList<>()).add(value);
     }
 
+    /**
+     * add Filed。
+     *
+     * @param name 字符串
+     * @param formField 值
+     */
     public void addFiled(String name, FormField<?> formField) {
         formFieldParamMap.computeIfAbsent(name, k -> new ArrayList<>()).add(formField);
     }
 
+    /**
+     * 请求体接口。
+     *
+     * @param body 请求体
+     */
     public void body(RequestBody body) {
         this.body = body;
     }
 
+    /**
+     * add Tag。
+     *
+     * @param cls 类型
+     * @param value 值
+     */
     public <T> void addTag(Class<T> cls, @Nullable T value) {
         requestBuilder.tag(cls, value);
     }
 
+    /**
+     * get。
+     *
+     * @return 处理结果
+     */
     public Request.Builder get() {
         HttpUrl.Builder urlBuilder = urlBuilder();
         if (MapUtils.isNotEmpty(queryParamMap)) {
@@ -144,11 +190,22 @@ public class RequestBuilder {
                     case FormField.InputStreamFormField inputStreamFormField -> {
                         if (null != multipartBuilder && Objects.nonNull(inputStreamFormField.getValue())) {
                             RequestBody streamBody = new RequestBody() {
+                                /**
+                                 * content Type。
+                                 *
+                                 * @return 处理结果
+                                 */
                                 @Override
                                 public MediaType contentType() {
                                     return MediaType.parse("application/octet-stream");
                                 }
 
+                                /**
+                                 * write To。
+                                 *
+                                 * @param sink 值
+                                 * @throws Exception 调用异常
+                                 */
                                 @Override
                                 public void writeTo(@NotNull BufferedSink sink) throws IOException {
                                     byte[] buffer = new byte[8192];

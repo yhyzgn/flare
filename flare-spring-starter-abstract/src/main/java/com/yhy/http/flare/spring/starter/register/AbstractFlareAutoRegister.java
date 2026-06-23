@@ -54,7 +54,16 @@ import java.util.stream.Stream;
  */
 @Slf4j
 public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware {
+    /**
+     * environment。
+     *
+     */
     protected Environment environment;
+
+    /**
+     * resource Loader。
+     *
+     */
     protected ResourceLoader resourceLoader;
 
     private Class<? extends Annotation> enableAnnotation;
@@ -74,6 +83,12 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
     private Class<? extends X509TrustManager> sslTrustManager;
     private Class<? extends HostnameVerifier> sslHostnameVerifier;
 
+    /**
+     * 注册 Bean 定义。
+     *
+     * @param metadata 注解
+     * @param registry 值
+     */
     @Override
     public void registerBeanDefinitions(@NotNull AnnotationMetadata metadata, @NotNull BeanDefinitionRegistry registry) {
         enableAnnotation = enableAnnotation();
@@ -267,6 +282,12 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
         return null != temp && (boolean) temp;
     }
 
+    /**
+     * dynamic Header List。
+     *
+     * @param attrs 字符串
+     * @return 处理结果
+     */
     public List<Class<? extends Header.Dynamic>> dynamicHeaderList(Map<String, Object> attrs) {
         AnnotationAttributes[] headers = (AnnotationAttributes[]) attrs.get("header");
         if (null != headers && headers.length > 0) {
@@ -281,11 +302,21 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
         return dynamicHeaderList;
     }
 
+    /**
+     * 设置环境。
+     *
+     * @param environment 值
+     */
     @Override
     public void setEnvironment(@NotNull Environment environment) {
         this.environment = environment;
     }
 
+    /**
+     * 设置资源加载器。
+     *
+     * @param resourceLoader 值
+     */
     @Override
     public void setResourceLoader(@NotNull ResourceLoader resourceLoader) {
         this.resourceLoader = resourceLoader;
@@ -328,6 +359,12 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
 
     private ClassPathScanningCandidateComponentProvider getScanner() {
         return new ClassPathScanningCandidateComponentProvider(false, this.environment) {
+            /**
+             * 判断候选组件。
+             *
+             * @param beanDefinition 值
+             * @return 判断候选组件
+             */
             @Override
             protected boolean isCandidateComponent(@NotNull AnnotatedBeanDefinition beanDefinition) {
                 return beanDefinition.getMetadata().isIndependent() && !beanDefinition.getMetadata().isAnnotation();
@@ -335,10 +372,25 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
         };
     }
 
+    /**
+     * 获取启用注解类型。
+     *
+     * @return 处理结果
+     */
     public abstract Class<? extends Annotation> enableAnnotation();
 
+    /**
+     * 获取 Flare 注解类型。
+     *
+     * @return 处理结果
+     */
     public abstract Class<? extends Annotation> flareAnnotation();
 
+    /**
+     * 获取 Flare FactoryBean 类型。
+     *
+     * @return 处理结果
+     */
     public Class<? extends FlareFactoryBean> flareFactoryBean() {
         return FlareFactoryBean.class;
     }

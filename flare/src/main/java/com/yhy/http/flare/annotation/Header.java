@@ -50,7 +50,9 @@ public @interface Header {
     Class<? extends Dynamic> dynamic() default Dynamic.class;
 
     /**
-     * 动态构造请求头接口
+
+     * * 动态构造请求头接口
+
      */
     interface Dynamic {
 

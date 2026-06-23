@@ -30,7 +30,9 @@ public interface FormFieldConverter<T> {
     List<FormField<?>> convert(String name, T value, boolean encoded, String defaultValue);
 
     /**
-     * 转换工厂接口
+
+     * * 转换工厂接口
+
      */
     interface Factory {
 

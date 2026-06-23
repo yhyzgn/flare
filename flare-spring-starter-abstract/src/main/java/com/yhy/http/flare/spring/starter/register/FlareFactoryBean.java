@@ -1,13 +1,13 @@
 package com.yhy.http.flare.spring.starter.register;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.yhy.http.flare.Flare;
 import com.yhy.http.flare.annotation.Header;
 import com.yhy.http.flare.convert.BodyConverter;
 import com.yhy.http.flare.convert.StringConverter;
 import com.yhy.http.flare.delegate.*;
 import com.yhy.http.flare.provider.DispatcherProvider;
-import com.yhy.http.flare.spring.convert.ObjectMapperConverterFactory;
+import com.yhy.http.flare.spring.convert.JsonMapperConverterFactory;
 import com.yhy.http.flare.spring.convert.SpringStringConverterFactory;
 import com.yhy.http.flare.spring.delegate.*;
 import com.yhy.http.flare.spring.provider.SpringDispatcherProvider;
@@ -45,6 +45,10 @@ import java.util.Map;
  */
 @Slf4j
 public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, ApplicationContextAware {
+    /**
+     * context。
+     *
+     */
     protected ApplicationContext context;
 
     @Setter
@@ -57,12 +61,32 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
     private Boolean logEnabled;
     @Setter
     private long timeout;
+
+    /**
+     * headers。
+     *
+     */
     @Setter
     protected Map<String, List<String>> headers;
+
+    /**
+     * dynamic Header List。
+     *
+     */
     @Setter
     protected List<Class<? extends Header.Dynamic>> dynamicHeaderList;
+
+    /**
+     * interceptors。
+     *
+     */
     @Setter
     protected List<Class<? extends Interceptor>> interceptors;
+
+    /**
+     * net Interceptors。
+     *
+     */
     @Setter
     protected List<Class<? extends Interceptor>> netInterceptors;
     @Setter
@@ -76,7 +100,7 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
     @Setter
     private boolean ignoreHttpStatus;
 
-    private ObjectMapper objectMapper;
+    private JsonMapper jsonMapper;
     private StringConverter.Factory stringConverterFactory;
     private BodyConverter.Factory bodyConverterFactory;
     private DynamicHeaderDelegate dynamicHeaderDelegate;
@@ -87,11 +111,21 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
 
     private DispatcherProvider dispatcherProvider;
 
+    /**
+     * 获取对象。
+     *
+     * @return 处理结果
+     */
     @Override
     public Object getObject() {
         return getTarget();
     }
 
+    /**
+     * 获取对象类型。
+     *
+     * @return 处理结果
+     */
     @Override
     public Class<?> getObjectType() {
         return flareInterface;
@@ -158,13 +192,15 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
     }
 
     /**
-     * 加载延迟初始化的 Bean
+
+     * * 加载延迟初始化的 Bean
+
      */
     private void initDelayedBeans() {
         // 初始化各个 Bean
-        objectMapper = Opt.ofNullable(objectMapper).orElse(getInstance(ObjectMapper.class));
+        jsonMapper = Opt.ofNullable(jsonMapper).orElse(getInstance(JsonMapper.class));
         stringConverterFactory = Opt.ofNullable(stringConverterFactory).orElse(getInstance(SpringStringConverterFactory.class));
-        bodyConverterFactory = Opt.ofNullable(bodyConverterFactory).orElse(getInstance(ObjectMapperConverterFactory.class));
+        bodyConverterFactory = Opt.ofNullable(bodyConverterFactory).orElse(getInstance(JsonMapperConverterFactory.class));
         dynamicHeaderDelegate = Opt.ofNullable(dynamicHeaderDelegate).orElse(getInstance(SpringDynamicHeaderDelegate.class));
         interceptorDelegate = Opt.ofNullable(interceptorDelegate).orElse(getInstance(SpringInterceptorDelegate.class));
         methodAnnotationDelegate = Opt.ofNullable(methodAnnotationDelegate).orElse(getInstance(SpringMethodAnnotationDelegate.class));
@@ -174,6 +210,10 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
         dispatcherProvider = Opt.ofNullable(dispatcherProvider).orElse(getInstance(SpringDispatcherProvider.class));
     }
 
+    /**
+     * 属性设置完成回调。
+     *
+     */
     @Override
     public void afterPropertiesSet() {
         Assert.notNull(flareAnnotation, "The returned value of AbstractFlareAutoRegister#enableAnnotation() can not be null");
@@ -182,6 +222,12 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
         log.info("@{} properties for [{}] set complete.", annotationClassName, flareInterface);
     }
 
+    /**
+     * 设置应用上下文。
+     *
+     * @param context 值
+     * @throws Exception 调用异常
+     */
     @Override
     public void setApplicationContext(@NotNull ApplicationContext context) throws BeansException {
         this.context = context;
@@ -189,6 +235,12 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
         afterSetContext();
     }
 
+    /**
+     * get Instance。
+     *
+     * @param clazz 类型
+     * @return 处理结果
+     */
     protected <B> B getInstance(Class<B> clazz) {
         try {
             return this.context.getBean(clazz);
@@ -199,13 +251,17 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
     }
 
     /**
-     * 子类可重写此方法，在 {@link #setApplicationContext(ApplicationContext)} 之后执行
+
+     * * 子类可重写此方法，在 {@link #setApplicationContext(ApplicationContext)} 之后执行
+
      */
     protected void afterSetContext() {
     }
 
     /**
-     * 子类可重写此方法，在 {@link #getTarget()} 之前执行
+
+     * * 子类可重写此方法，在 {@link #getTarget()} 之前执行
+
      */
     protected void beforeCreateFlare() {
     }
