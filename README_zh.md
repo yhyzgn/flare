@@ -1,6 +1,6 @@
 # 🚀✨📘 Flare
 
-![jdk](https://img.shields.io/badge/jdk-21%2B-critical) ![spring-boot](https://img.shields.io/badge/spring--boot-3.5.5-yellowgreen) 
+![jdk](https://img.shields.io/badge/jdk-21%2B-critical) ![spring-boot](https://img.shields.io/badge/spring--boot-4.1.0-yellowgreen)
 
 ![Maven Central](https://img.shields.io/maven-central/v/com.yhyzgn.http/flare?color=orange&label=flare&style=flat-square&logo=java) 
 
@@ -17,6 +17,10 @@
 欢迎来到 Flare 多模块代码仓库。此根 README 概述了项目中各个模块的用途与使用方式，并示例如何在 Maven 与 Gradle 中引用这些模块。它补充模块级别的 README（见下方链接），提供快速上手、依赖坐标、使用场景、自定义指南与 Spring Boot Starter 的属性/注解说明。
 
 ---
+
+## ⚠️ Spring Boot 兼容性
+
+Flare `2.x` 面向 Spring Boot `4.x` 构建。如果应用使用 `flare-spring-boot-starter` 或其他 Spring Boot 集成模块，请先将应用运行时升级到 Spring Boot `4.x`，再接入 Flare `2.x`。仍需停留在 Spring Boot `3.x` 的项目应继续使用 Flare `1.x` 版本线。
 
 ## 📦 覆盖的模块
 

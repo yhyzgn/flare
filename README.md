@@ -1,7 +1,7 @@
 # 🚀✨📘 Flare
 
 
-![jdk](https://img.shields.io/badge/jdk-21%2B-critical) ![spring-boot](https://img.shields.io/badge/spring--boot-3.5.5-yellowgreen) 
+![jdk](https://img.shields.io/badge/jdk-21%2B-critical) ![spring-boot](https://img.shields.io/badge/spring--boot-4.1.0-yellowgreen)
 
 ![Maven Central](https://img.shields.io/maven-central/v/com.yhyzgn.http/flare?color=orange&label=flare&style=flat-square&logo=java) 
 
@@ -19,6 +19,10 @@
 Welcome to the Flare multi-module repository. This root README summarizes the purpose and usage of the core modules found under this project and shows how to reference them from Maven and Gradle. It complements the module-level READMEs (see links below) and provides quick-start instructions, dependency coordinates, usage scenarios, customization guidance and Starter property/annotation details for Spring Boot.
 
 ---
+
+## ⚠️ Spring Boot compatibility
+
+Flare `2.x` is built for Spring Boot `4.x`. If your application uses `flare-spring-boot-starter` or other Spring Boot integration modules, upgrade the application runtime to Spring Boot `4.x` before adopting Flare `2.x`. Projects that must remain on Spring Boot `3.x` should stay on the Flare `1.x` release line.
 
 ## 📦 Modules covered
 
