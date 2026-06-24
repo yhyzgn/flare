@@ -102,6 +102,7 @@ public class FlarePostTest {
         try (FileInputStream fis = new FileInputStream(tmp.toFile())) {
             Res<String> res = api.uploadStream(fis);
             logRes(res);
+            Assert.isTrue(res.data().contains("size = " + Files.size(tmp)), "InputStream multipart body was not uploaded completely: " + res.data());
         } finally {
             Files.deleteIfExists(tmp);
         }

@@ -675,6 +675,16 @@ public abstract class ParameterHandler<T> {
                                 sink.write(buffer, 0, len);
                             }
                         }
+
+                        /**
+                         * 判断请求体是否只能写入一次。
+                         *
+                         * @return 固定返回 true，InputStream 无法安全重复读取
+                         */
+                        @Override
+                        public boolean isOneShot() {
+                            return true;
+                        }
                     };
                     builder.body(streamBody);
                 }

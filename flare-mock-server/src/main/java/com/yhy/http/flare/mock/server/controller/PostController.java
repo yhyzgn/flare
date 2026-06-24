@@ -78,8 +78,8 @@ public class PostController {
      */
     @PostMapping("/upload")
     public Res<String> upload(@RequestPart("file") MultipartFile file) {
-        log.info("POST 请求 /post/upload, file={}", file.getOriginalFilename());
-        return Res.success(file.getOriginalFilename());
+        log.info("POST 请求 /post/upload, file={}, size={}", file.getOriginalFilename(), file.getSize());
+        return Res.success(file.getOriginalFilename() + ", size = " + file.getSize());
     }
 
     /**

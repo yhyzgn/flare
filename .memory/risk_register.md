@@ -178,3 +178,24 @@ Risks:
 - Boot 4.1 BOM resolves Jackson 3 to `3.1.4`; forcing a newer Jackson line should be a separate compatibility task.
 
 Safe rule: after any Jackson/Spring starter change, run compile, `build -x test`, `scripts/run-tests.sh`, and sample GET/POST smoke through the starter proxy.
+
+### 10. Logging interceptor and one-shot request bodies
+
+Files:
+
+- `flare/src/main/java/com/yhy/http/flare/such/interceptor/HttpLoggerInterceptor.java`
+- `flare/src/main/java/com/yhy/http/flare/http/request/RequestBuilder.java`
+- `flare/src/main/java/com/yhy/http/flare/http/request/param/ParameterHandler.java`
+
+Risk discovered on 2026-06-24:
+
+- `HttpLoggerInterceptor` previously logged request bodies by calling `RequestBody.writeTo(Buffer)` before `chain.proceed(request)`.
+- Multipart `InputStream` parts are one-shot. Pre-reading a `multipart/form-data` body consumes the caller-provided stream, so the server can still parse multipart headers and `filename`, but `MultipartFile#getSize()` and the actual stream content become `0`.
+
+Current safe baseline:
+
+- `HttpLoggerInterceptor` does not render `multipart/*` bodies and skips `RequestBody#isOneShot()` bodies.
+- InputStream-backed multipart and binary request bodies override `isOneShot()` and return `true`.
+- `FlarePostTest#uploadStream` asserts the server receives the same byte size as the temp file.
+
+Safe rule: never log/debug request bodies by writing one-shot bodies before the real OkHttp send. If body inspection is needed, only inspect known repeatable bodies such as strings/bytes/files, or wrap streams with an explicit buffering strategy and tests.
