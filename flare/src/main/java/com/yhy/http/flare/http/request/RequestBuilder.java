@@ -204,7 +204,7 @@ public class RequestBuilder {
                                  * write To。
                                  *
                                  * @param sink 值
-                                 * @throws Exception 调用异常
+                                 * @throws IOException 调用异常
                                  */
                                 @Override
                                 public void writeTo(@NotNull BufferedSink sink) throws IOException {

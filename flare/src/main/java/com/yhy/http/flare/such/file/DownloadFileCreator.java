@@ -30,7 +30,7 @@ public class DownloadFileCreator implements FileCreator<Download> {
      * @param download 值
      * @param stringConverter 字符串
      * @return 处理结果
-     * @throws Exception 调用异常
+     * @throws IOException 调用异常
      */
     @Override
     public File create(Download download, StringConverter<String> stringConverter) throws IOException {

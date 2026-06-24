@@ -67,7 +67,7 @@ public class OkCaller<T> implements Caller<T> {
      * execute。
      *
      * @return 处理结果
-     * @throws Exception 调用异常
+     * @throws IOException 调用异常
      */
     @Override
     public InternalResponse<T> execute() throws IOException {
@@ -394,7 +394,7 @@ public class OkCaller<T> implements Caller<T> {
                  * @param sink 值
                  * @param byteCount 值
                  * @return 处理结果
-                 * @throws Exception 调用异常
+                 * @throws IOException 调用异常
                  */
                 @Override
                 public long read(@NotNull Buffer sink, long byteCount) throws IOException {

@@ -53,7 +53,7 @@ public class SpringDispatcherProviderDelegate implements DispatcherProviderDeleg
      * 设置应用上下文。
      *
      * @param context 值
-     * @throws Exception 调用异常
+     * @throws BeansException 调用异常
      */
     @Override
     public void setApplicationContext(@NotNull ApplicationContext context) throws BeansException {

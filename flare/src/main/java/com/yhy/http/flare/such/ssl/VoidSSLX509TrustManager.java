@@ -22,7 +22,7 @@ public final class VoidSSLX509TrustManager extends X509ExtendedTrustManager {
      * @param chain 值
      * @param authType 字符串
      * @param socket 值
-     * @throws Exception 调用异常
+     * @throws CertificateException 调用异常
      */
     @Override
     public void checkClientTrusted(X509Certificate[] chain, String authType, Socket socket) throws CertificateException {
@@ -34,7 +34,7 @@ public final class VoidSSLX509TrustManager extends X509ExtendedTrustManager {
      * @param chain 值
      * @param authType 字符串
      * @param socket 值
-     * @throws Exception 调用异常
+     * @throws CertificateException 调用异常
      */
     @Override
     public void checkServerTrusted(X509Certificate[] chain, String authType, Socket socket) throws CertificateException {
@@ -46,7 +46,7 @@ public final class VoidSSLX509TrustManager extends X509ExtendedTrustManager {
      * @param chain 值
      * @param authType 字符串
      * @param engine 值
-     * @throws Exception 调用异常
+     * @throws CertificateException 调用异常
      */
     @Override
     public void checkClientTrusted(X509Certificate[] chain, String authType, SSLEngine engine) throws CertificateException {
@@ -58,7 +58,7 @@ public final class VoidSSLX509TrustManager extends X509ExtendedTrustManager {
      * @param chain 值
      * @param authType 字符串
      * @param engine 值
-     * @throws Exception 调用异常
+     * @throws CertificateException 调用异常
      */
     @Override
     public void checkServerTrusted(X509Certificate[] chain, String authType, SSLEngine engine) throws CertificateException {
@@ -69,7 +69,7 @@ public final class VoidSSLX509TrustManager extends X509ExtendedTrustManager {
      *
      * @param chain 值
      * @param authType 字符串
-     * @throws Exception 调用异常
+     * @throws CertificateException 调用异常
      */
     @Override
     public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
@@ -80,7 +80,7 @@ public final class VoidSSLX509TrustManager extends X509ExtendedTrustManager {
      *
      * @param chain 值
      * @param authType 字符串
-     * @throws Exception 调用异常
+     * @throws CertificateException 调用异常
      */
     @Override
     public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {

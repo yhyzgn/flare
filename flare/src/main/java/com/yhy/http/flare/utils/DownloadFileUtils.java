@@ -34,7 +34,7 @@ public abstract class DownloadFileUtils {
      * @param inputStream 输入流
      * @param stringConverter 字符串
      * @return 处理结果
-     * @throws Exception 调用异常
+     * @throws IOException 调用异常
      */
     public static File write(Download annotation, InputStream inputStream, StringConverter<String> stringConverter) throws IOException {
         File file = null != annotation ? DOWNLOAD_FILE_CREATOR.create(annotation, stringConverter) : TEMP_FILE_CREATOR.create(null, stringConverter);

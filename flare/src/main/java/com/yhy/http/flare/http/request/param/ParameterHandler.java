@@ -575,7 +575,7 @@ public abstract class ParameterHandler<T> {
          *
          * @param builder 值
          * @param value 值
-         * @throws Exception 调用异常
+         * @throws IOException 调用异常
          */
         @Override
         public void apply(RequestBuilder builder, @Nullable T value) throws IOException {
@@ -665,7 +665,7 @@ public abstract class ParameterHandler<T> {
                          * write To。
                          *
                          * @param sink 值
-                         * @throws Exception 调用异常
+                         * @throws IOException 调用异常
                          */
                         @Override
                         public void writeTo(@NotNull BufferedSink sink) throws IOException {

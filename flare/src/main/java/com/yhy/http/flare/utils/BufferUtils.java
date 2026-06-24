@@ -25,7 +25,7 @@ public abstract class BufferUtils {
      *
      * @param rawBody 响应体
      * @return 处理结果
-     * @throws Exception 调用异常
+     * @throws IOException 调用异常
      */
     public static ResponseBody buffer(ResponseBody rawBody) throws IOException {
         Buffer buffer = new Buffer();

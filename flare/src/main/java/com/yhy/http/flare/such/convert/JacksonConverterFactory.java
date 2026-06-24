@@ -88,7 +88,7 @@ public class JacksonConverterFactory implements BodyConverter.Factory {
          *
          * @param from 值
          * @return 处理结果
-         * @throws Exception 调用异常
+         * @throws IOException 调用异常
          */
         @Override
         public @NotNull RequestBody convert(T from) throws IOException {
@@ -135,7 +135,7 @@ public class JacksonConverterFactory implements BodyConverter.Factory {
          *
          * @param from 响应体
          * @return 处理结果
-         * @throws Exception 调用异常
+         * @throws IOException 调用异常
          */
         @Nullable
         @Override

@@ -34,7 +34,7 @@ public class HttpLoggerInterceptor implements Interceptor {
      *
      * @param chain 值
      * @return 处理结果
-     * @throws Exception 调用异常
+     * @throws IOException 调用异常
      */
     @Override
     public @NotNull Response intercept(@NotNull Interceptor.Chain chain) throws IOException {
