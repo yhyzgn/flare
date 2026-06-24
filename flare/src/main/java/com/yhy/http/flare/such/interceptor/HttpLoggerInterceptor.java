@@ -140,9 +140,6 @@ public class HttpLoggerInterceptor implements Interceptor {
         if (contentType.startsWith("application/octet-stream")) {
             return "(binary body is not supported)";
         }
-        if (contentType.startsWith("multipart/")) {
-            return "(multipart body is not supported)";
-        }
         if (body.isOneShot()) {
             return "(one-shot body is not supported)";
         }

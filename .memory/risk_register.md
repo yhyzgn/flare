@@ -194,8 +194,8 @@ Risk discovered on 2026-06-24:
 
 Current safe baseline:
 
-- `HttpLoggerInterceptor` does not render `multipart/*` bodies and skips `RequestBody#isOneShot()` bodies.
+- `HttpLoggerInterceptor` skips `RequestBody#isOneShot()` bodies; repeatable `multipart/*` field-only forms and `application/x-www-form-urlencoded` forms may still be rendered for logging.
 - InputStream-backed multipart and binary request bodies override `isOneShot()` and return `true`.
 - `FlarePostTest#uploadStream` asserts the server receives the same byte size as the temp file.
 
-Safe rule: never log/debug request bodies by writing one-shot bodies before the real OkHttp send. If body inspection is needed, only inspect known repeatable bodies such as strings/bytes/files, or wrap streams with an explicit buffering strategy and tests.
+Safe rule: never log/debug request bodies by writing one-shot bodies before the real OkHttp send. If body inspection is needed, only inspect known repeatable bodies such as strings, bytes, files, field-only multipart forms, or x-www-form-urlencoded forms; otherwise wrap streams with an explicit buffering strategy and tests.
