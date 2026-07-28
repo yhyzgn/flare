@@ -75,18 +75,18 @@ public @interface Flare {
     Interceptor[] interceptor() default {};
 
     /**
-     * 超时时间，单位毫秒。
+     * 超时时间，单位毫秒；空字符串表示继承 {@link EnableFlare} 的全局配置。
      *
      * @return 超时时间
      */
-    String timeout() default "6000";
+    String timeout() default "";
 
     /**
-     * 是否启用请求日志。
+     * 是否启用请求日志；空字符串表示继承 {@link EnableFlare} 的全局配置。
      *
      * @return 是否启用请求日志
      */
-    String logEnabled() default "true";
+    String logEnabled() default "";
 
     /**
      * 是否注册为主 Bean。

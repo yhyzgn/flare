@@ -194,13 +194,16 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
     private Map<String, List<String>> getHeader(Map<String, Object> attrs) {
         AnnotationAttributes[] headers = (AnnotationAttributes[]) attrs.get("header");
         if (null != headers && headers.length > 0) {
-            Map<String, List<String>> temp = Stream.of(headers).collect(Collectors.groupingBy(attr -> attr.getString("pairName"), Collectors.mapping(attr -> resolve(attr.getString("pairValue")), Collectors.toList())));
-            if (CollectionUtils.isEmpty(temp)) {
-                temp = headerMap;
-            } else if (!CollectionUtils.isEmpty(headerMap)) {
-                temp.putAll(headerMap);
+            Map<String, List<String>> local = Stream.of(headers).collect(Collectors.groupingBy(attr -> attr.getString("pairName"), Collectors.mapping(attr -> resolve(attr.getString("pairValue")), Collectors.toList())));
+            if (CollectionUtils.isEmpty(local)) {
+                return headerMap;
             }
-            return temp;
+            Map<String, List<String>> merged = new LinkedHashMap<>();
+            if (!CollectionUtils.isEmpty(headerMap)) {
+                merged.putAll(headerMap);
+            }
+            merged.putAll(local);
+            return merged;
         }
         return headerMap;
     }
@@ -222,15 +225,11 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
     }
 
     private long getTimeout(Map<String, Object> attrs) {
-        // 优先使用 @Flare 作用域
         String str = resolve((String) attrs.get("timeout"));
         if (StringUtils.isNumeric(str)) {
             long temp = Long.parseLong(str);
             if (temp > 0) {
-                if (temp != FlareConst.Timeout.DEFAULT_MILLIS) {
-                    return temp;
-                }
-                return Opt.ofNullable(timeout).orElse(temp);
+                return temp;
             }
             return Opt.ofNullable(timeout).orElse(FlareConst.Timeout.DEFAULT_MILLIS);
         }
@@ -238,42 +237,43 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
     }
 
     private Boolean getLogEnabled(Map<String, Object> attrs) {
-        // logEnabled == null 时为初始状态
-        // 全局和局部同时开启时才启用
         String str = resolve((String) attrs.get("logEnabled"));
         if (StringUtils.isBoolean(str)) {
-            boolean temp = Boolean.parseBoolean(str.toLowerCase());
-            return (null == logEnabled || logEnabled) && temp;
+            return Boolean.parseBoolean(str.toLowerCase());
         }
-        return false;
+        return Opt.ofNullable(logEnabled).orElse(false);
     }
 
-    @SuppressWarnings("unchecked")
     private Class<? extends Interceptor> getLoggerInterceptor(Map<String, Object> attrs) {
         // 优先使用 @Flare 作用域
-        Class<? extends Interceptor> temp = (Class<? extends Interceptor>) attrs.get("loggerInterceptor");
+        Class<? extends Interceptor> temp = annotationClass(attrs, "loggerInterceptor", Interceptor.class);
         return null != temp && temp != HttpLoggerInterceptor.class ? temp : loggerInterceptor;
     }
 
-    @SuppressWarnings("unchecked")
     private Class<? extends SSLSocketFactory> getSSLSocketFactory(Map<String, Object> attrs) {
         // 优先使用 @Flare 作用域
-        Class<? extends SSLSocketFactory> temp = (Class<? extends SSLSocketFactory>) attrs.get("sslSocketFactory");
+        Class<? extends SSLSocketFactory> temp = annotationClass(attrs, "sslSocketFactory", SSLSocketFactory.class);
         return null != temp && temp != VoidSSLSocketFactory.class ? temp : sslSocketFactory;
     }
 
-    @SuppressWarnings("unchecked")
     private Class<? extends X509TrustManager> getSSLTrustManager(Map<String, Object> attrs) {
         // 优先使用 @Flare 作用域
-        Class<? extends X509TrustManager> temp = (Class<? extends X509TrustManager>) attrs.get("sslTrustManager");
+        Class<? extends X509TrustManager> temp = annotationClass(attrs, "sslTrustManager", X509TrustManager.class);
         return null != temp && temp != VoidSSLX509TrustManager.class ? temp : sslTrustManager;
     }
 
-    @SuppressWarnings("unchecked")
     private Class<? extends HostnameVerifier> getSSLHostnameVerifier(Map<String, Object> attrs) {
         // 优先使用 @Flare 作用域
-        Class<? extends HostnameVerifier> temp = (Class<? extends HostnameVerifier>) attrs.get("sslHostnameVerifier");
+        Class<? extends HostnameVerifier> temp = annotationClass(attrs, "sslHostnameVerifier", HostnameVerifier.class);
         return null != temp && temp != VoidSSLHostnameVerifier.class ? temp : sslHostnameVerifier;
+    }
+
+    private static <T> Class<? extends T> annotationClass(Map<String, Object> attrs, String name, Class<T> type) {
+        Object value = attrs.get(name);
+        if (value instanceof Class<?> clazz) {
+            return clazz.asSubclass(type);
+        }
+        return null;
     }
 
     private boolean getIgnoreHttpStatus(Map<String, Object> attrs) {
@@ -293,11 +293,14 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
         if (null != headers && headers.length > 0) {
             List<Class<? extends Header.Dynamic>> temp = Stream.of(headers).filter(it -> it.getClass("dynamic") != Header.Dynamic.class).map(it -> it.<Header.Dynamic>getClass("dynamic")).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(temp)) {
-                temp = dynamicHeaderList;
-            } else if (!CollectionUtils.isEmpty(dynamicHeaderList)) {
-                temp.addAll(dynamicHeaderList);
+                return dynamicHeaderList;
             }
-            return temp;
+            if (CollectionUtils.isEmpty(dynamicHeaderList)) {
+                return temp;
+            }
+            List<Class<? extends Header.Dynamic>> merged = new ArrayList<>(dynamicHeaderList);
+            merged.addAll(temp);
+            return merged;
         }
         return dynamicHeaderList;
     }

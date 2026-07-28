@@ -27,6 +27,7 @@ dependencies {
     annotationProcessor "org.projectlombok:lombok:${libVersion.lombok}"
     testAnnotationProcessor "org.projectlombok:lombok:${libVersion.lombok}"
 
+    testImplementation platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
     testImplementation platform("org.junit:junit-bom:${libVersion.junit}")
     testImplementation "org.junit.jupiter:junit-jupiter:${libVersion.junit}"
     testImplementation "org.junit.jupiter:junit-jupiter-api:${libVersion.junit}"

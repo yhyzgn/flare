@@ -1,0 +1,1045 @@
+{
+  "version": 2,
+  "status": "finalized",
+  "sources": [
+    {
+      "path": ".memory/code_conventions.md",
+      "sha256": "ebec6a577bdb34df2f43e257348c9e3d54027517df69a6543737e11f4c05d2d0",
+      "status": "resolved",
+      "destinations": [
+        ".context/system/conventions.md"
+      ],
+      "reason": "已迁移到 .context/system/ 下的规范事实源，并保留历史原文附录。",
+      "migration_note": "",
+      "units": [
+        {
+          "id": "U-7f53004a3a97-01",
+          "line_start": 1,
+          "line_end": 3,
+          "sha256": "7f53004a3a97faac9f98d0ecffe598e6131798a54c0fbd40564ccaf0c753093c",
+          "payload_sha256": "7f53004a3a97faac9f98d0ecffe598e6131798a54c0fbd40564ccaf0c753093c",
+          "status": "migrated",
+          "category": "convention",
+          "destinations": [
+            ".context/system/conventions.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        },
+        {
+          "id": "U-928bc80fc31a-01",
+          "line_start": 5,
+          "line_end": 12,
+          "sha256": "928bc80fc31a156401344da9afdaaad51b25d6c79829752666feeee9574c29fa",
+          "payload_sha256": "928bc80fc31a156401344da9afdaaad51b25d6c79829752666feeee9574c29fa",
+          "status": "migrated",
+          "category": "convention",
+          "destinations": [
+            ".context/system/conventions.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        },
+        {
+          "id": "U-ba9da2c83764-01",
+          "line_start": 14,
+          "line_end": 25,
+          "sha256": "ba9da2c837644efa5e049da7f01dc51dce127615912bce49ed6816e58c18bb96",
+          "payload_sha256": "ba9da2c837644efa5e049da7f01dc51dce127615912bce49ed6816e58c18bb96",
+          "status": "migrated",
+          "category": "convention",
+          "destinations": [
+            ".context/system/conventions.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        },
+        {
+          "id": "U-66377aa6be80-01",
+          "line_start": 27,
+          "line_end": 32,
+          "sha256": "66377aa6be80a48a50adacfdff2f0a52d9a0ea06542345f548462ac229597a9b",
+          "payload_sha256": "66377aa6be80a48a50adacfdff2f0a52d9a0ea06542345f548462ac229597a9b",
+          "status": "migrated",
+          "category": "convention",
+          "destinations": [
+            ".context/system/conventions.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        },
+        {
+          "id": "U-ff933b9934a1-01",
+          "line_start": 34,
+          "line_end": 39,
+          "sha256": "ff933b9934a152205c3424ea939f7f23d140fd44cf3c64083feda4300d9cbfb6",
+          "payload_sha256": "ff933b9934a152205c3424ea939f7f23d140fd44cf3c64083feda4300d9cbfb6",
+          "status": "migrated",
+          "category": "convention",
+          "destinations": [
+            ".context/system/conventions.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        },
+        {
+          "id": "U-2eaa26f22b47-01",
+          "line_start": 41,
+          "line_end": 46,
+          "sha256": "2eaa26f22b4729d4d52c0dab27e0c4b0d3761ca984f6d381240f60c764d4965f",
+          "payload_sha256": "2eaa26f22b4729d4d52c0dab27e0c4b0d3761ca984f6d381240f60c764d4965f",
+          "status": "migrated",
+          "category": "convention",
+          "destinations": [
+            ".context/system/conventions.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        },
+        {
+          "id": "U-2ad46129501b-01",
+          "line_start": 49,
+          "line_end": 53,
+          "sha256": "2ad46129501bf2ad43fa86b163eee840bb7aac2c3682562515222e40f383b105",
+          "payload_sha256": "2ad46129501bf2ad43fa86b163eee840bb7aac2c3682562515222e40f383b105",
+          "status": "migrated",
+          "category": "convention",
+          "destinations": [
+            ".context/system/conventions.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        }
+      ],
+      "archive_path": ".context/archive/legacy-sources/.memory/code_conventions.md"
+    },
+    {
+      "path": ".memory/risk_register.md",
+      "sha256": "1eddeb6ab2e7a0302a532f047349fd8f57f07fac7f07fa0d6df89bd542b65a21",
+      "status": "resolved",
+      "destinations": [
+        ".context/system/risks.md"
+      ],
+      "reason": "已迁移到 .context/system/ 下的规范事实源，并保留历史原文附录。",
+      "migration_note": "",
+      "units": [
+        {
+          "id": "U-9a70097e19b1-01",
+          "line_start": 1,
+          "line_end": 3,
+          "sha256": "9a70097e19b140ebf005541f4c2bd7d71bcd2fc0e4eb0381bc734d146f427f94",
+          "payload_sha256": "9a70097e19b140ebf005541f4c2bd7d71bcd2fc0e4eb0381bc734d146f427f94",
+          "status": "migrated",
+          "category": "risk",
+          "destinations": [
+            ".context/system/risks.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        },
+        {
+          "id": "U-5c5190b31561-01",
+          "line_start": 5,
+          "line_end": 5,
+          "sha256": "5c5190b315612c5206068154940c781292bddbd65dfb59bbcd48de57911a7e1e",
+          "payload_sha256": "5c5190b315612c5206068154940c781292bddbd65dfb59bbcd48de57911a7e1e",
+          "status": "migrated",
+          "category": "risk",
+          "destinations": [
+            ".context/system/risks.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        },
+        {
+          "id": "U-2fd865058761-01",
+          "line_start": 7,
+          "line_end": 22,
+          "sha256": "2fd865058761c54ee73c52aef0e2b47efca3fe7e84a48c72c99ba8e6193336e0",
+          "payload_sha256": "2fd865058761c54ee73c52aef0e2b47efca3fe7e84a48c72c99ba8e6193336e0",
+          "status": "migrated",
+          "category": "risk",
+          "destinations": [
+            ".context/system/risks.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        },
+        {
+          "id": "U-01105a43cb86-01",
+          "line_start": 24,
+          "line_end": 37,
+          "sha256": "01105a43cb863bf65fd153125a13063690fcbbfc2fe2c6824b06682572dd547b",
+          "payload_sha256": "01105a43cb863bf65fd153125a13063690fcbbfc2fe2c6824b06682572dd547b",
+          "status": "migrated",
+          "category": "risk",
+          "destinations": [
+            ".context/system/risks.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        },
+        {
+          "id": "U-e65b7713434f-01",
+          "line_start": 39,
+          "line_end": 53,
+          "sha256": "e65b7713434f44dc70ece8f04da2c34802c027b1c2d7f037f10a414e37be6d5a",
+          "payload_sha256": "e65b7713434f44dc70ece8f04da2c34802c027b1c2d7f037f10a414e37be6d5a",
+          "status": "migrated",
+          "category": "risk",
+          "destinations": [
+            ".context/system/risks.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        },
+        {
+          "id": "U-820158aef6e3-01",
+          "line_start": 55,
+          "line_end": 71,
+          "sha256": "820158aef6e35cc3409426c8203be38e0b32094286be5d2d4c906167bfdf1912",
+          "payload_sha256": "820158aef6e35cc3409426c8203be38e0b32094286be5d2d4c906167bfdf1912",
+          "status": "migrated",
+          "category": "risk",
+          "destinations": [
+            ".context/system/risks.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        },
+        {
+          "id": "U-db304d5a701a-01",
+          "line_start": 73,
+          "line_end": 87,
+          "sha256": "db304d5a701a1c652f1b98c88c714058dd623eddfe942db1c9d9368f6b2f5cd4",
+          "payload_sha256": "db304d5a701a1c652f1b98c88c714058dd623eddfe942db1c9d9368f6b2f5cd4",
+          "status": "migrated",
+          "category": "risk",
+          "destinations": [
+            ".context/system/risks.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        },
+        {
+          "id": "U-c80558c9bae8-01",
+          "line_start": 89,
+          "line_end": 97,
+          "sha256": "c80558c9bae8451171e7c2af6e4c4410ddecbf7da6e980673e2f3fa6977e9289",
+          "payload_sha256": "c80558c9bae8451171e7c2af6e4c4410ddecbf7da6e980673e2f3fa6977e9289",
+          "status": "migrated",
+          "category": "risk",
+          "destinations": [
+            ".context/system/risks.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        },
+        {
+          "id": "U-41f403823f09-01",
+          "line_start": 99,
+          "line_end": 116,
+          "sha256": "41f403823f091e9fa6e5f5f5d45ea96ed7963f481be0f893fb1356c007abc658",
+          "payload_sha256": "41f403823f091e9fa6e5f5f5d45ea96ed7963f481be0f893fb1356c007abc658",
+          "status": "migrated",
+          "category": "risk",
+          "destinations": [
+            ".context/system/risks.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        },
+        {
+          "id": "U-4fb763b42653-01",
+          "line_start": 118,
+          "line_end": 136,
+          "sha256": "4fb763b426531de6f56f8b997b2cfa172a9e6720e8bdc68c97310ab6adb4b16a",
+          "payload_sha256": "4fb763b426531de6f56f8b997b2cfa172a9e6720e8bdc68c97310ab6adb4b16a",
+          "status": "migrated",
+          "category": "risk",
+          "destinations": [
+            ".context/system/risks.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        },
+        {
+          "id": "U-2f4ff34fbc29-01",
+          "line_start": 138,
+          "line_end": 160,
+          "sha256": "2f4ff34fbc29ae46185e30025cbf4c208cac53090fb483845c57bc19e24ce0e9",
+          "payload_sha256": "2f4ff34fbc29ae46185e30025cbf4c208cac53090fb483845c57bc19e24ce0e9",
+          "status": "migrated",
+          "category": "risk",
+          "destinations": [
+            ".context/system/risks.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        },
+        {
+          "id": "U-7185311d1fa7-01",
+          "line_start": 163,
+          "line_end": 180,
+          "sha256": "7185311d1fa72fdce2a0e6a9fe4cbebcc36c6dc9e33f2dc56e556de45aae0570",
+          "payload_sha256": "7185311d1fa72fdce2a0e6a9fe4cbebcc36c6dc9e33f2dc56e556de45aae0570",
+          "status": "migrated",
+          "category": "risk",
+          "destinations": [
+            ".context/system/risks.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        },
+        {
+          "id": "U-fb7ebdf77638-01",
+          "line_start": 182,
+          "line_end": 201,
+          "sha256": "fb7ebdf77638c1151381663278531ab2ac13d5b852ebe814cf699724a82a5fe6",
+          "payload_sha256": "fb7ebdf77638c1151381663278531ab2ac13d5b852ebe814cf699724a82a5fe6",
+          "status": "migrated",
+          "category": "risk",
+          "destinations": [
+            ".context/system/risks.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        }
+      ],
+      "archive_path": ".context/archive/legacy-sources/.memory/risk_register.md"
+    },
+    {
+      "path": ".memory/system_overview.md",
+      "sha256": "83f1127d1783868fe5be02931ba37ec63b12cfbe7bc6fd447ace9a15ac9d0b8c",
+      "status": "resolved",
+      "destinations": [
+        ".context/system/overview.md"
+      ],
+      "reason": "已迁移到 .context/system/ 下的规范事实源，并保留历史原文附录。",
+      "migration_note": "",
+      "units": [
+        {
+          "id": "U-e3f9aa5865b3-01",
+          "line_start": 1,
+          "line_end": 3,
+          "sha256": "e3f9aa5865b32343cc022c300317d368263cf3efcfb0732da90c6313c9bdaae0",
+          "payload_sha256": "e3f9aa5865b32343cc022c300317d368263cf3efcfb0732da90c6313c9bdaae0",
+          "status": "migrated",
+          "category": "system_fact",
+          "destinations": [
+            ".context/system/overview.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        },
+        {
+          "id": "U-dff57b52e388-01",
+          "line_start": 5,
+          "line_end": 7,
+          "sha256": "dff57b52e38843c55b888e78f9c86ab2419692fa5a0f7d349a980d692383ae35",
+          "payload_sha256": "dff57b52e38843c55b888e78f9c86ab2419692fa5a0f7d349a980d692383ae35",
+          "status": "migrated",
+          "category": "system_fact",
+          "destinations": [
+            ".context/system/overview.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        },
+        {
+          "id": "U-c9e434d90732-01",
+          "line_start": 9,
+          "line_end": 16,
+          "sha256": "c9e434d9073236d2e383abb2a7b44eed521c6eadc91e9fff19f8a1be168238b6",
+          "payload_sha256": "c9e434d9073236d2e383abb2a7b44eed521c6eadc91e9fff19f8a1be168238b6",
+          "status": "migrated",
+          "category": "system_fact",
+          "destinations": [
+            ".context/system/overview.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        },
+        {
+          "id": "U-73dbc9b6a16e-01",
+          "line_start": 18,
+          "line_end": 41,
+          "sha256": "73dbc9b6a16ec7b73c02fcf95a7deb3a46a15160b9166d73ad3709627eeb5289",
+          "payload_sha256": "73dbc9b6a16ec7b73c02fcf95a7deb3a46a15160b9166d73ad3709627eeb5289",
+          "status": "migrated",
+          "category": "system_fact",
+          "destinations": [
+            ".context/system/overview.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        },
+        {
+          "id": "U-744dacd2f806-01",
+          "line_start": 43,
+          "line_end": 53,
+          "sha256": "744dacd2f806720a54136fb0ddff69deeb499ec40fa02b14a4bd0092ef9f4fe2",
+          "payload_sha256": "744dacd2f806720a54136fb0ddff69deeb499ec40fa02b14a4bd0092ef9f4fe2",
+          "status": "migrated",
+          "category": "system_fact",
+          "destinations": [
+            ".context/system/overview.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        },
+        {
+          "id": "U-539ec7bba156-01",
+          "line_start": 55,
+          "line_end": 57,
+          "sha256": "539ec7bba156ed22576f87cd1f22d0fd2a7fd902a3cdd82f98fa155552a92515",
+          "payload_sha256": "539ec7bba156ed22576f87cd1f22d0fd2a7fd902a3cdd82f98fa155552a92515",
+          "status": "migrated",
+          "category": "system_fact",
+          "destinations": [
+            ".context/system/overview.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        },
+        {
+          "id": "U-61d995e89e2a-01",
+          "line_start": 59,
+          "line_end": 65,
+          "sha256": "61d995e89e2a5287b3e5d5483b4a5e65f33de6d0d0056e79c73bfcc18a23dd96",
+          "payload_sha256": "61d995e89e2a5287b3e5d5483b4a5e65f33de6d0d0056e79c73bfcc18a23dd96",
+          "status": "migrated",
+          "category": "system_fact",
+          "destinations": [
+            ".context/system/overview.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        },
+        {
+          "id": "U-5b588847e50b-01",
+          "line_start": 68,
+          "line_end": 73,
+          "sha256": "5b588847e50ba7f8635984ae581ec6ff930efacfd01a8df4fecafd1839c1874b",
+          "payload_sha256": "5b588847e50ba7f8635984ae581ec6ff930efacfd01a8df4fecafd1839c1874b",
+          "status": "migrated",
+          "category": "system_fact",
+          "destinations": [
+            ".context/system/overview.md"
+          ],
+          "reason": "原文已原样保留在对应规范文档的历史迁移附录中。"
+        }
+      ],
+      "archive_path": ".context/archive/legacy-sources/.memory/system_overview.md"
+    },
+    {
+      "path": ".prompt/001_legacy_handover_first_action.md",
+      "sha256": "f752867ad5e6622cf78dc2e2fc8743207f4d8ad65f79fd0836fb1f6b31bc617c",
+      "status": "resolved",
+      "destinations": [],
+      "reason": "旧交接提示文件被当前 .context/ 规范入口完全接管，作为历史材料废弃。",
+      "migration_note": "",
+      "units": [
+        {
+          "id": "U-f92df00ea9e0-01",
+          "line_start": 1,
+          "line_end": 1,
+          "sha256": "f92df00ea9e05ca2c90eb95196f2a30832ea33f3ac5bf6de43f36bdf7284b9d0",
+          "payload_sha256": "f92df00ea9e05ca2c90eb95196f2a30832ea33f3ac5bf6de43f36bdf7284b9d0",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-f822f8211bb1-01",
+          "line_start": 3,
+          "line_end": 5,
+          "sha256": "f822f8211bb199f8d012193facdcd385df27f1a00c27588d104bec86bf358689",
+          "payload_sha256": "f822f8211bb199f8d012193facdcd385df27f1a00c27588d104bec86bf358689",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-5ad2351b7424-01",
+          "line_start": 7,
+          "line_end": 25,
+          "sha256": "5ad2351b74243b5a23c756c3c340b9d042eb0724414689106d49d565502d640d",
+          "payload_sha256": "5ad2351b74243b5a23c756c3c340b9d042eb0724414689106d49d565502d640d",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-96f1abc413d3-01",
+          "line_start": 27,
+          "line_end": 29,
+          "sha256": "96f1abc413d34c58f1b4a51b26dac96ebc4dcbf13790343d4727cb81c9ba914b",
+          "payload_sha256": "96f1abc413d34c58f1b4a51b26dac96ebc4dcbf13790343d4727cb81c9ba914b",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-f56c191307af-01",
+          "line_start": 31,
+          "line_end": 46,
+          "sha256": "f56c191307af64a0992cb30dfca0e347c0efcf22cbcbd6cc8cebb77566f8e0be",
+          "payload_sha256": "f56c191307af64a0992cb30dfca0e347c0efcf22cbcbd6cc8cebb77566f8e0be",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-103305187816-01",
+          "line_start": 48,
+          "line_end": 56,
+          "sha256": "103305187816479f5e6aee21186312e41219e733d8405fd55360dd3d4b9358e6",
+          "payload_sha256": "103305187816479f5e6aee21186312e41219e733d8405fd55360dd3d4b9358e6",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-8a0304ed76bd-01",
+          "line_start": 58,
+          "line_end": 60,
+          "sha256": "8a0304ed76bd30ec9272564e850dac01c66b1eb89e80bdef7904eeca72c315cb",
+          "payload_sha256": "8a0304ed76bd30ec9272564e850dac01c66b1eb89e80bdef7904eeca72c315cb",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        }
+      ],
+      "archive_path": ".context/archive/legacy-sources/.prompt/001_legacy_handover_first_action.md"
+    },
+    {
+      "path": ".prompt/002_spring_boot_4_migration_review.md",
+      "sha256": "f3cc43b16ca2391cef515ee1742292a650076b86b1a96be079309275c61cc3e7",
+      "status": "resolved",
+      "destinations": [],
+      "reason": "旧交接提示文件被当前 .context/ 规范入口完全接管，作为历史材料废弃。",
+      "migration_note": "",
+      "units": [
+        {
+          "id": "U-bd7c8538bb69-01",
+          "line_start": 1,
+          "line_end": 1,
+          "sha256": "bd7c8538bb69a01ccebebd3dc866fb3758494cc5d7fd3c7c2b55f54541cefda3",
+          "payload_sha256": "bd7c8538bb69a01ccebebd3dc866fb3758494cc5d7fd3c7c2b55f54541cefda3",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-e2b6fd8ea32c-01",
+          "line_start": 3,
+          "line_end": 5,
+          "sha256": "e2b6fd8ea32c1fc5e53a79d1de02adee8b308d0d35ab1513fde30c30aa760642",
+          "payload_sha256": "e2b6fd8ea32c1fc5e53a79d1de02adee8b308d0d35ab1513fde30c30aa760642",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-ffb3f2326b82-01",
+          "line_start": 7,
+          "line_end": 20,
+          "sha256": "ffb3f2326b8260e6385dc614fe157cbeb3fdb61eddd763bb9464fca1b432a597",
+          "payload_sha256": "ffb3f2326b8260e6385dc614fe157cbeb3fdb61eddd763bb9464fca1b432a597",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-cb0f746408cc-01",
+          "line_start": 22,
+          "line_end": 29,
+          "sha256": "cb0f746408cc86a45ad38bcc1206996ed904710350e12d0d76b6703d94760063",
+          "payload_sha256": "cb0f746408cc86a45ad38bcc1206996ed904710350e12d0d76b6703d94760063",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-fd5ec7d41897-01",
+          "line_start": 31,
+          "line_end": 42,
+          "sha256": "fd5ec7d418976f9b677d6439a665b288111bf9c6d3d31ec97009048326aa381c",
+          "payload_sha256": "fd5ec7d418976f9b677d6439a665b288111bf9c6d3d31ec97009048326aa381c",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-ca2d098e5eda-01",
+          "line_start": 44,
+          "line_end": 49,
+          "sha256": "ca2d098e5edaefd1255a00b6c8ce8b2dc964a4f8021eeeda502475d27d6001de",
+          "payload_sha256": "ca2d098e5edaefd1255a00b6c8ce8b2dc964a4f8021eeeda502475d27d6001de",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        }
+      ],
+      "archive_path": ".context/archive/legacy-sources/.prompt/002_spring_boot_4_migration_review.md"
+    },
+    {
+      "path": ".prompt/003_one_shot_multipart_logging_fix.md",
+      "sha256": "93b238462415458ce7aa49906848d91e6c2e5cc75500d4529277da136ec0c257",
+      "status": "resolved",
+      "destinations": [],
+      "reason": "旧交接提示文件被当前 .context/ 规范入口完全接管，作为历史材料废弃。",
+      "migration_note": "",
+      "units": [
+        {
+          "id": "U-a5d0969645ed-01",
+          "line_start": 1,
+          "line_end": 1,
+          "sha256": "a5d0969645ed3a88debc96b94fb6e7c6ed16bf3127414c4493d77becb0978e35",
+          "payload_sha256": "a5d0969645ed3a88debc96b94fb6e7c6ed16bf3127414c4493d77becb0978e35",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-5732f91d71e3-01",
+          "line_start": 3,
+          "line_end": 5,
+          "sha256": "5732f91d71e353beaa52530a4ae14f489effaec0c7fbb6437a9d5764769e7cd5",
+          "payload_sha256": "5732f91d71e353beaa52530a4ae14f489effaec0c7fbb6437a9d5764769e7cd5",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-04a599e7eb9c-01",
+          "line_start": 7,
+          "line_end": 17,
+          "sha256": "04a599e7eb9c21334c9a46b108649b480a8dd1fedc3b2b1a6f9e14589c83b98a",
+          "payload_sha256": "04a599e7eb9c21334c9a46b108649b480a8dd1fedc3b2b1a6f9e14589c83b98a",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-029fcf0dd010-01",
+          "line_start": 19,
+          "line_end": 21,
+          "sha256": "029fcf0dd0100246885db10304ab4bac163cba61dc8c4983c8cb67dd15a9bcb6",
+          "payload_sha256": "029fcf0dd0100246885db10304ab4bac163cba61dc8c4983c8cb67dd15a9bcb6",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-bfb7447d48dc-01",
+          "line_start": 23,
+          "line_end": 30,
+          "sha256": "bfb7447d48dc5ce1bdde64e28493a68de16c9a36fb4218b666f8810e5cc85cb9",
+          "payload_sha256": "bfb7447d48dc5ce1bdde64e28493a68de16c9a36fb4218b666f8810e5cc85cb9",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-d340277aa03c-01",
+          "line_start": 32,
+          "line_end": 45,
+          "sha256": "d340277aa03cf3a37af655480f36c2dd1a71ccf4e71fcdaa7656101480ebdc75",
+          "payload_sha256": "d340277aa03cf3a37af655480f36c2dd1a71ccf4e71fcdaa7656101480ebdc75",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-d92d51acbc86-01",
+          "line_start": 47,
+          "line_end": 52,
+          "sha256": "d92d51acbc86677f8a57239dc22bd9fa5d6732d7ea1a76d3b61ae5277c8b5568",
+          "payload_sha256": "d92d51acbc86677f8a57239dc22bd9fa5d6732d7ea1a76d3b61ae5277c8b5568",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        }
+      ],
+      "archive_path": ".context/archive/legacy-sources/.prompt/003_one_shot_multipart_logging_fix.md"
+    },
+    {
+      "path": "prompt.md",
+      "sha256": "82165c4cfaec867a4550c37aec5c6f37254a076b9fbdcb8a12985d5449eedee1",
+      "status": "resolved",
+      "destinations": [],
+      "reason": "旧交接提示文件被当前 .context/ 规范入口完全接管，作为历史材料废弃。",
+      "migration_note": "",
+      "units": [
+        {
+          "id": "U-ae5f543731c2-01",
+          "line_start": 1,
+          "line_end": 3,
+          "sha256": "ae5f543731c2c1e60c9f485bbae8916ad7c53db0c3fb70cf7aeacd62f64bc84e",
+          "payload_sha256": "ae5f543731c2c1e60c9f485bbae8916ad7c53db0c3fb70cf7aeacd62f64bc84e",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-e55f78e3ebb3-01",
+          "line_start": 5,
+          "line_end": 9,
+          "sha256": "e55f78e3ebb33fe01ae6bf845068c6e2685cc10de6c5734bc61fc27d3c08ff2c",
+          "payload_sha256": "e55f78e3ebb33fe01ae6bf845068c6e2685cc10de6c5734bc61fc27d3c08ff2c",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-63343e2ffe7b-01",
+          "line_start": 11,
+          "line_end": 21,
+          "sha256": "63343e2ffe7bdf753f736c0058f448ab7adef7cae62c982c865add98f49a6b91",
+          "payload_sha256": "63343e2ffe7bdf753f736c0058f448ab7adef7cae62c982c865add98f49a6b91",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-b3c8de22ae80-01",
+          "line_start": 23,
+          "line_end": 32,
+          "sha256": "b3c8de22ae80c960905cfc2eda6a3c5de83a46958c1df3ddf40f30e9bc0ae279",
+          "payload_sha256": "b3c8de22ae80c960905cfc2eda6a3c5de83a46958c1df3ddf40f30e9bc0ae279",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-f1134ac962dc-01",
+          "line_start": 34,
+          "line_end": 53,
+          "sha256": "f1134ac962dc75ebde29cf7945122cb399fff8847704b5190652a2a5f1874d52",
+          "payload_sha256": "f1134ac962dc75ebde29cf7945122cb399fff8847704b5190652a2a5f1874d52",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-642744102a24-01",
+          "line_start": 55,
+          "line_end": 73,
+          "sha256": "642744102a249e776b427efe98197e8e71fb2cfdeff0fe8da6d40be6f6c400d3",
+          "payload_sha256": "642744102a249e776b427efe98197e8e71fb2cfdeff0fe8da6d40be6f6c400d3",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-efb59f618c86-01",
+          "line_start": 75,
+          "line_end": 77,
+          "sha256": "efb59f618c8649aeb57fffb744e4cac36c350f5cd35d44ae6fcf129c76cc5258",
+          "payload_sha256": "efb59f618c8649aeb57fffb744e4cac36c350f5cd35d44ae6fcf129c76cc5258",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-95bf870c16ab-01",
+          "line_start": 79,
+          "line_end": 84,
+          "sha256": "95bf870c16ab44ecacbeda88c792dfd1a7ea2f7d3ec226e25b46965e14bf47e4",
+          "payload_sha256": "95bf870c16ab44ecacbeda88c792dfd1a7ea2f7d3ec226e25b46965e14bf47e4",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-83a685221094-01",
+          "line_start": 86,
+          "line_end": 103,
+          "sha256": "83a6852210946fb2807e4eb30704449f9214235f618712bec6faf1f6c8b845cb",
+          "payload_sha256": "83a6852210946fb2807e4eb30704449f9214235f618712bec6faf1f6c8b845cb",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-8de2b0b3becb-01",
+          "line_start": 105,
+          "line_end": 113,
+          "sha256": "8de2b0b3becb53225246a525ea4408ed847d42e7ac29d4f8abb9e7df24cdb830",
+          "payload_sha256": "8de2b0b3becb53225246a525ea4408ed847d42e7ac29d4f8abb9e7df24cdb830",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-8429fdb55b8f-01",
+          "line_start": 115,
+          "line_end": 118,
+          "sha256": "8429fdb55b8f80b09e7cb469a3fe2fc6b688a03accd630db4e708c24c05919bb",
+          "payload_sha256": "8429fdb55b8f80b09e7cb469a3fe2fc6b688a03accd630db4e708c24c05919bb",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-4ce0df65bf9e-01",
+          "line_start": 120,
+          "line_end": 128,
+          "sha256": "4ce0df65bf9eba68fb753b6b0274839fc957d070dd75f9a736f7a3835734597d",
+          "payload_sha256": "4ce0df65bf9eba68fb753b6b0274839fc957d070dd75f9a736f7a3835734597d",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-3f1902581b52-01",
+          "line_start": 130,
+          "line_end": 141,
+          "sha256": "3f1902581b52faaac9cd01b07b44b6e145140259cadc7a95ee9aac85791080cf",
+          "payload_sha256": "3f1902581b52faaac9cd01b07b44b6e145140259cadc7a95ee9aac85791080cf",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-3910aeb1c4e7-01",
+          "line_start": 143,
+          "line_end": 150,
+          "sha256": "3910aeb1c4e7bf6d86360974b2e297eddca1b56904b9b883291d2561816ce10d",
+          "payload_sha256": "3910aeb1c4e7bf6d86360974b2e297eddca1b56904b9b883291d2561816ce10d",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-4982f945e873-01",
+          "line_start": 152,
+          "line_end": 167,
+          "sha256": "4982f945e873abb05e087439cc0dfdc7e420aec6317a361590d55d5f76d2a432",
+          "payload_sha256": "4982f945e873abb05e087439cc0dfdc7e420aec6317a361590d55d5f76d2a432",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-39f0c58eb63c-01",
+          "line_start": 169,
+          "line_end": 191,
+          "sha256": "39f0c58eb63c2e4efaaf4c4fc5e429c405c994d0e9657f0c754ed8d5c7c78bc1",
+          "payload_sha256": "39f0c58eb63c2e4efaaf4c4fc5e429c405c994d0e9657f0c754ed8d5c7c78bc1",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        },
+        {
+          "id": "U-db2b9040c49e-01",
+          "line_start": 194,
+          "line_end": 235,
+          "sha256": "db2b9040c49e4124039c6a88fddcc33197703d3f8f87f97c797c7adffeb8422c",
+          "payload_sha256": "db2b9040c49e4124039c6a88fddcc33197703d3f8f87f97c797c7adffeb8422c",
+          "status": "rejected",
+          "category": "obsolete",
+          "destinations": [],
+          "reason": "当前 .context/ 规范体系已接管该历史提示；保留原文会引入重复且过时的交割入口。",
+          "evidence": {
+            "basis": "当前规范入口已由 AGENTS.md、.context/README.md、.context/system/*.md、.context/plans/*.md 和 .context/tasks/*.md 接管。",
+            "reviewed_by": "Neo",
+            "reviewed_at": "2026-07-28"
+          }
+        }
+      ],
+      "archive_path": ".context/archive/legacy-sources/prompt.md"
+    }
+  ]
+}

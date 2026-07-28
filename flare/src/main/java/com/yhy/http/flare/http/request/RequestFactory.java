@@ -119,8 +119,10 @@ public class RequestFactory {
             interceptors.forEach(clientBuilder::addInterceptor);
         }
 
-        @SuppressWarnings("unchecked")
-        List<List<ParameterHandler<Object>>> handlers = parameterHandlers.stream().filter(Objects::nonNull).map(it -> it.stream().filter(Objects::nonNull).map(dd -> (ParameterHandler<Object>) dd).collect(Collectors.toList())).toList();
+        List<List<ParameterHandler<?>>> handlers = parameterHandlers.stream()
+            .filter(Objects::nonNull)
+            .map(it -> it.stream().filter(Objects::nonNull).collect(Collectors.toList()))
+            .toList();
 
         int argsCount = args.length;
         if (argsCount != handlers.size()) {
@@ -136,15 +138,16 @@ public class RequestFactory {
         List<Object> argsList = new ArrayList<>(argsCount);
         for (int i = 0; i < argsCount; i++) {
             argsList.add(args[i]);
-            for (ParameterHandler<Object> handler : handlers.get(i)) {
-                handler.apply(builder, args[i]);
+            for (ParameterHandler<?> handler : handlers.get(i)) {
+                applyParameterHandler(handler, builder, args[i]);
             }
         }
 
         Request.Builder bld = builder.get().tag(Invocation.class, Invocation.of(method, argsList));
-        // 加上 User-Agent 信息
+        okhttp3.Headers localHeaders = bld.build().headers();
+        // 加上默认 User-Agent 信息，调用方仍可通过外层或内层 Header 覆盖。
         bld.header("User-Agent", "Flare/" + Version.NAME);
-        // 静态 header
+        // 全局静态 Header 只是兜底，必须先设置。
         if (null != headerMap) {
             headerMap.forEach((k, v) -> {
                 if (null != k && null != v) {
@@ -152,17 +155,25 @@ public class RequestFactory {
                 }
             });
         }
-        // 动态 header
+        // 全局动态 Header 也只是兜底，方法/参数 Header 会在最后重新覆盖。
         if (null != dynamicHeaders) {
             dynamicHeaders.forEach(dynamic -> {
-                // 动态请求头
                 HttpHeader hh = dynamic.header(method);
                 if (null != hh && hh.isValid()) {
                     bld.header(hh.name(), hh.value());
                 }
             });
         }
+        // 重新应用方法级和参数级 Header，保证越靠近实际代理方法越优先。
+        localHeaders.names().forEach(name -> {
+            bld.removeHeader(name);
+            localHeaders.values(name).forEach(value -> bld.addHeader(name, value));
+        });
         return bld.build();
+    }
+
+    private static <T> void applyParameterHandler(ParameterHandler<T> handler, RequestBuilder builder, Object value) throws Exception {
+        handler.apply(builder, (T) value);
     }
 
     private static final class Builder {
