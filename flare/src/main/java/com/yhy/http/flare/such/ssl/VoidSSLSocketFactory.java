@@ -1,11 +1,15 @@
 package com.yhy.http.flare.such.ssl;
 
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.SSLContext;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.security.GeneralSecurityException;
 
 /**
- * 默认的 SSLSocketFactory 实现，用于禁用 SSL 连接认证
+ * 默认的 SSLSocketFactory 实现，用于禁用 SSL 证书链校验。
+ * <p>该实现不应在不可信网络环境中使用。</p>
  * <p>
  * Created on 2025-09-11 09:12
  *
@@ -14,6 +18,23 @@ import java.net.Socket;
  * @since 1.0.0
  */
 public final class VoidSSLSocketFactory extends SSLSocketFactory {
+    private static final SSLSocketFactory DELEGATE = createDelegate();
+
+    private static SSLSocketFactory createDelegate() {
+        try {
+            SSLContext context = SSLContext.getInstance("TLS");
+            context.init(null, new VoidSSLX509TrustManager[]{new VoidSSLX509TrustManager()}, null);
+            return context.getSocketFactory();
+        } catch (GeneralSecurityException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
+
+    /**
+     * 创建一个忽略证书链校验的 SSL Socket 工厂。
+     */
+    public VoidSSLSocketFactory() {
+    }
 
     /**
      * get Default Cipher Suites。
@@ -22,7 +43,7 @@ public final class VoidSSLSocketFactory extends SSLSocketFactory {
      */
     @Override
     public String[] getDefaultCipherSuites() {
-        return new String[0];
+        return DELEGATE.getDefaultCipherSuites();
     }
 
     /**
@@ -32,7 +53,7 @@ public final class VoidSSLSocketFactory extends SSLSocketFactory {
      */
     @Override
     public String[] getSupportedCipherSuites() {
-        return new String[0];
+        return DELEGATE.getSupportedCipherSuites();
     }
 
     /**
@@ -45,8 +66,8 @@ public final class VoidSSLSocketFactory extends SSLSocketFactory {
      * @return 处理结果
      */
     @Override
-    public Socket createSocket(Socket s, String host, int port, boolean autoClose) {
-        return null;
+    public Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException {
+        return DELEGATE.createSocket(s, host, port, autoClose);
     }
 
     /**
@@ -57,8 +78,8 @@ public final class VoidSSLSocketFactory extends SSLSocketFactory {
      * @return 处理结果
      */
     @Override
-    public Socket createSocket(String host, int port) {
-        return null;
+    public Socket createSocket(String host, int port) throws IOException {
+        return DELEGATE.createSocket(host, port);
     }
 
     /**
@@ -71,8 +92,8 @@ public final class VoidSSLSocketFactory extends SSLSocketFactory {
      * @return 处理结果
      */
     @Override
-    public Socket createSocket(String host, int port, InetAddress localHost, int localPort) {
-        return null;
+    public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException {
+        return DELEGATE.createSocket(host, port, localHost, localPort);
     }
 
     /**
@@ -83,8 +104,8 @@ public final class VoidSSLSocketFactory extends SSLSocketFactory {
      * @return 处理结果
      */
     @Override
-    public Socket createSocket(InetAddress host, int port) {
-        return null;
+    public Socket createSocket(InetAddress host, int port) throws IOException {
+        return DELEGATE.createSocket(host, port);
     }
 
     /**
@@ -97,7 +118,12 @@ public final class VoidSSLSocketFactory extends SSLSocketFactory {
      * @return 处理结果
      */
     @Override
-    public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) {
-        return null;
+    public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
+        return DELEGATE.createSocket(address, port, localAddress, localPort);
+    }
+
+    @Override
+    public Socket createSocket() throws IOException {
+        return DELEGATE.createSocket();
     }
 }

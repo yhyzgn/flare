@@ -7,7 +7,8 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 /**
- * 默认的 X509ExtendedTrustManager 实现，用于禁用 SSL 连接认证
+ * 默认的 X509ExtendedTrustManager 实现，用于禁用 SSL 证书链校验。
+ * <p>该实现不应在不可信网络环境中使用。</p>
  * <p>
  * Created on 2025-09-11 09:15
  *

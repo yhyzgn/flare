@@ -16,8 +16,6 @@ import com.yhy.http.flare.delegate.MethodAnnotationDelegate;
 import com.yhy.http.flare.http.request.param.ParameterHandler;
 import com.yhy.http.flare.model.HttpHeader;
 import com.yhy.http.flare.model.Invocation;
-import com.yhy.http.flare.such.delegate.ConstructorDynamicHeaderDelegate;
-import com.yhy.http.flare.such.delegate.ConstructorInterceptorDelegate;
 import com.yhy.http.flare.utils.*;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -460,13 +458,9 @@ public class RequestFactory {
             if (null == annotation) return;
             for (Interceptor ano : annotation) {
                 Class<? extends okhttp3.Interceptor> clazz = ano.value();
-                InterceptorDelegate delegate = flare.interceptorDelegate();
-                if (null == delegate) {
-                    delegate = ConstructorInterceptorDelegate.create();
-                }
                 try {
                     // 获取空参数构造函数，并创建对象
-                    okhttp3.Interceptor interceptor = delegate.apply(clazz);
+                    okhttp3.Interceptor interceptor = flare.instanceFactory().createTyped(clazz);
                     if (ano.net()) {
                         netInterceptors.add(interceptor);
                     } else {
@@ -491,12 +485,8 @@ public class RequestFactory {
                     headerValue = header.value().substring(index + 1).trim();
                 } else if (header.dynamic() != Header.Dynamic.class && Header.Dynamic.class.isAssignableFrom(header.dynamic())) {
                     Class<? extends Header.Dynamic> pairClass = header.dynamic();
-                    DynamicHeaderDelegate delegate = flare.headerDelegate();
-                    if (null == delegate) {
-                        delegate = ConstructorDynamicHeaderDelegate.create();
-                    }
                     try {
-                        Header.Dynamic headerDynamic = delegate.apply(pairClass);
+                        Header.Dynamic headerDynamic = flare.instanceFactory().createTyped(pairClass);
                         // 动态请求头
                         HttpHeader hh = headerDynamic.header(method);
                         if (null != hh && hh.isValid()) {

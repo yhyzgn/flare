@@ -12,7 +12,9 @@ import com.yhy.http.flare.utils.ReflectUtils;
  * @author 颜洪毅
  * @version 1.0.0
  * @since 1.0.0
+ * @deprecated since 2.0.2; use {@link ConstructorInstanceFactory} instead. This API is planned for removal in 3.0.0.
  */
+@Deprecated(since = "2.0.2")
 public class ConstructorDispatcherProviderDelegate implements DispatcherProviderDelegate {
 
     /**
@@ -30,7 +32,9 @@ public class ConstructorDispatcherProviderDelegate implements DispatcherProvider
      * 创建实例
      *
      * @return 实例
+     * @deprecated since 2.0.2; use {@link ConstructorInstanceFactory#create()} instead. This API is planned for removal in 3.0.0.
      */
+    @Deprecated(since = "2.0.2")
     public static ConstructorDispatcherProviderDelegate create() {
         return new ConstructorDispatcherProviderDelegate();
     }

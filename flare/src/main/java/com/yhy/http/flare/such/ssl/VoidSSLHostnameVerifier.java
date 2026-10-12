@@ -4,7 +4,8 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 
 /**
- * 默认的 HostnameVerifier 实现，用于禁用 SSL 连接认证
+ * 默认的 HostnameVerifier 实现，用于禁用 SSL 主机名校验。
+ * <p>该实现不应在不可信网络环境中使用。</p>
  * <p>
  * Created on 2025-09-11 09:10
  *
@@ -23,6 +24,6 @@ public final class VoidSSLHostnameVerifier implements HostnameVerifier {
      */
     @Override
     public boolean verify(String hostname, SSLSession session) {
-        return false;
+        return true;
     }
 }

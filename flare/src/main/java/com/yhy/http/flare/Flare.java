@@ -21,6 +21,9 @@ import com.yhy.http.flare.such.convert.StringConverterFactory;
 import com.yhy.http.flare.such.delegate.*;
 import com.yhy.http.flare.such.interceptor.HttpLoggerInterceptor;
 import com.yhy.http.flare.such.provider.VirtualThreadDispatcherProvider;
+import com.yhy.http.flare.such.ssl.VoidSSLHostnameVerifier;
+import com.yhy.http.flare.such.ssl.VoidSSLSocketFactory;
+import com.yhy.http.flare.such.ssl.VoidSSLX509TrustManager;
 import com.yhy.http.flare.utils.Assert;
 import com.yhy.http.flare.utils.Opt;
 import lombok.extern.slf4j.Slf4j;
@@ -59,6 +62,7 @@ public class Flare {
     private final InterceptorDelegate interceptorDelegate;
     private final MethodAnnotationDelegate methodAnnotationDelegate;
     private final ExceptionResolverDelegate exceptionResolverDelegate;
+    private final InstanceFactory instanceFactory;
     private final OkHttpClient.Builder clientBuilder;
     private final CallAdapter.Factory callAdapterFactory;
     private final BodyConverter.Factory bodyConverterFactory;
@@ -79,6 +83,7 @@ public class Flare {
         this.interceptorDelegate = builder.interceptorDelegate;
         this.methodAnnotationDelegate = builder.methodAnnotationDelegate;
         this.exceptionResolverDelegate = builder.exceptionResolverDelegate;
+        this.instanceFactory = builder.instanceFactory;
         this.clientBuilder = builder.clientBuilder;
         this.callAdapterFactory = builder.callAdapterFactory;
         this.bodyConverterFactory = builder.bodyConverterFactory;
@@ -144,7 +149,9 @@ public class Flare {
      * 动态请求头处理器委托实例
      *
      * @return 动态请求头处理器委托实例
+     * @deprecated since 2.0.2; use {@link #instanceFactory()} instead. This API is planned for removal in 3.0.0.
      */
+    @Deprecated(since = "2.0.2")
     public DynamicHeaderDelegate headerDelegate() {
         return dynamicHeaderDelegate;
     }
@@ -153,7 +160,9 @@ public class Flare {
      * 拦截器处理器委托实例
      *
      * @return 拦截器处理器委托实例
+     * @deprecated since 2.0.2; use {@link #instanceFactory()} instead. This API is planned for removal in 3.0.0.
      */
+    @Deprecated(since = "2.0.2")
     public InterceptorDelegate interceptorDelegate() {
         return interceptorDelegate;
     }
@@ -165,6 +174,16 @@ public class Flare {
      */
     public MethodAnnotationDelegate methodAnnotationDelegate() {
         return methodAnnotationDelegate;
+    }
+
+    /**
+     * 实例创建工厂。
+     *
+     * @return 实例创建工厂
+     * @since 2.0.2
+     */
+    public InstanceFactory instanceFactory() {
+        return instanceFactory;
     }
 
     /**
@@ -347,7 +366,7 @@ public class Flare {
         try {
             return proxyInvoke(proxy, method, args);
         } catch (Throwable e) {
-            if (ThrowableDispatcher.dispatch(method, catchers, e, exceptionResolverDelegate)) {
+            if (ThrowableDispatcher.dispatch(method, catchers, e, instanceFactory)) {
                 // 异常已被处理
                 return null;
             }
@@ -386,11 +405,14 @@ public class Flare {
         private DynamicHeaderDelegate dynamicHeaderDelegate;
         private InterceptorDelegate interceptorDelegate;
         private MethodAnnotationDelegate methodAnnotationDelegate;
+        private InstanceFactory instanceFactory;
 
         /**
          * exception Resolver Delegate。
          *
+         * @deprecated since 2.0.2; use {@link #instanceFactory(InstanceFactory)} instead. This API is planned for removal in 3.0.0.
          */
+        @Deprecated(since = "2.0.2")
         public ExceptionResolverDelegate exceptionResolverDelegate;
         private Dispatcher dispatcher;
         private DispatcherProviderDelegate dispatcherProviderDelegate;
@@ -458,7 +480,9 @@ public class Flare {
          *
          * @param delegate 动态请求头处理器委托实例
          * @return builder
+         * @deprecated since 2.0.2; use {@link #instanceFactory(InstanceFactory)} instead. This API is planned for removal in 3.0.0.
          */
+        @Deprecated(since = "2.0.2")
         public Builder dynamicHeaderDelegate(DynamicHeaderDelegate delegate) {
             this.dynamicHeaderDelegate = delegate;
             return this;
@@ -469,7 +493,9 @@ public class Flare {
          *
          * @param delegate 拦截器处理器委托实例
          * @return builder
+         * @deprecated since 2.0.2; use {@link #instanceFactory(InstanceFactory)} instead. This API is planned for removal in 3.0.0.
          */
+        @Deprecated(since = "2.0.2")
         public Builder interceptorDelegate(InterceptorDelegate delegate) {
             this.interceptorDelegate = delegate;
             return this;
@@ -491,7 +517,9 @@ public class Flare {
          *
          * @param delegate 异常处理器委托实例
          * @return builder
+         * @deprecated since 2.0.2; use {@link #instanceFactory(InstanceFactory)} instead. This API is planned for removal in 3.0.0.
          */
+        @Deprecated(since = "2.0.2")
         public Builder exceptionResolverDelegate(ExceptionResolverDelegate delegate) {
             this.exceptionResolverDelegate = delegate;
             return this;
@@ -502,9 +530,25 @@ public class Flare {
          *
          * @param delegate 请求分发器提供者委托实例
          * @return builder
+         * @deprecated since 2.0.2; use {@link #instanceFactory(InstanceFactory)} instead. This API is planned for removal in 3.0.0.
          */
+        @Deprecated(since = "2.0.2")
         public Builder dispatcherProviderDelegate(DispatcherProviderDelegate delegate) {
             this.dispatcherProviderDelegate = delegate;
+            return this;
+        }
+
+        /**
+         * 配置统一实例创建工厂。
+         * <p>
+         * 配置后，旧 Delegate 入口会桥接到该工厂；若同时配置旧 Delegate，统一工厂优先。
+         *
+         * @param factory 实例创建工厂
+         * @return builder
+         * @since 2.0.2
+         */
+        public Builder instanceFactory(InstanceFactory factory) {
+            this.instanceFactory = factory;
             return this;
         }
 
@@ -691,27 +735,51 @@ public class Flare {
             stringConverterFactory = Opt.ofNullable(stringConverterFactory).orElse(new StringConverterFactory());
             formFieldConverterFactory = Opt.ofNullable(formFieldConverterFactory).orElse(new FormFieldConverterFactory());
 
-            dynamicHeaderDelegate = Opt.ofNullable(dynamicHeaderDelegate).orElse(ConstructorDynamicHeaderDelegate.create());
-            interceptorDelegate = Opt.ofNullable(interceptorDelegate).orElse(ConstructorInterceptorDelegate.create());
             methodAnnotationDelegate = Opt.ofNullable(methodAnnotationDelegate).orElse(ConstructorMethodAnnotationDelegate.create());
-            dispatcherProviderDelegate = Opt.ofNullable(dispatcherProviderDelegate).orElse(ConstructorDispatcherProviderDelegate.create());
-            exceptionResolverDelegate = Opt.ofNullable(exceptionResolverDelegate).orElse(ConstructorExceptionResolverDelegate.create());
+            if (instanceFactory == null) {
+                boolean hasLegacyDelegate = dynamicHeaderDelegate != null
+                    || interceptorDelegate != null
+                    || exceptionResolverDelegate != null
+                    || dispatcherProviderDelegate != null;
+                instanceFactory = hasLegacyDelegate
+                    ? new LegacyDelegateInstanceFactory(dynamicHeaderDelegate, interceptorDelegate, exceptionResolverDelegate, dispatcherProviderDelegate)
+                    : ConstructorInstanceFactory.create();
+            }
+            // 统一工厂是唯一真实的实例创建来源；旧 Delegate 仅保留为兼容入口。
+            InstanceFactory configuredFactory = instanceFactory;
+            dynamicHeaderDelegate = configuredFactory::createTyped;
+            interceptorDelegate = configuredFactory::createTyped;
+            exceptionResolverDelegate = configuredFactory::createTyped;
+            dispatcherProviderDelegate = configuredFactory::createTyped;
 
             // 默认的请求分发器提供者和请求分发器
             dispatcherProviderClass = null != dispatcherProviderClass ? dispatcherProviderClass : VirtualThreadDispatcherProvider.class;
-            dispatcherProvider = Opt.ofNullable(dispatcherProvider).orElse(dispatcherProviderDelegate.apply(dispatcherProviderClass));
+            dispatcherProvider = Opt.ofNullable(dispatcherProvider).orElse(instanceFactory.createTyped(dispatcherProviderClass));
             dispatcher = Opt.ofNullable(dispatcher).orElse(dispatcherProvider.provide());
 
+            boolean customClientBuilder = clientBuilder != null;
+            boolean customSslConfiguration = sslSocketFactory != null || sslTrustManager != null || sslHostnameVerifier != null;
+            if (customSslConfiguration && (sslSocketFactory == null || sslTrustManager == null || sslHostnameVerifier == null)) {
+                throw new IllegalArgumentException("sslSocketFactory, sslTrustManager and sslHostnameVerifier must be configured together");
+            }
             // 开始创建 OkHttpClient.Builder
             clientBuilder = Opt.ofNullable(clientBuilder).orElse(new OkHttpClient.Builder());
 
             // 配置分发器
             clientBuilder.dispatcher(dispatcher);
 
-            // 配置 ssl
-            if (null != sslSocketFactory && null != sslTrustManager && null != sslHostnameVerifier) {
-                clientBuilder.sslSocketFactory(sslSocketFactory, sslTrustManager).hostnameVerifier(sslHostnameVerifier);
+            // 调用方显式提供 OkHttpClient.Builder 时，优先保留其 SSL 配置；否则使用 trust-all 默认值。
+            if (!customSslConfiguration && customClientBuilder) {
+                OkHttpClient configuredClient = clientBuilder.build();
+                sslSocketFactory = configuredClient.sslSocketFactory();
+                sslTrustManager = configuredClient.x509TrustManager();
+                sslHostnameVerifier = configuredClient.hostnameVerifier();
             }
+            // 默认忽略证书链和主机名校验；显式配置的 SSL 组件优先。
+            sslSocketFactory = Opt.ofNullable(sslSocketFactory).orElse(new VoidSSLSocketFactory());
+            sslTrustManager = Opt.ofNullable(sslTrustManager).orElse(new VoidSSLX509TrustManager());
+            sslHostnameVerifier = Opt.ofNullable(sslHostnameVerifier).orElse(new VoidSSLHostnameVerifier());
+            clientBuilder.sslSocketFactory(sslSocketFactory, sslTrustManager).hostnameVerifier(sslHostnameVerifier);
 
             if (Objects.equals(logEnabled, true)) {
                 // 配置日志拦截器

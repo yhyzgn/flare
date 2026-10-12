@@ -38,11 +38,8 @@ import java.lang.annotation.*;
     FlareStarterAutoConfiguration.class,
     JsonMapperConverterFactory.class,
     SpringStringConverterFactory.class,
-    SpringDynamicHeaderDelegate.class,
-    SpringInterceptorDelegate.class,
+    SpringInstanceFactory.class,
     SpringMethodAnnotationDelegate.class,
-    SpringDispatcherProviderDelegate.class,
-    SpringExceptionResolverDelegate.class,
     SpringDispatcherProvider.class
 })
 public @interface EnableFlare {

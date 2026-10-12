@@ -7,10 +7,8 @@ import com.yhy.http.flare.convert.BodyConverter;
 import com.yhy.http.flare.convert.StringConverter;
 import com.yhy.http.flare.delegate.*;
 import com.yhy.http.flare.provider.DispatcherProvider;
-import com.yhy.http.flare.spring.convert.JsonMapperConverterFactory;
-import com.yhy.http.flare.spring.convert.SpringStringConverterFactory;
-import com.yhy.http.flare.spring.delegate.*;
 import com.yhy.http.flare.spring.provider.SpringDispatcherProvider;
+import com.yhy.http.flare.such.delegate.ConstructorInstanceFactory;
 import com.yhy.http.flare.such.interceptor.HttpLoggerInterceptor;
 import com.yhy.http.flare.utils.Opt;
 import com.yhy.http.flare.utils.StringUtils;
@@ -21,7 +19,6 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.Assert;
@@ -103,11 +100,8 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
     private JsonMapper jsonMapper;
     private StringConverter.Factory stringConverterFactory;
     private BodyConverter.Factory bodyConverterFactory;
-    private DynamicHeaderDelegate dynamicHeaderDelegate;
-    private InterceptorDelegate interceptorDelegate;
+    private InstanceFactory instanceFactory;
     private MethodAnnotationDelegate methodAnnotationDelegate;
-    private DispatcherProviderDelegate dispatcherProviderDelegate;
-    private ExceptionResolverDelegate exceptionResolverDelegate;
 
     private DispatcherProvider dispatcherProvider;
 
@@ -145,18 +139,16 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
             .ignoreHttpStatus(ignoreHttpStatus)
             .stringConverterFactory(stringConverterFactory)
             .bodyConverterFactory(bodyConverterFactory)
-            .dynamicHeaderDelegate(dynamicHeaderDelegate)
-            .interceptorDelegate(interceptorDelegate)
+            .instanceFactory(instanceFactory)
             .methodAnnotationDelegate(methodAnnotationDelegate)
-            .dispatcherProviderDelegate(dispatcherProviderDelegate)
             .dispatcherProviderClass(SpringDispatcherProvider.class)
             .dispatcherProvider(dispatcherProvider)
-            .exceptionResolverDelegate(exceptionResolverDelegate);
+            ;
 
         if (!CollectionUtils.isEmpty(dynamicHeaderList)) {
             dynamicHeaderList.forEach(item -> {
                 try {
-                    builder.header(dynamicHeaderDelegate.apply(item));
+                    builder.header(instanceFactory.createTyped(item));
                 } catch (Exception e) {
                     log.error("", e);
                 }
@@ -165,7 +157,7 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
 
         if (null != loggerInterceptor && loggerInterceptor != HttpLoggerInterceptor.class) {
             try {
-                builder.loggerInterceptor(interceptorDelegate.apply(loggerInterceptor));
+                builder.loggerInterceptor(instanceFactory.createTyped(loggerInterceptor));
             } catch (Exception e) {
                 log.error("", e);
             }
@@ -176,16 +168,16 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
         }
 
         if (!CollectionUtils.isEmpty(interceptors)) {
-            interceptors.forEach(item -> builder.interceptor(getInstance(item)));
+            interceptors.forEach(item -> builder.interceptor(instanceFactory.createTyped(item)));
         }
         if (!CollectionUtils.isEmpty(netInterceptors)) {
-            netInterceptors.forEach(item -> builder.netInterceptor(getInstance(item)));
+            netInterceptors.forEach(item -> builder.netInterceptor(instanceFactory.createTyped(item)));
         }
         if (timeout > 0) {
             builder.timeout(timeout);
         }
         if (sslSocketFactory != null && sslTrustManager != null && sslHostnameVerifier != null) {
-            builder.https(getInstance(sslSocketFactory), getInstance(sslTrustManager), getInstance(sslHostnameVerifier));
+            builder.https(instanceFactory.createTyped(sslSocketFactory), instanceFactory.createTyped(sslTrustManager), instanceFactory.createTyped(sslHostnameVerifier));
         }
 
         return (T) builder.build().create(flareInterface);
@@ -199,15 +191,13 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
     private void initDelayedBeans() {
         // 初始化各个 Bean
         jsonMapper = Opt.ofNullable(jsonMapper).orElse(getInstance(JsonMapper.class));
-        stringConverterFactory = Opt.ofNullable(stringConverterFactory).orElse(getInstance(SpringStringConverterFactory.class));
-        bodyConverterFactory = Opt.ofNullable(bodyConverterFactory).orElse(getInstance(JsonMapperConverterFactory.class));
-        dynamicHeaderDelegate = Opt.ofNullable(dynamicHeaderDelegate).orElse(getInstance(SpringDynamicHeaderDelegate.class));
-        interceptorDelegate = Opt.ofNullable(interceptorDelegate).orElse(getInstance(SpringInterceptorDelegate.class));
-        methodAnnotationDelegate = Opt.ofNullable(methodAnnotationDelegate).orElse(getInstance(SpringMethodAnnotationDelegate.class));
-        dispatcherProviderDelegate = Opt.ofNullable(dispatcherProviderDelegate).orElse(getInstance(SpringDispatcherProviderDelegate.class));
-        exceptionResolverDelegate = Opt.ofNullable(exceptionResolverDelegate).orElse(getInstance(SpringExceptionResolverDelegate.class));
+        stringConverterFactory = Opt.ofNullable(stringConverterFactory).orElse(getInstance(StringConverter.Factory.class));
+        bodyConverterFactory = Opt.ofNullable(bodyConverterFactory).orElse(getInstance(BodyConverter.Factory.class));
+        instanceFactory = Opt.ofNullable(instanceFactory).orElse(getInstance(InstanceFactory.class));
+        instanceFactory = Opt.ofNullable(instanceFactory).orElse(ConstructorInstanceFactory.create());
+        methodAnnotationDelegate = Opt.ofNullable(methodAnnotationDelegate).orElse(getInstance(MethodAnnotationDelegate.class));
 
-        dispatcherProvider = Opt.ofNullable(dispatcherProvider).orElse(getInstance(SpringDispatcherProvider.class));
+        dispatcherProvider = Opt.ofNullable(dispatcherProvider).orElse(getInstance(DispatcherProvider.class));
     }
 
     /**
@@ -242,12 +232,7 @@ public class FlareFactoryBean implements FactoryBean<Object>, InitializingBean, 
      * @return 处理结果
      */
     protected <B> B getInstance(Class<B> clazz) {
-        try {
-            return this.context.getBean(clazz);
-        } catch (NoSuchBeanDefinitionException e) {
-            log.error("", e);
-            return null;
-        }
+        return this.context.getBeanProvider(clazz).getIfAvailable();
     }
 
     /**

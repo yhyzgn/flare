@@ -21,7 +21,9 @@ import org.springframework.stereotype.Component;
  * @author 颜洪毅
  * @version 1.0.0
  * @since 1.0.0
+ * @deprecated since 2.0.2; use {@link SpringInstanceFactory} instead. This API is planned for removal in 3.0.0.
  */
+@Deprecated(since = "2.0.2")
 @Slf4j
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 @Component

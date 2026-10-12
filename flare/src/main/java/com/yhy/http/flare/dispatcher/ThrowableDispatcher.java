@@ -3,7 +3,9 @@ package com.yhy.http.flare.dispatcher;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.yhy.http.flare.annotation.exception.Catcher;
+import com.yhy.http.flare.delegate.InstanceFactory;
 import com.yhy.http.flare.delegate.ExceptionResolverDelegate;
+import com.yhy.http.flare.such.delegate.LegacyDelegateInstanceFactory;
 import com.yhy.http.flare.utils.Opt;
 
 import java.lang.reflect.Method;
@@ -46,11 +48,11 @@ public class ThrowableDispatcher {
      * @param delegate 异常解析器委托
      * @return 是否成功处理异常
      */
-    public static boolean dispatch(Method method, List<Catcher> catchers, Throwable ex, ExceptionResolverDelegate delegate) {
+    public static boolean dispatch(Method method, List<Catcher> catchers, Throwable ex, InstanceFactory instanceFactory) {
         Class<?> exceptionType = ex.getClass();
         String cacheKey = cacheKey(method, exceptionType);
 
-        Opt<? extends Catcher.Resolver> optResolver = CACHE.get(cacheKey, key -> mapResolverCache(catchers, ex, delegate));
+        Opt<? extends Catcher.Resolver> optResolver = CACHE.get(cacheKey, key -> mapResolverCache(catchers, ex, instanceFactory));
         if (optResolver.isValid()) {
             try {
                 optResolver.get().resolve(ex);
@@ -64,6 +66,21 @@ public class ThrowableDispatcher {
     }
 
     /**
+     * 使用旧异常解析器委托分发异常。
+     *
+     * @param method 方法
+     * @param catchers 异常处理类列表
+     * @param ex 异常实例
+     * @param delegate 旧异常解析器委托
+     * @return 是否成功处理异常
+     * @deprecated since 2.0.2; use the InstanceFactory overload instead. This API is planned for removal in 3.0.0.
+     */
+    @Deprecated(since = "2.0.2")
+    public static boolean dispatch(Method method, List<Catcher> catchers, Throwable ex, ExceptionResolverDelegate delegate) {
+        return dispatch(method, catchers, ex, new LegacyDelegateInstanceFactory(null, null, delegate, null));
+    }
+
+    /**
      * 解析异常处理类
      * <p>
      * 1. 查找最佳匹配的异常处理类
@@ -74,10 +91,10 @@ public class ThrowableDispatcher {
      * @param delegate 异常解析器委托
      * @return 解析后的异常处理类（可能为空）
      */
-    private static Opt<? extends Catcher.Resolver> mapResolverCache(List<Catcher> catchers, Throwable ex, ExceptionResolverDelegate delegate) {
+    private static Opt<? extends Catcher.Resolver> mapResolverCache(List<Catcher> catchers, Throwable ex, InstanceFactory instanceFactory) {
         return findBestMatch(catchers, ex).map(type -> {
             try {
-                return delegate.apply(type.resolver());
+                return instanceFactory.createTyped(type.resolver());
             } catch (Exception e) {
                 throw new RuntimeException("Exception resolving " + type, e);
             }

@@ -111,7 +111,7 @@ implementation 'com.yhyzgn.http:flare-spring-boot-starter:${latest.version}'
 
 - `flare`（核心）：在纯 Java 应用或需要轻量、注解驱动 HTTP 客户端的库中使用；适合需要易于测试的 HTTP 调用并手动控制 Flare.Builder（baseUrl、日志）的场景。
 
-- `flare-spring`：当你希望获得 Spring 特定的帮助（转换器、委托）并在 Spring 环境中手动装配 Flare bean 时使用。
+- `flare-spring`：当你希望获得 Spring 特定的帮助（转换器、实例创建工厂）并在 Spring 环境中手动装配 Flare bean 时使用。
 
 - `flare-spring-starter-abstract`：作为构建自定义 starter 或复用注册工具时的基础模块。
 
@@ -174,9 +174,9 @@ public class Application {
 - `interceptor`（Interceptor[]）— 注解级拦截器声明
 - `timeout`（String）— 默认超时时间（毫秒，注解属性为 String）
 - `logEnabled`（String）— 是否启用日志
-- `loggerInterceptor`（Class<? extends okhttp3.Interceptor>）等 SSL / 日志自定义类
+- `loggerInterceptor`（Class<? extends okhttp3.Interceptor>）等 SSL / 日志自定义类。内置 SSL 默认会忽略证书链和主机名校验，仅适合受控环境；如需安全校验，请同时提供自定义的 SocketFactory、TrustManager 和 HostnameVerifier。
 
-注意：starter 默认注册 ObjectMapper 转换器与 Spring 特定委托（在 EnableFlare 的 imports 中可见），自动配置加载时会输出日志（见 FlareStarterAutoConfiguration）。
+注意：starter 默认注册 Jackson 转换器、统一 `SpringInstanceFactory` 和方法注解解析器（在 EnableFlare 的 imports 中可见）。旧的按类型拆分 Delegate API 自 2.0.2 起废弃，计划在 3.0.0 移除；迁移时请使用 `Flare.Builder#instanceFactory`。
 
 ---
 

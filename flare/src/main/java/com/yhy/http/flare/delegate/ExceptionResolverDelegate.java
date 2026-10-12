@@ -10,7 +10,9 @@ import com.yhy.http.flare.annotation.exception.Catcher;
  * @author 颜洪毅
  * @version 1.0.0
  * @since 1.0.0
+ * @deprecated since 2.0.2; use {@link InstanceFactory} instead. This API is planned for removal in 3.0.0.
  */
+@Deprecated(since = "2.0.2")
 @FunctionalInterface
 public interface ExceptionResolverDelegate {
 

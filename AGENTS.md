@@ -68,9 +68,27 @@ Flare 是一个 Java 21 的 Gradle 多模块 HTTP 客户端库，核心通过 Ok
 
 ## 当前工作指针
 
-- 计划：`.context/plans/002_configuration_priority.md`
-- 任务：`.context/tasks/002_configuration_priority.md`
+- 计划：`.context/plans/003_instance_factory_unification.md`
+- 任务：`.context/tasks/003_instance_factory_unification.md`
 
 ## 交付要求
 
 每个任务必须包含范围、非目标、预期文件、验收标准、验证、风险与回滚、完成记录。报告必须区分已验证事实、推断和未知项。
+
+
+<claude-mem-context>
+# Memory Context
+
+# claude-mem status
+
+This project has no memory yet. The current session will seed it; subsequent sessions will receive auto-injected context for relevant past work.
+
+Memory injection starts on your second session in a project.
+
+`/learn-codebase` is available if the user wants to front-load the entire repo into memory in a single pass (~5 minutes on a typical repo, optional). Otherwise memory builds passively as work happens.
+
+Live activity: http://localhost:37777
+How it works: `/how-it-works`
+
+This message disappears once the first observation lands.
+</claude-mem-context>

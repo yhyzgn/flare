@@ -113,7 +113,7 @@ implementation 'com.yhyzgn.http:flare-spring-boot-starter:${latest.version}'
 
 - `flare` (core): Use in plain Java applications or libraries where you need a small, annotation-driven HTTP client. Good for unit-testable HTTP calls and manual Flare.Builder configuration.
 
-- `flare-spring`: Use when you want Spring helpers (converters, delegates) and manual Spring bean wiring for Flare.
+- `flare-spring`: Use when you want Spring helpers (converters, instance creation factory) and manual Spring bean wiring for Flare.
 
 - `flare-spring-starter-abstract`: Use as a base when you build custom starters or re-use starter registration utilities.
 
@@ -179,10 +179,10 @@ Annotation attributes (available on EnableFlare):
 - `timeout` (String) — default timeout (ms) as string (starter uses String default)
 - `logEnabled` (String) — whether to enable logging
 - `loggerInterceptor` (Class<? extends okhttp3.Interceptor>) — logger interceptor class
-- `sslSocketFactory` / `sslTrustManager` / `sslHostnameVerifier` — SSL customization classes
+- `sslSocketFactory` / `sslTrustManager` / `sslHostnameVerifier` — SSL customization classes. The built-in defaults intentionally trust all certificates and hostnames; this is insecure and should only be used in controlled environments. Provide all three classes to restore your own SSL policy.
 
 Notes:
-- The starter registers ObjectMapper-based converters and Spring-specific delegates by default (see imports in EnableFlare).
+- The starter registers Jackson converters, the unified `SpringInstanceFactory`, and the method annotation resolver by default (see imports in EnableFlare). The type-specific Delegate APIs are deprecated since 2.0.2 and planned for removal in 3.0.0; migrate to `Flare.Builder#instanceFactory`.
 - The starter also logs a message when the auto-configuration loads (FlareStarterAutoConfiguration).
 
 ---

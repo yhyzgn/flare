@@ -295,3 +295,20 @@ Safe rule: never log/debug request bodies by writing one-shot bodies before the 
 - 当前安全基线：`@Flare#timeout` 与 `@Flare#logEnabled` 使用空字符串表示继承全局配置；`RequestFactory` 先应用全局 Header，再重新应用方法/参数 Header。
 - 缓解措施：修改相关逻辑时必须保留/扩展 `RequestFactoryHeaderPriorityTest` 与 `AbstractFlareAutoRegisterPriorityTest`。
 - 回滚点：恢复上述三个生产文件及新增优先级测试，回到修改前的合并顺序。
+
+## R-12：实例创建工厂兼容迁移（中）
+
+- 证据：flare/src/main/java/com/yhy/http/flare/delegate/InstanceFactory.java、flare/src/main/java/com/yhy/http/flare/such/delegate/LegacyDelegateInstanceFactory.java、flare-spring/src/main/java/com/yhy/http/flare/spring/delegate/SpringInstanceFactory.java。
+- 稳定规则：实例创建策略统一由 InstanceFactory 决定；MethodAnnotationDelegate 仍负责方法注解解析，不属于实例创建策略。
+- 兼容规则：旧四组 Delegate API 自 2.0.2 起废弃，计划在 3.0.0 移除；过渡期由 LegacyDelegateInstanceFactory 转发旧配置。当前不设置 `forRemoval = true`，避免兼容层和下游过渡代码被升级为移除级别诊断。
+- 失败模式：下游只实现旧 Delegate、只配置统一工厂，或 Spring 容器中缺少目标 Bean 时，实例创建失败；错误可能延迟到请求解析或代理调用阶段。
+- 缓解措施：保留旧 Builder 入口和兼容适配器；核心工厂测试覆盖自定义统一工厂路径，Spring starter 编译覆盖默认注册路径。
+- 回滚点：恢复统一工厂接入，重新启用原四组 Delegate 的默认注册和调用链。
+
+## R-13：默认信任所有证书与 Spring 基础设施查找（高）
+
+- 证据：`flare/src/main/java/com/yhy/http/flare/such/ssl/VoidSSLSocketFactory.java`、`VoidSSLX509TrustManager.java`、`VoidSSLHostnameVerifier.java`、`flare/src/main/java/com/yhy/http/flare/Flare.java`、`FlareFactoryBean.java`。
+- 稳定规则：默认 SSL 配置显式使用 TLS SocketFactory、空实现 TrustManager 和始终返回 `true` 的 HostnameVerifier；该行为会关闭证书链与主机名校验，仅适用于用户明确要求的受控环境。
+- Spring 规则：`FlareFactoryBean` 的基础设施依赖按接口查找，允许下游自定义 `StringConverter.Factory`、`BodyConverter.Factory`、`InstanceFactory`、`MethodAnnotationDelegate` 和 `DispatcherProvider`；缺失时返回 `null`，后续由模块默认值或明确失败处理。
+- 失败模式：自签名/过期/错误主机名证书被接受；如果只配置部分 SSL 组件，默认实现会补齐其余组件。
+- 缓解措施：SSL 单元测试验证默认组件类型、非空 cipher suites 和主机名校验结果；集成测试继续覆盖核心请求链。
