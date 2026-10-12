@@ -6,6 +6,7 @@
 - 构建系统：Gradle Groovy DSL 的多模块工程，包装器版本为 `9.5.1`（`gradle/wrapper/gradle-wrapper.properties`）。
 - Java 基线：`build.gradle` 将 `sourceCompatibility` / `targetCompatibility` 设为 `JavaVersion.VERSION_21`。
 - 版本与发布坐标：`ext.gradle` 当前版本是 `2.0.1`，group 为 `com.yhyzgn.http`；`flare/src/main/java/com/yhy/http/flare/utils/Version.java` 也写入 `2.0.1`。
+- 已发布 tag：`v2.0.0`、`v2.0.1`、`v2.0.2`（a6d2c62，2026-07-28）、`v2.0.3`（95822a9，2026-10-12，Javadoc 补全）；发布 tag 由 CI 更新 `ext.gradle` 与 `Version.java` 后再构建，因此仓库内静态版本号与最新 tag 存在滞后是预期状态。
 - Spring / Jackson 基线：根 `build.gradle` 使用 Spring Boot Gradle 插件 `4.1.0`，`ext.gradle` 固定 Spring Framework `7.0.8` 与 Jackson `3.1.4`；核心代码与 Spring 适配代码使用 `tools.jackson.databind.json.JsonMapper`。
 - 依赖栈：OkHttp BOM `5.4.0`、Gson `2.14.0`、Guava `33.6.0-jre`、JUnit `6.1.0`、Lombok `1.18.46`、SLF4J `2.0.18`、Caffeine `3.2.4`、Transmittable Thread Local `2.14.5` 等（见 `build.gradle` / `ext.gradle`）。
 - 没有数据库、ORM、迁移脚本或 datasource 配置（仓库扫描未发现相关层）。
