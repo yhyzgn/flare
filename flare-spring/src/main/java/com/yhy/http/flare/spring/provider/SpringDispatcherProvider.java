@@ -8,7 +8,11 @@ import org.springframework.context.annotation.Role;
 import org.springframework.stereotype.Component;
 
 /**
- * Spring Bean 实现的请求分发器提供者
+ * Spring Bean 形式的请求分发器提供者。
+ * <p>
+ * 继承 {@link VirtualThreadDispatcherProvider}，以虚拟线程调度器作为默认实现；
+ * 注册为基础设施 Bean（{@code @ConditionalOnMissingBean(DispatcherProvider.class)}），
+ * 容器中存在自定义 {@link DispatcherProvider} Bean 时让位。
  * <p>
  * Created on 2025-09-23 11:07
  *

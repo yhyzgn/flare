@@ -4,7 +4,11 @@ package com.yhy.http.flare.delegate;
  * Flare 实例创建策略。
  * <p>
  * 下游可以通过该策略决定目标类型使用构造方法、Spring Bean 或其他容器创建。
+ * <p>
+ * Created on 2026-10-12 14:25
  *
+ * @author 颜洪毅
+ * @version 2.0.2
  * @since 2.0.2
  */
 @FunctionalInterface

@@ -13,7 +13,10 @@ import java.io.File;
 import java.io.InputStream;
 
 /**
- * 测试类
+ * GET 请求集成测试，覆盖查询参数、路径参数、对象参数和多种返回类型的代理调用。
+ * <p>
+ * 依赖 mock-server（端口可用系统属性 {@code flare.mock.port} 覆盖，默认 {@code 8080}），
+ * 通常由 {@code scripts/run-tests.sh} 启动后运行。
  * <p>
  * Created on 2025-09-15 17:15
  *

@@ -17,7 +17,11 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- * 默认的日志打印器
+ * 默认的 HTTP 日志拦截器。
+ * <p>
+ * 以结构化日志输出完整请求/响应信息：URL、方法、请求头、请求体、响应状态、响应头、响应体与耗时。
+ * gzip 响应体自动解压后输出，并重建不带 {@code Content-Encoding} 头的响应。
+ * 一次性请求体（{@code isOneShot()}）与二进制体不会被读取，输出占位说明，避免流被提前消费。
  * <p>
  * Created on 2025-09-10 16:34
  *
@@ -30,11 +34,14 @@ public class HttpLoggerInterceptor implements Interceptor {
     private final static SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss E", Locale.getDefault());
 
     /**
-     * 拦截请求。
+     * 拦截请求并输出完整日志。
+     * <p>
+     * 记录请求与响应的全部细节（含耗时），返回解压后的响应副本。
+     * 一次性（one-shot）请求体不参与日志输出。
      *
-     * @param chain 值
-     * @return 处理结果
-     * @throws IOException 调用异常
+     * @param chain OkHttp 拦截链
+     * @return 响应（gzip 响应为已解压并移除 {@code Content-Encoding} 头的重建副本）
+     * @throws IOException 请求执行或读取响应体时发生 I/O 错误
      */
     @Override
     public @NotNull Response intercept(@NotNull Interceptor.Chain chain) throws IOException {

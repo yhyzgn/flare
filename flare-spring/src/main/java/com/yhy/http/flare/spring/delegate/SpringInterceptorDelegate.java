@@ -14,7 +14,11 @@ import org.springframework.context.annotation.Role;
 import org.springframework.stereotype.Component;
 
 /**
- * Spring 实现的拦截器注入代理
+ * Spring 实现的拦截器处理器委托。
+ * <p>
+ * 按类型从 Spring 容器获取 OkHttp {@link Interceptor} 实例；
+ * 注册为基础设施 Bean（{@code @ConditionalOnMissingBean(InterceptorDelegate.class)}），
+ * 容器中存在自定义实现时让位。
  * <p>
  * Created on 2025-09-17 17:27
  *
@@ -32,10 +36,11 @@ public class SpringInterceptorDelegate implements InterceptorDelegate, Initializ
     private ApplicationContext context;
 
     /**
-     * 应用委托。
+     * 按类型从 Spring 容器获取拦截器实例。
      *
-     * @param clazz 类型
-     * @return 处理结果
+     * @param clazz 拦截器类型
+     * @param <T> 拦截器类型
+     * @return 容器中该类型的拦截器实例
      */
     @Override
     public <T extends Interceptor> T apply(Class<T> clazz) {
@@ -43,8 +48,9 @@ public class SpringInterceptorDelegate implements InterceptorDelegate, Initializ
     }
 
     /**
-     * 属性设置完成回调。
-     *
+     * 所有 Bean 属性设置完成后由 Spring 容器调用的初始化回调。
+     * <p>
+     * 记录委托初始化完成日志。
      */
     @Override
     public void afterPropertiesSet() {
@@ -54,8 +60,8 @@ public class SpringInterceptorDelegate implements InterceptorDelegate, Initializ
     /**
      * 设置应用上下文。
      *
-     * @param context 值
-     * @throws BeansException 调用异常
+     * @param context Spring 应用上下文
+     * @throws BeansException 上下文处理异常
      */
     @Override
     public void setApplicationContext(@NotNull ApplicationContext context) throws BeansException {

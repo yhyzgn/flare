@@ -17,12 +17,12 @@ import com.yhy.http.flare.annotation.Header;
 public interface DynamicHeaderDelegate {
 
     /**
-     * 从下层逻辑获取动态创建请求头的类实例
+     * 从下层逻辑获取动态创建请求头的类实例。
      *
      * @param clazz 动态创建请求头的类
      * @param <T>   动态创建请求头的类类型
      * @return 动态创建请求头的类实例
-     * @throws Exception IO异常
+     * @throws Exception 实例创建失败时抛出
      */
     <T extends Header.Dynamic> T apply(Class<T> clazz) throws Exception;
 }

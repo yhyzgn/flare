@@ -68,8 +68,8 @@ Flare 是一个 Java 21 的 Gradle 多模块 HTTP 客户端库，核心通过 Ok
 
 ## 当前工作指针
 
-- 计划：`.context/plans/003_instance_factory_unification.md`
-- 任务：`.context/tasks/003_instance_factory_unification.md`
+- 计划：`.context/plans/004_javadoc_completion.md`
+- 任务：`.context/tasks/004_javadoc_completion.md`
 
 ## 交付要求
 

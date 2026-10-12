@@ -13,7 +13,10 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * 异常手动分发器
+ * 异常手动分发器。
+ * <p>
+ * 把代理方法执行中抛出的异常分发给方法上 {@code @Catcher} 声明的 {@code Resolver} 处理器，
+ * 解析结果按「方法 + 异常类型」缓存在 Caffeine 中以加速后续分发。
  * <p>
  * Created on 2026-03-05 10:51
  *
@@ -34,19 +37,17 @@ public class ThrowableDispatcher {
         .build();
 
     /**
-     * 手动分发异常
+     * 分发异常到方法上声明的 {@code @Catcher} 处理器。
      * <p>
-     * 1. 查找缓存中是否有解析后的 resolver
-     * 2. 如果有，调用 handler 处理异常
-     * 3. 如果没有，查找最佳匹配的异常处理类
-     * 4. 如果有，调用异常解析器委托，解析出具体的异常处理类，调用其 resolve 方法处理异常
-     * 5. 如果没有，返回 false
+     * 流程：先查缓存中已解析的 resolver；未命中则从 {@code catchers} 中查找与异常类型
+     * 最匹配的处理类，通过 {@code instanceFactory} 创建实例后回调并写入缓存；
+     * 无任何匹配时返回 {@code false}，由调用方决定是否继续抛出原异常。
      *
-     * @param method   方法
-     * @param catchers 异常处理类列表
-     * @param ex       异常实例
-     * @param delegate 异常解析器委托
-     * @return 是否成功处理异常
+     * @param method          代理方法，用于生成缓存键
+     * @param catchers        方法上声明的异常捕获器注解列表
+     * @param ex              待分发的异常实例
+     * @param instanceFactory 创建 resolver 实例的统一工厂
+     * @return 异常被处理器成功处理返回 {@code true}，否则 {@code false}
      */
     public static boolean dispatch(Method method, List<Catcher> catchers, Throwable ex, InstanceFactory instanceFactory) {
         Class<?> exceptionType = ex.getClass();
@@ -81,15 +82,14 @@ public class ThrowableDispatcher {
     }
 
     /**
-     * 解析异常处理类
+     * 解析异常处理类并填充缓存值。
      * <p>
-     * 1. 查找最佳匹配的异常处理类
-     * 2. 调用异常解析器委托，解析出具体的异常处理类
+     * 先查找与异常类型最匹配的 {@code @Catcher}，再通过统一工厂创建其 resolver 实例。
      *
-     * @param catchers 异常处理类列表
-     * @param ex       异常实例
-     * @param delegate 异常解析器委托
-     * @return 解析后的异常处理类（可能为空）
+     * @param catchers        方法上声明的异常捕获器注解列表
+     * @param ex              异常实例
+     * @param instanceFactory 创建 resolver 实例的统一工厂
+     * @return 解析后的异常处理器，无匹配时为空 {@link Opt}
      */
     private static Opt<? extends Catcher.Resolver> mapResolverCache(List<Catcher> catchers, Throwable ex, InstanceFactory instanceFactory) {
         return findBestMatch(catchers, ex).map(type -> {
@@ -102,14 +102,14 @@ public class ThrowableDispatcher {
     }
 
     /**
-     * 查找最佳匹配的异常处理类
+     * 查找能捕获该异常且类型最具体的 {@code @Catcher}。
      * <p>
-     * 1. 过滤出能够捕获该异常的类（即该异常的类或其父类）
-     * 2. 在所有能匹配的类中，找出最具体的那个（子类最小）
+     * 先过滤出 {@code throwable()} 能匹配该异常实例的注解，再在能匹配的注解中
+     * 优先选择异常类型声明最具体的那个（子类优先）。
      *
-     * @param catchers 异常处理类列表
+     * @param catchers 异常捕获器注解列表
      * @param ex       异常实例
-     * @return 最佳匹配的异常处理类（可能为空）
+     * @return 最佳匹配的捕获器，无匹配时为空 {@link Opt}
      */
     private static Opt<Catcher> findBestMatch(List<Catcher> catchers, Throwable ex) {
         Optional<Catcher> minOpt = catchers.stream()
@@ -126,13 +126,13 @@ public class ThrowableDispatcher {
     }
 
     /**
-     * 生成缓存键
+     * 生成缓存键。
      * <p>
-     * 形式：类名#方法名(参数类型1,参数类型2,...):返回值类型!异常类型
+     * 形式：{@code 类名#方法名(参数类型1,参数类型2,...):返回值类型!异常类名}。
      *
-     * @param method        方法
+     * @param method        代理方法
      * @param exceptionType 异常类型
-     * @return 缓存键
+     * @return 缓存键字符串
      */
     private static String cacheKey(Method method, Class<?> exceptionType) {
         StringBuilder sb = new StringBuilder(256);

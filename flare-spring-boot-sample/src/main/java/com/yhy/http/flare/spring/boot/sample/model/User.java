@@ -1,7 +1,7 @@
 package com.yhy.http.flare.spring.boot.sample.model;
 
 /**
- * user
+ * 用户信息模型，包含嵌套的 {@link Cat} 对象，用于示例数据传递。
  * <p>
  * Created on 2025-09-16 13:53
  *

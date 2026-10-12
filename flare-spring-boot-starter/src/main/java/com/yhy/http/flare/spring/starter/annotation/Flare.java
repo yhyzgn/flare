@@ -15,7 +15,15 @@ import javax.net.ssl.X509TrustManager;
 import java.lang.annotation.*;
 
 /**
- *
+ * Flare 远程接口声明注解。
+ * <p>
+ * 标注在接口上，由 {@link EnableFlare} 触发的扫描注册器识别；
+ * 每个标注本注解的接口都会注册为一个 {@code FlareFactoryBean} 代理 Bean，
+ * Bean 别名按 {@link #qualifier()}、{@link #name()}、接口类名依次回退。
+ * <p>
+ * 配置优先级"越靠近代理方法越优先"：本注解的显式配置覆盖 {@link EnableFlare} 全局值，
+ * 方法级与参数级请求头再覆盖本层配置；{@link #timeout()} 与 {@link #logEnabled()}
+ * 为空字符串时表示继承全局配置。本注解只能标注在接口上。
  * <p>
  * Created on 2025-09-18 11:17
  *

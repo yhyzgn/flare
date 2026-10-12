@@ -33,7 +33,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- *
+ * 请求工厂。
+ * <p>
+ * 在接口方法首次解析时读取方法注解与参数注解，固化 HTTP 方法、相对路径、请求头、
+ * 表单编码语义与各参数的 {@code ParameterHandler}；调用 {@link #create} 时再结合
+ * 实参生成最终 OkHttp 请求，并按「越靠近代理方法越优先」的顺序合并全局与局部配置。
  * <p>
  * Created on 2025-09-11 06:38
  *
@@ -90,23 +94,27 @@ public class RequestFactory {
     }
 
     /**
-     * 解析注解。
+     * 解析方法注解与参数注解，创建该方法的请求工厂。
      *
-     * @param flare 值
-     * @param method 方法
-     * @return 处理结果
+     * @param flare  当前 Flare 实例
+     * @param method 带注解的接口方法
+     * @return 解析完成的请求工厂实例
      */
     public static RequestFactory parseAnnotations(Flare flare, Method method) {
         return new Builder(flare, method).build();
     }
 
     /**
-     * create。
+     * 结合方法实参生成 OkHttp 请求。
+     * <p>
+     * 先把局部拦截器注册到 clientBuilder，再逐参数应用 {@code ParameterHandler}；
+     * 最后按优先级合并请求头：方法/参数级 Header 与默认 User-Agent 先写入，
+     * 全局静态/动态 Header 作为兜底，随后方法/参数级 Header 重新覆盖。
      *
-     * @param clientBuilder 值
-     * @param args 对象
-     * @return 处理结果
-     * @throws Exception 调用异常
+     * @param clientBuilder 待附加局部拦截器的 OkHttp 客户端构建器
+     * @param args          代理方法实参数组，长度须与参数处理器数量一致
+     * @return 最终待发送的 OkHttp 请求
+     * @throws Exception 参数应用或请求构建失败
      */
     public Request create(OkHttpClient.Builder clientBuilder, Object[] args) throws Exception {
         // 自定义设置拦截器

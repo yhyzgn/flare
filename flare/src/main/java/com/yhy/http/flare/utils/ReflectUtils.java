@@ -10,7 +10,10 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 
 /**
- * 反射工具类
+ * 反射与泛型解析工具类。
+ * <p>
+ * 提供泛型参数上下限、原始类型提取、类型变量解析、类型相等比较等能力，
+ * 是 {@code ParameterHandler} 解析方法签名与返回类型的底层支撑。
  * <p>
  * Created on 2025-09-10 15:35
  *
@@ -22,20 +25,21 @@ public abstract class ReflectUtils {
     private static final Type[] EMPTY_TYPE_ARRAY = new Type[0];
 
     /**
-
-     * * Prevent instantiation
-
+     * 防止工具类被实例化。
      */
     private ReflectUtils() {
         throw new UnsupportedOperationException("Instantiation is not allowed");
     }
 
     /**
-     * 获取泛型参数的上限类型
+     * 获取泛型参数的上限类型。
+     * <p>
+     * 泛型参数为 {@code ? extends X} 通配符时返回 {@code X}，否则返回参数本身。
      *
-     * @param index 泛型参数索引
-     * @param type  类型
-     * @return 泛型参数的上限类型
+     * @param index 泛型参数在 {@code type} 中的索引，从 0 开始
+     * @param type  泛型化类型
+     * @return 指定索引处泛型参数的上限类型
+     * @throws IllegalArgumentException 索引越界时
      */
     public static Type getParameterUpperBound(int index, ParameterizedType type) {
         Type[] types = type.getActualTypeArguments();
@@ -48,11 +52,14 @@ public abstract class ReflectUtils {
     }
 
     /**
-     * 获取泛型参数的下限类型
+     * 获取泛型参数的下限类型。
+     * <p>
+     * 泛型参数为 {@code ? super X} 通配符时返回 {@code X}，否则返回参数本身。
      *
-     * @param index 泛型参数索引
-     * @param type  类型
-     * @return 泛型参数的下限类型
+     * @param index 泛型参数在 {@code type} 中的索引，从 0 开始
+     * @param type  泛型化类型
+     * @return 指定索引处泛型参数的下限类型
+     * @throws IllegalArgumentException 索引越界时
      */
     public static Type getParameterLowerBound(int index, ParameterizedType type) {
         Type[] types = type.getActualTypeArguments();
@@ -65,10 +72,14 @@ public abstract class ReflectUtils {
     }
 
     /**
-     * 获取类型参数的类型
+     * 提取类型的原始 {@code Class}。
+     * <p>
+     * {@code ParameterizedType} 取其 rawType；泛型数组取元素类型再重建数组类；
+     * 类型变量返回 {@code Object.class}；通配符取第一个上限的原始类型。
      *
-     * @param type 类型
-     * @return 类型参数的类型
+     * @param type 待解析类型，不能为 {@code null}
+     * @return 对应的原始 {@code Class}
+     * @throws IllegalArgumentException 类型结构不符合预期或不支持时
      */
     public static Class<?> getRawType(Type type) {
         Assert.notNull(type, "Type must not be null");
@@ -93,10 +104,13 @@ public abstract class ReflectUtils {
     }
 
     /**
-     * 判断是否存在不可解析类型。
+     * 判断类型是否可被安全解析。
+     * <p>
+     * {@code Class}、类型变量与通配符可解析；{@code ParameterizedType} 与泛型数组递归检查其成分。
      *
-     * @param type 值
-     * @return 判断是否存在不可解析类型
+     * @param type 待检查类型，可为 {@code null}
+     * @return {@code true} 表示包含不可解析成分（应尽早失败），{@code false} 表示可解析
+     * @throws IllegalArgumentException 遇到不支持的类型形态时
      */
     public static boolean hasUnresolvableType(@Nullable Type type) {
         if (type instanceof Class<?>) {
@@ -171,11 +185,12 @@ public abstract class ReflectUtils {
     }
 
     /**
-     * 查找索引。
+     * 在数组中查找指定对象首次出现的索引。
      *
-     * @param array 对象
-     * @param toFind 对象
-     * @return 处理结果
+     * @param array  待查找数组
+     * @param toFind 目标对象，按 {@code equals} 匹配
+     * @return 首次出现的索引
+     * @throws NoSuchElementException 数组中不含目标对象时
      */
     public static int indexOf(Object[] array, Object toFind) {
         for (int i = 0; i < array.length; i++) {
@@ -185,10 +200,12 @@ public abstract class ReflectUtils {
     }
 
     /**
-     * 类型转字符串。
+     * 把类型转为字符串表示。
+     * <p>
+     * {@code Class} 输出全限定名，其他 {@code Type} 输出其 {@code toString}。
      *
-     * @param type 值
-     * @return 处理结果
+     * @param type 待转换类型
+     * @return 类型的字符串表示
      */
     public static String typeToString(Type type) {
         return type instanceof Class ? ((Class<?>) type).getName() : type.toString();
@@ -200,9 +217,10 @@ public abstract class ReflectUtils {
     }
 
     /**
-     * 检查非基本类型。
+     * 校验类型不是基本类型。
      *
-     * @param type 值
+     * @param type 待检查类型
+     * @throws IllegalArgumentException 类型是基本类型（如 {@code int.class}）时
      */
     public static void checkNotPrimitive(Type type) {
         if (type instanceof Class<?> && ((Class<?>) type).isPrimitive()) {
@@ -211,11 +229,11 @@ public abstract class ReflectUtils {
     }
 
     /**
-     * 判断注解是否存在。
+     * 判断注解数组中是否存在指定类型的注解。
      *
-     * @param annotations 注解
-     * @param cls 类型
-     * @return 判断注解是否存在
+     * @param annotations 待检查的注解数组
+     * @param cls         目标注解类型
+     * @return {@code true} 表示存在指定类型的注解
      */
     public static boolean isAnnotationPresent(Annotation[] annotations, Class<? extends Annotation> cls) {
         for (Annotation annotation : annotations) {
@@ -227,11 +245,15 @@ public abstract class ReflectUtils {
     }
 
     /**
-     * 判断相等。
+     * 比较两个 {@code Type} 是否语义相等。
+     * <p>
+     * 对 {@code Class}、{@code ParameterizedType}、{@code GenericArrayType}、
+     * {@code WildcardType} 与 {@code TypeVariable} 分别按各自语义比较；
+     * 两边同为 {@code null} 视为相等，形态不匹配一律视为不等。
      *
-     * @param a 值
-     * @param b 值
-     * @return 处理结果
+     * @param a 类型一，可为 {@code null}
+     * @param b 类型二，可为 {@code null}
+     * @return {@code true} 表示两个类型语义相等
      */
     public static boolean equals(Type a, Type b) {
         if (a == b) {
@@ -258,12 +280,13 @@ public abstract class ReflectUtils {
     }
 
     /**
-     * 获取父类型。
+     * 解析指定类型相对某个上下文类型的父类型。
      *
-     * @param context 值
-     * @param contextRawType 类型
-     * @param supertype 类型
-     * @return 处理结果
+     * @param context        上下文类型，提供类型变量的实参绑定
+     * @param contextRawType 上下文类型的原始 {@code Class}
+     * @param supertype      要解析到的父类型
+     * @return 已把类型变量替换为实参的父类型
+     * @throws IllegalArgumentException {@code supertype} 不是 {@code contextRawType} 的父类型时
      */
     public static Type getSupertype(Type context, Class<?> contextRawType, Class<?> supertype) {
         if (!supertype.isAssignableFrom(contextRawType)) throw new IllegalArgumentException();
@@ -271,12 +294,14 @@ public abstract class ReflectUtils {
     }
 
     /**
-     * 处理异常。
+     * 在给定上下文中解析类型，把类型变量替换为实参。
+     * <p>
+     * 递归处理数组、参数化类型与通配符的成分；无需替换时原样返回以避免对象创建。
      *
-     * @param context 值
-     * @param contextRawType 类型
-     * @param toResolve 值
-     * @return 处理结果
+     * @param context        上下文类型，提供类型变量的实参绑定
+     * @param contextRawType 上下文类型的原始 {@code Class}
+     * @param toResolve      待解析类型
+     * @return 类型变量已被实参替换的解析结果
      */
     public static Type resolve(Type context, Class<?> contextRawType, Type toResolve) {
         // This implementation is made a little more complicated in an attempt to avoid object-creation.
@@ -348,25 +373,25 @@ public abstract class ReflectUtils {
     }
 
     /**
-     * 创建方法错误。
+     * 构造带方法上下文的 {@code IllegalArgumentException}。
      *
-     * @param method 方法
-     * @param message 字符串
-     * @param args 对象
-     * @return 处理结果
+     * @param method 发生错误的方法
+     * @param message 异常信息模板，按 {@code String.format} 规则以 {@code args} 填充
+     * @param args    消息的格式化参数
+     * @return 可直接抛出的运行时异常
      */
     public static RuntimeException methodError(Method method, String message, Object... args) {
         return methodError(method, null, message, args);
     }
 
     /**
-     * 创建方法错误。
+     * 构造带方法上下文与根因的 {@code IllegalArgumentException}。
      *
-     * @param method 方法
-     * @param cause 异常
-     * @param message 字符串
-     * @param args 对象
-     * @return 处理结果
+     * @param method 发生错误的方法
+     * @param cause   根因异常，可为 {@code null}
+     * @param message 异常信息模板，按 {@code String.format} 规则以 {@code args} 填充
+     * @param args    消息的格式化参数
+     * @return 可直接抛出的运行时异常
      */
     public static RuntimeException methodError(Method method, @Nullable Throwable cause, String message, Object... args) {
         message = String.format(message, args);
@@ -378,38 +403,39 @@ public abstract class ReflectUtils {
     }
 
     /**
-     * 创建参数错误。
+     * 构造带方法与参数序号上下文的 {@code IllegalArgumentException}。
      *
-     * @param method 方法
-     * @param cause 异常
-     * @param position 值
-     * @param message 字符串
-     * @param args 对象
-     * @return 处理结果
+     * @param method   发生错误的方法
+     * @param cause     根因异常
+     * @param position  参数在方法签名中的索引，从 0 开始（提示信息中转为从 1 计数）
+     * @param message   异常信息模板，按 {@code String.format} 规则以 {@code args} 填充
+     * @param args      消息的格式化参数
+     * @return 可直接抛出的运行时异常
      */
     public static RuntimeException parameterError(Method method, Throwable cause, int position, String message, Object... args) {
         return methodError(method, cause, message + " (parameter #" + (position + 1) + ")", args);
     }
 
     /**
-     * 创建参数错误。
+     * 构造带方法与参数序号上下文的 {@code IllegalArgumentException}。
      *
-     * @param method 方法
-     * @param position 值
-     * @param message 字符串
-     * @param args 对象
-     * @return 处理结果
+     * @param method   发生错误的方法
+     * @param position  参数在方法签名中的索引，从 0 开始（提示信息中转为从 1 计数）
+     * @param message   异常信息模板，按 {@code String.format} 规则以 {@code args} 填充
+     * @param args      消息的格式化参数
+     * @return 可直接抛出的运行时异常
      */
     public static RuntimeException parameterError(Method method, int position, String message, Object... args) {
         return methodError(method, message + " (parameter #" + (position + 1) + ")", args);
     }
 
     /**
-     * 创建实例
+     * 通过无参构造方法创建实例。
      *
-     * @param clazz 类
-     * @param <T>   类型
-     * @return 实例
+     * @param clazz 目标类，必须存在可访问的无参构造方法
+     * @param <T>   目标类型
+     * @return 新创建的实例
+     * @throws RuntimeException 缺少无参构造方法、构造方法抛出异常或访问受限时
      */
     public static <T> T newInstance(Class<T> clazz) {
         try {
@@ -420,13 +446,14 @@ public abstract class ReflectUtils {
     }
 
     /**
-     * 创建实例
+     * 通过指定参数的构造方法创建实例。
      *
-     * @param clazz          类
-     * @param parameterTypes 参数类型
-     * @param args           参数值
-     * @param <T>            类型
-     * @return 实例
+     * @param clazz          目标类
+     * @param parameterTypes 构造方法的形参类型数组
+     * @param args           传给构造方法的实参数组
+     * @param <T>            目标类型
+     * @return 新创建的实例
+     * @throws RuntimeException 匹配的构造方法不存在、构造方法抛出异常或访问受限时
      */
     public static <T> T newInstance(Class<T> clazz, Class<?>[] parameterTypes, Object[] args) {
         try {
@@ -437,10 +464,12 @@ public abstract class ReflectUtils {
     }
 
     /**
-     * 判断是否为基本类型或String
+     * 判断类型是否为基本类型、包装类型或 {@code String}。
+     * <p>
+     * 覆盖基本类型、{@code Number} 及其子类、{@code Boolean}、{@code Character} 与 {@code String}。
      *
-     * @param clazz 类
-     * @return true or false
+     * @param clazz 待检查类型
+     * @return {@code true} 表示属于上述简单类型集合
      */
     public static boolean isPrimitiveOrString(Class<?> clazz) {
         return clazz.isPrimitive()
@@ -451,11 +480,14 @@ public abstract class ReflectUtils {
     }
 
     /**
-     * 获取字段值。
+     * 反射读取对象上指定字段的值。
+     * <p>
+     * 读取前会强制把字段设为可访问。
      *
-     * @param field 值
-     * @param obj 对象
-     * @return 处理结果
+     * @param field 目标字段
+     * @param obj   字段所属对象
+     * @return 字段值；{@code field} 或 {@code obj} 为 {@code null} 时返回 {@code null}
+     * @throws RuntimeException 字段访问被拒绝时
      */
     public static Object getValue(Field field, Object obj) {
         if (null == obj || null == field) {
@@ -493,9 +525,9 @@ public abstract class ReflectUtils {
         }
 
         /**
-         * get Actual Type Arguments。
+         * 返回类型实参数组。
          *
-         * @return 处理结果
+         * @return 类型实参的防御性副本
          */
         @Override
         public Type @NotNull [] getActualTypeArguments() {
@@ -503,9 +535,9 @@ public abstract class ReflectUtils {
         }
 
         /**
-         * get Raw Type。
+         * 返回原始类型。
          *
-         * @return 处理结果
+         * @return 参数化类型的 rawType
          */
         @Override
         public @NotNull Type getRawType() {
@@ -519,10 +551,10 @@ public abstract class ReflectUtils {
         }
 
         /**
-         * 判断相等。
+         * 按 {@link ReflectUtils#equals(Type, Type)} 的语义比较相等性。
          *
-         * @param other 对象
-         * @return 处理结果
+         * @param other 待比较对象
+         * @return {@code true} 表示是语义相等的 {@code ParameterizedType}
          */
         @Override
         public boolean equals(Object other) {
@@ -530,9 +562,9 @@ public abstract class ReflectUtils {
         }
 
         /**
-         * 获取哈希值。
+         * 由实参、rawType 与 ownerType 组合出的哈希值。
          *
-         * @return 获取哈希值
+         * @return 哈希值
          */
         @Override
         public int hashCode() {
@@ -542,9 +574,9 @@ public abstract class ReflectUtils {
         }
 
         /**
-         * 转换为字符串。
+         * 返回形如 {@code Raw<A, B>} 的字符串表示。
          *
-         * @return 处理结果
+         * @return 类型的字符串表示
          */
         @Override
         public String toString() {
@@ -562,9 +594,9 @@ public abstract class ReflectUtils {
     private record GenericArrayTypeImpl(Type componentType) implements GenericArrayType {
 
         /**
-         * get Generic Component Type。
+         * 返回数组的元素类型。
          *
-         * @return 处理结果
+         * @return 泛型数组的 componentType
          */
         @Override
         public @NotNull Type getGenericComponentType() {
@@ -572,10 +604,10 @@ public abstract class ReflectUtils {
         }
 
         /**
-         * 判断相等。
+         * 按 {@link ReflectUtils#equals(Type, Type)} 的语义比较相等性。
          *
-         * @param o 对象
-         * @return 处理结果
+         * @param o 待比较对象
+         * @return {@code true} 表示是语义相等的 {@code GenericArrayType}
          */
         @Override
         public boolean equals(Object o) {
@@ -583,9 +615,9 @@ public abstract class ReflectUtils {
         }
 
         /**
-         * 转换为字符串。
+         * 返回形如 {@code Component[]} 的字符串表示。
          *
-         * @return 处理结果
+         * @return 类型的字符串表示
          */
         @Override
         public @NotNull String toString() {
@@ -617,9 +649,9 @@ public abstract class ReflectUtils {
         }
 
         /**
-         * get Upper Bounds。
+         * 返回通配符的上限类型数组。
          *
-         * @return 处理结果
+         * @return 恰含一个上限类型的数组
          */
         @Override
         public Type @NotNull [] getUpperBounds() {
@@ -627,9 +659,9 @@ public abstract class ReflectUtils {
         }
 
         /**
-         * get Lower Bounds。
+         * 返回通配符的下限类型数组。
          *
-         * @return 处理结果
+         * @return 无下限时为空数组，否则恰含一个下限类型
          */
         @Override
         public Type @NotNull [] getLowerBounds() {
@@ -637,10 +669,10 @@ public abstract class ReflectUtils {
         }
 
         /**
-         * 判断相等。
+         * 按 {@link ReflectUtils#equals(Type, Type)} 的语义比较相等性。
          *
-         * @param other 对象
-         * @return 处理结果
+         * @param other 待比较对象
+         * @return {@code true} 表示是语义相等的 {@code WildcardType}
          */
         @Override
         public boolean equals(Object other) {
@@ -648,9 +680,9 @@ public abstract class ReflectUtils {
         }
 
         /**
-         * 获取哈希值。
+         * 由上限与下限组合出的哈希值。
          *
-         * @return 获取哈希值
+         * @return 哈希值，等价于上下限数组哈希的异或
          */
         @Override
         public int hashCode() {
@@ -659,9 +691,9 @@ public abstract class ReflectUtils {
         }
 
         /**
-         * 转换为字符串。
+         * 返回形如 {@code ?}、{@code ? extends X} 或 {@code ? super X} 的字符串表示。
          *
-         * @return 处理结果
+         * @return 通配符的字符串表示
          */
         @Override
         public String toString() {

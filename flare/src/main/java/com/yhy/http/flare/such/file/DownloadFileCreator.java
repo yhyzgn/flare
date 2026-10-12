@@ -12,7 +12,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 /**
- * 指定下载文件创建器
+ * 按 {@link Download} 注解配置创建下载目标文件的 {@link FileCreator} 实现。
+ * <p>
+ * 未配置 {@code Download} 或路径为空时回退为创建临时文件；路径支持通过字符串转换器解析 placeholder。
+ * 目标文件已存在且 {@code overwrite} 为 {@code true} 时先删除再重建。
  * <p>
  * Created on 2025-09-17 16:34
  *
@@ -25,12 +28,15 @@ public class DownloadFileCreator implements FileCreator<Download> {
     private final TempFileCreator tempFileCreator = new TempFileCreator();
 
     /**
-     * create。
+     * 创建下载目标文件。
+     * <p>
+     * 注解为 {@code null} 或其路径为空时创建临时文件；路径经字符串转换器解析后，
+     * 若文件已存在且允许覆盖则先删除，最终以 {@code Files.createFile} 建立新文件。
      *
-     * @param download 值
-     * @param stringConverter 字符串
-     * @return 处理结果
-     * @throws IOException 调用异常
+     * @param download        下载注解配置，可为 {@code null}
+     * @param stringConverter 用于解析文件路径中 placeholder 的字符串转换器
+     * @return 新创建的文件
+     * @throws IOException 删除旧文件或创建新文件失败时抛出
      */
     @Override
     public File create(Download download, StringConverter<String> stringConverter) throws IOException {

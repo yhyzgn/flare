@@ -6,7 +6,10 @@ import com.yhy.http.flare.spring.starter.annotation.Flare;
 import java.lang.annotation.Annotation;
 
 /**
- * Flare 自动注册器
+ * Spring Boot starter 的 Flare 自动注册器。
+ * <p>
+ * 继承 {@link AbstractFlareAutoRegister}，绑定 {@link EnableFlare} 启用注解与
+ * {@link Flare} 接口注解，完成扫描注册。
  * <p>
  * Created on 2025-09-18 11:16
  *
@@ -19,7 +22,7 @@ public class FlareAutoRegister extends AbstractFlareAutoRegister {
     /**
      * 获取启用注解类型。
      *
-     * @return 处理结果
+     * @return {@link EnableFlare} 注解类型
      */
     @Override
     public Class<? extends Annotation> enableAnnotation() {
@@ -27,9 +30,9 @@ public class FlareAutoRegister extends AbstractFlareAutoRegister {
     }
 
     /**
-     * 获取 Flare 注解类型。
+     * 获取 Flare 接口注解类型。
      *
-     * @return 处理结果
+     * @return {@link Flare} 注解类型
      */
     @Override
     public Class<? extends Annotation> flareAnnotation() {

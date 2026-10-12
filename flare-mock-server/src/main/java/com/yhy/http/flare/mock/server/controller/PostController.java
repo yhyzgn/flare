@@ -9,7 +9,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * POST 请求方式接口
+ * mock 服务 POST 请求测试端点。
+ * <p>
+ * 挂载在 {@code /post} 前缀下，提供 POST 请求的模拟场景：
+ * 固定响应、表单参数绑定、对象表单绑定、JSON 请求体、文件上传、
+ * 多段表单与二进制流上传。
  * <p>
  * Created on 2025-09-16 13:34
  *
@@ -23,9 +27,9 @@ import org.springframework.web.multipart.MultipartFile;
 public class PostController {
 
     /**
-     * 首页接口。
+     * 固定响应端点，返回请求路径的描述文本。
      *
-     * @return 处理结果
+     * @return 成功响应，内容为端点描述
      */
     @PostMapping("/index")
     public Res<String> index() {
@@ -34,11 +38,11 @@ public class PostController {
     }
 
     /**
-     * 表单接口。
+     * 表单端点，接收 name 与 age 表单参数。
      *
-     * @param name 字符串
-     * @param age 整数
-     * @return 处理结果
+     * @param name 表单参数：名称
+     * @param age 表单参数：年龄
+     * @return 成功响应，内容为参数拼接文本
      */
     @PostMapping("/form")
     public Res<String> form(String name, Integer age) {
@@ -47,10 +51,10 @@ public class PostController {
     }
 
     /**
-     * 表单接口。
+     * 对象表单端点，将表单参数绑定为 {@link User} 对象并原样返回。
      *
-     * @param user 值
-     * @return 处理结果
+     * @param user 由表单参数绑定的用户对象
+     * @return 成功响应，data 为绑定的用户对象
      */
     @PostMapping("/formUser")
     public Res<User> form(User user) {
@@ -59,10 +63,10 @@ public class PostController {
     }
 
     /**
-     * 请求体接口。
+     * JSON 请求体端点，接收 {@link User} 请求体并原样返回。
      *
-     * @param user 值
-     * @return 处理结果
+     * @param user JSON 反序列化的用户对象
+     * @return 成功响应，data 为请求体中的用户对象
      */
     @PostMapping("/body")
     public Res<User> body(@RequestBody User user) {
@@ -71,10 +75,10 @@ public class PostController {
     }
 
     /**
-     * 上传接口。
+     * 单文件上传端点，接收名为 {@code file} 的 multipart 分片。
      *
-     * @param file 文件
-     * @return 处理结果
+     * @param file 上传的文件分片
+     * @return 成功响应，内容为文件名与字节大小
      */
     @PostMapping("/upload")
     public Res<String> upload(@RequestPart("file") MultipartFile file) {
@@ -83,10 +87,10 @@ public class PostController {
     }
 
     /**
-     * 多段表单接口。
+     * 多段表单端点，将普通字段与多个文件分片绑定为 {@link PartForm}。
      *
-     * @param form 值
-     * @return 处理结果
+     * @param form 由 multipart 表单绑定的表单对象
+     * @return 成功响应，内容为表单的 name 字段
      */
     @PostMapping("/partForm")
     public Res<String> partForm(@ModelAttribute PartForm form) {
@@ -95,10 +99,10 @@ public class PostController {
     }
 
     /**
-     * 二进制上传接口。
+     * 二进制流上传端点，接收 {@code application/octet-stream} 原始请求体。
      *
-     * @param data 字节数组
-     * @return 处理结果
+     * @param data 请求体的原始字节
+     * @return 成功响应，内容为收到的字节数
      */
     @PostMapping(value = "/uploadBinary", consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public Res<String> uploadBinary(@RequestBody byte[] data) {

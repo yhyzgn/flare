@@ -20,7 +20,10 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 /**
- * 测试类
+ * POST 请求集成测试，覆盖表单提交、请求体、文件上传与二进制上传等代理调用。
+ * <p>
+ * 依赖 mock-server（端口可用系统属性 {@code flare.mock.port} 覆盖，默认 {@code 8080}）；
+ * 上传场景使用临时文件并在测试后清理。
  * <p>
  * Created on 2025-09-15 17:15
  *

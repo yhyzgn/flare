@@ -34,6 +34,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Spring 自动注册配置优先级测试。
+ * <p>
+ * 验证 {@link AbstractFlareAutoRegister} 的配置合并优先级：接口级（{@code @PriorityFlare}）
+ * 显式配置应覆盖启用注解（{@code @PriorityEnable}）的全局配置，全局配置仅作兜底。
  *
  * @author Neo
  * @version 1.0.0

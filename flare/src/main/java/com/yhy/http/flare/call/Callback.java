@@ -3,7 +3,11 @@ package com.yhy.http.flare.call;
 import com.yhy.http.flare.model.InternalResponse;
 
 /**
- * 回调接口
+ * 异步请求回调接口。
+ * <p>
+ * 与 {@link Caller#enqueue(Callback)} 配合使用，在请求完成或失败时由调用线程回调。
+ *
+ * @param <T> 响应体类型
  * <p>
  * Created on 2025-09-10 15:16
  *
@@ -14,18 +18,18 @@ import com.yhy.http.flare.model.InternalResponse;
 public interface Callback<T> {
 
     /**
-     * 成功回调
+     * 请求成功（含 HTTP 非 2xx 被记录为失败响应的场景）后的回调。
      *
-     * @param caller   caller
-     * @param response 响应
+     * @param caller   发起本次请求的调用器
+     * @param response 已转换的响应对象
      */
     void onResponse(Caller<T> caller, InternalResponse<T> response);
 
     /**
-     * 失败回调
+     * 请求失败（网络错误或响应转换异常）后的回调。
      *
-     * @param caller caller
-     * @param t      异常
+     * @param caller 发起本次请求的调用器
+     * @param t      失败原因
      */
     void onFailure(Caller<T> caller, Throwable t);
 }

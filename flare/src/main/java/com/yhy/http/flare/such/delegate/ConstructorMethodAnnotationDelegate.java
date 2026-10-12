@@ -9,7 +9,10 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
- * 通过构造方法创建类实例的代理接口实现
+ * {@link MethodAnnotationDelegate} 的默认实现。
+ * <p>
+ * 仅读取方法自身直接声明的注解（不含参数注解与合并注解语义），
+ * 未命中时返回空列表。
  * <p>
  * Created on 2025-09-10 18:11
  *
@@ -20,11 +23,14 @@ import java.util.stream.Stream;
 public class ConstructorMethodAnnotationDelegate implements MethodAnnotationDelegate {
 
     /**
-     * 应用委托。
+     * 读取方法上指定类型的注解。
+     * <p>
+     * 注意：此处调用的是 {@code Method#getAnnotation}，只返回方法自身直接声明的注解；
+     * 若方法未标注，返回空列表。
      *
-     * @param method 方法
-     * @param annotationClass 类型
-     * @return 处理结果
+     * @param method          目标方法
+     * @param annotationClass 注解类型
+     * @return 命中的注解列表，最多一个元素
      */
     @Override
     public <T extends Annotation> List<T> apply(Method method, Class<T> annotationClass) {

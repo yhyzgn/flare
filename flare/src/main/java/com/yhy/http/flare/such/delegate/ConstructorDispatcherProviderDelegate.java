@@ -18,10 +18,10 @@ import com.yhy.http.flare.utils.ReflectUtils;
 public class ConstructorDispatcherProviderDelegate implements DispatcherProviderDelegate {
 
     /**
-     * 应用委托。
+     * 通过无参构造方法创建请求分发器提供者实例。
      *
-     * @param clazz 类型
-     * @return 处理结果
+     * @param clazz 目标类型
+     * @return 创建的实例
      */
     @Override
     public <T extends DispatcherProvider> T apply(Class<T> clazz) {

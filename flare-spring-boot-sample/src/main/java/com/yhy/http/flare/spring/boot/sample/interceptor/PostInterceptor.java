@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 /**
- *
+ * POST 请求拦截器，在 {@code @Flare} 的 {@code PostRemote} 接口上声明，演示接口级拦截器用法。
  * <p>
  * Created on 2025-09-18 14:51
  *
@@ -24,8 +24,8 @@ public class PostInterceptor implements Interceptor {
     /**
      * 拦截请求。
      *
-     * @param chain 值
-     * @return 处理结果
+     * @param chain OkHttp 拦截器链
+     * @return 拦截后的响应
      * @throws IOException IO 异常
      */
     @Override

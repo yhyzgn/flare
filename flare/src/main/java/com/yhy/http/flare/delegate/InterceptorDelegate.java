@@ -17,12 +17,12 @@ import okhttp3.Interceptor;
 public interface InterceptorDelegate {
 
     /**
-     * 从下层逻辑获取动态创建拦截器的类实例
+     * 从下层逻辑获取动态创建拦截器的类实例。
      *
      * @param clazz 拦截器类
      * @param <T>   拦截器类型
      * @return 拦截器实例
-     * @throws Exception 异常
+     * @throws Exception 实例创建失败时抛出
      */
     <T extends Interceptor> T apply(Class<T> clazz) throws Exception;
 }

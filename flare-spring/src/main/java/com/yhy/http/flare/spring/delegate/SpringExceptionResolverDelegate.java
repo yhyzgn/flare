@@ -14,7 +14,11 @@ import org.springframework.context.annotation.Role;
 import org.springframework.stereotype.Component;
 
 /**
- * 通过 Spring 容器创建异常处理器类实例的代理接口实现
+ * Spring 实现的异常处理器委托。
+ * <p>
+ * 按类型从 Spring 容器获取 {@link Catcher.Resolver} 异常处理器实例；
+ * 注册为基础设施 Bean（{@code @ConditionalOnMissingBean(ExceptionResolverDelegate.class)}），
+ * 容器中存在自定义实现时让位。
  * <p>
  * Created on 2026-03-04 17:28
  *
@@ -32,10 +36,11 @@ public class SpringExceptionResolverDelegate implements ExceptionResolverDelegat
     private ApplicationContext context;
 
     /**
-     * 应用委托。
+     * 按类型从 Spring 容器获取异常处理器实例。
      *
-     * @param clazz 类型
-     * @return 处理结果
+     * @param clazz 异常处理器类型
+     * @param <T> 异常处理器类型
+     * @return 容器中该类型的异常处理器实例
      */
     @Override
     public <T extends Catcher.Resolver> T apply(Class<T> clazz) {
@@ -43,8 +48,9 @@ public class SpringExceptionResolverDelegate implements ExceptionResolverDelegat
     }
 
     /**
-     * 属性设置完成回调。
-     *
+     * 所有 Bean 属性设置完成后由 Spring 容器调用的初始化回调。
+     * <p>
+     * 记录委托初始化完成日志。
      */
     @Override
     public void afterPropertiesSet() {
@@ -54,8 +60,8 @@ public class SpringExceptionResolverDelegate implements ExceptionResolverDelegat
     /**
      * 设置应用上下文。
      *
-     * @param context 值
-     * @throws BeansException 调用异常
+     * @param context Spring 应用上下文
+     * @throws BeansException 上下文处理异常
      */
     @Override
     public void setApplicationContext(@NotNull ApplicationContext context) throws BeansException {

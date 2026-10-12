@@ -10,7 +10,10 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 
 /**
- *
+ * 测试用拦截器，为请求附加 {@code Tag} 请求头并记录 {@link Invocation} 标签与响应 Content-Type。
+ * <p>
+ * 在 {@code MockGetApi} / {@code MockPostApi} 的方法上通过 {@code @Interceptor} 声明，
+ * 用于验证方法级拦截器与请求标签在代理调用链中的传递。
  * <p>
  * Created on 2025-09-15 17:47
  *

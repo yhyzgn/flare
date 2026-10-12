@@ -21,7 +21,11 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- *
+ * OkHttp 请求构建器。
+ * <p>
+ * 收集 {@code ParameterHandler} 产出的路径参数、查询参数、表单字段、请求头与请求体，
+ * 在 {@link #get()} 时统一编码为最终的 {@link Request.Builder}。路径参数与请求头采用
+ * 后写覆盖语义，保证靠近代理方法的配置优先生效。
  * <p>
  * Created on 2025-09-13 13:39
  *
@@ -70,10 +74,12 @@ public class RequestBuilder {
     }
 
     /**
-     * add Header。
+     * 添加请求头（同名请求头会被覆盖）。
+     * <p>
+     * 名称为 {@code Content-Type} 时同步更新请求体类型。
      *
-     * @param name 字符串
-     * @param value 字符串
+     * @param name  请求头名称
+     * @param value 请求头值
      */
     public void addHeader(String name, String value) {
         if ("Content-Type".equalsIgnoreCase(name)) {
@@ -83,68 +89,75 @@ public class RequestBuilder {
     }
 
     /**
-     * add Headers。
+     * 批量追加请求头。
      *
-     * @param headers 值
+     * @param headers 待追加的 OkHttp 请求头集合
      */
     public void addHeaders(Headers headers) {
         headersBuilder.addAll(headers);
     }
 
     /**
-     * add Path Param。
+     * 添加路径参数（用于替换 URL 模板中的 {@code {name}} 占位符）。
      *
-     * @param name 字符串
-     * @param value 字符串
-     * @param encoded 值
+     * @param name    参数名
+     * @param value   参数值
+     * @param encoded 值是否已完成 URL 编码；未编码时按 UTF-8 编码
      */
     public void addPathParam(String name, String value, boolean encoded) {
         pathParamMap.put(name, dispatchEncode(value, encoded));
     }
 
     /**
-     * add Query Param。
+     * 添加查询参数（同名参数可重复出现）。
      *
-     * @param name 字符串
-     * @param value 值
+     * @param name  参数名
+     * @param value 已编码为表单字段形式的参数值
      */
     public void addQueryParam(String name, FormField.ValueFormField value) {
         queryParamMap.computeIfAbsent(name, k -> new ArrayList<>()).add(value);
     }
 
     /**
-     * add Filed。
+     * 添加表单字段（同名字段可重复出现）。
      *
-     * @param name 字符串
-     * @param formField 值
+     * @param name      字段名
+     * @param formField 待编码的表单字段（值字段、文件、字节或流）
      */
     public void addFiled(String name, FormField<?> formField) {
         formFieldParamMap.computeIfAbsent(name, k -> new ArrayList<>()).add(formField);
     }
 
     /**
-     * 请求体接口。
+     * 设置请求体（@Body / @Binary 参数专用）。
+     * <p>
+     * 表单编码（form / multipart）方法存在表单字段时不生效。
      *
-     * @param body 请求体
+     * @param body OkHttp 请求体
      */
     public void body(RequestBody body) {
         this.body = body;
     }
 
     /**
-     * add Tag。
+     * 为请求附加类型化 tag（供拦截器读取）。
      *
-     * @param cls 类型
-     * @param value 值
+     * @param cls   tag 类型
+     * @param value tag 值，可为 {@code null}
+     * @param <T>   tag 类型
      */
     public <T> void addTag(Class<T> cls, @Nullable T value) {
         requestBuilder.tag(cls, value);
     }
 
     /**
-     * get。
+     * 结束收集并生成 OkHttp {@link Request.Builder}。
+     * <p>
+     * 拼接 URL（优先绝对 URL，其次 baseUrl + 相对路径）、写入查询参数、按表单编码类型
+     * 编码表单字段（multipart 字节/文件/流或 urlencoded 键值对）、补齐空请求体与
+     * {@code Content-Type}；方法名统一大写。
      *
-     * @return 处理结果
+     * @return 已填好 URL、请求头、方法与请求体的请求构建器
      */
     public Request.Builder get() {
         HttpUrl.Builder urlBuilder = urlBuilder();
@@ -191,9 +204,9 @@ public class RequestBuilder {
                         if (null != multipartBuilder && Objects.nonNull(inputStreamFormField.getValue())) {
                             RequestBody streamBody = new RequestBody() {
                                 /**
-                                 * content Type。
+                                 * 流式请求体的媒体类型，固定为二进制流。
                                  *
-                                 * @return 处理结果
+                                 * @return octet-stream 媒体类型
                                  */
                                 @Override
                                 public MediaType contentType() {
@@ -201,10 +214,10 @@ public class RequestBuilder {
                                 }
 
                                 /**
-                                 * write To。
+                                 * 把底层输入流按 8KB 块写入请求体。
                                  *
-                                 * @param sink 值
-                                 * @throws IOException 调用异常
+                                 * @param sink OkHttp 输出缓冲区
+                                 * @throws IOException 读取流或写出的 I/O 错误
                                  */
                                 @Override
                                 public void writeTo(@NotNull BufferedSink sink) throws IOException {

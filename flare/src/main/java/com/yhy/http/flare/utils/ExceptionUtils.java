@@ -10,7 +10,10 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
- * 异常工具类
+ * 异常分发工具类。
+ * <p>
+ * 按异常继承深度从深到浅遍历处理器列表，首个类型匹配的处理器消费该异常；
+ * 全部不匹配时由默认处理器兜底。
  * <p>
  * Created on 2026-03-04 18:08
  *
@@ -22,22 +25,20 @@ import java.util.stream.Collectors;
 public abstract class ExceptionUtils {
 
     /**
-
-     * * 工具类，不允许实例化
-
+     * 防止工具类被实例化。
      */
     private ExceptionUtils() {
         throw new UnsupportedOperationException("Utility class, not instantiable");
     }
 
     /**
-     * 异常分发器
+     * 分发异常并返回是否被消费。
      * <p>
-     * 按继承深度从高到低遍历处理器，若异常类型匹配则调用处理器并返回 true，否则返回 false
+     * 使用默认兜底处理器：记录该未消费异常的错误日志。
      *
-     * @param catchers  异常捕获器列表
-     * @param throwable 要处理的异常
-     * @return 是否已被消费，true 表示已被消费，false 表示未被消费
+     * @param catchers  按异常类型注册的捕获器列表，决定哪些异常会被消费
+     * @param throwable 要分发的异常
+     * @return 是否已被消费，{@code true} 表示有处理器匹配并处理，{@code false} 表示未被消费
      */
     public static boolean dispatch(List<Class<? extends Throwable>> catchers, Throwable throwable) {
         return dispatch(catchers, throwable, t -> {
@@ -47,14 +48,15 @@ public abstract class ExceptionUtils {
     }
 
     /**
-     * 异常分发器
+     * 分发异常并返回是否被消费。
      * <p>
-     * 按继承深度从高到低遍历处理器，若异常类型匹配则调用处理器并返回 true，否则返回 false
+     * 捕获器声明的类型按继承深度从深到浅排序，匹配最具体类型的处理器优先执行；
+     * 没有任何一个类型匹配时由 {@code defaultHandler} 兜底处理，并返回 {@code false}。
      *
-     * @param catchers       异常捕获器列表
-     * @param throwable      要处理的异常
-     * @param defaultHandler 默认异常处理器
-     * @return 是否已被消费，true 表示已被消费，false 表示未被消费
+     * @param catchers       按异常类型注册的捕获器列表，决定哪些异常会被消费
+     * @param throwable      要分发的异常
+     * @param defaultHandler 没有处理器匹配时调用的兜底处理器，可为 {@code null}（此时仅返回 {@code false}）
+     * @return 是否已被消费，{@code true} 表示有处理器匹配并处理，{@code false} 表示未被消费
      */
     public static boolean dispatch(List<Class<? extends Throwable>> catchers, Throwable throwable, Consumer<? super Throwable> defaultHandler) {
         // 构建 (类型 → 处理器) 映射，默认处理器兜底
@@ -78,11 +80,9 @@ public abstract class ExceptionUtils {
     }
 
     /**
-     * 尝试处理异常，返回是否已被消费
-     * <p>
-     * 按继承深度从高到低遍历处理器，若异常类型匹配则调用处理器并返回 true，否则返回 false
+     * 尝试处理异常并返回是否已被消费。
      *
-     * @param sortedHandlers 已排序的处理器列表
+     * @param sortedHandlers 按继承深度从深到浅排序好的处理器列表
      * @param t              要处理的异常
      * @return 是否已被消费
      */
@@ -97,10 +97,10 @@ public abstract class ExceptionUtils {
     }
 
     /**
-     * 计算继承深度（Throwable 算 0）
+     * 计算类型相对 {@code Throwable} 的继承深度（{@code Throwable} 记为 0）。
      *
      * @param cls 异常类型
-     * @return 继承深度
+     * @return 继承深度，越深表示类型越具体
      */
     private static int depth(Class<?> cls) {
         int depth = 0;
@@ -112,11 +112,11 @@ public abstract class ExceptionUtils {
     }
 
     /**
-     * record 简化内部结构
+     * 内部处理器结构，简化异常类型、处理器与继承深度的绑定。
      *
-     * @param type    异常类型
-     * @param handler 异常处理器
-     * @param depth   继承深度
+     * @param type    可消费的异常类型
+     * @param handler 该类型对应的处理器
+     * @param depth   {@code type} 的继承深度，用于排序
      */
     private record Handler(
         Class<? extends Throwable> type,

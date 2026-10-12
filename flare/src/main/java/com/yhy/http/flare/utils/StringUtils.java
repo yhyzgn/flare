@@ -10,7 +10,10 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * 字符串工具类
+ * 字符串工具类。
+ * <p>
+ * 提供空值 / 空白判定、SLF4J 风格的 {@code {}} 与 {@code {key}} 占位符格式化、
+ * 驼峰转下划线、trim 系列与 UTF-8 编解码等常用能力。
  * <p>
  * Created on 2025-09-10 14:21
  *
@@ -21,29 +24,27 @@ import java.util.Objects;
 public abstract class StringUtils {
 
     /**
-
-     * * Prevent instantiation
-
+     * 防止工具类被实例化。
      */
     private StringUtils() {
         throw new UnsupportedOperationException("This class is not for instantiation");
     }
 
     /**
-     * 判断字符串是否包含文本内容
+     * 判断字符串是否包含文本内容（非 {@code null}、非空且含非空白字符）。
      *
-     * @param str 字符串
-     * @return 是否包含文本内容
+     * @param str 待检查字符串
+     * @return {@code true} 表示含有效文本
      */
     public static boolean hasText(@Nullable CharSequence str) {
         return str != null && !str.isEmpty() && containsText(str);
     }
 
     /**
-     * 判断字符串是否包含非空白字符
+     * 判断字符串中是否至少存在一个非空白字符。
      *
-     * @param str 字符串
-     * @return 是否包含非空白字符
+     * @param str 待检查字符串，保证非 {@code null} 且非空
+     * @return {@code true} 表示含非空白字符
      */
     private static boolean containsText(CharSequence str) {
         int strLen = str.length();
@@ -56,36 +57,40 @@ public abstract class StringUtils {
     }
 
     /**
-
-     * * 判断字符串是否为 null 或空
-
+     * 判断字符串是否为 {@code null} 或空串。
+     *
+     * @param str 待检查字符串
+     * @return {@code true} 表示为 {@code null} 或空串
      */
     public static boolean isEmpty(CharSequence str) {
         return str == null || str.isEmpty();
     }
 
     /**
-
-     * * 判断字符串是否为 null、空串、或全空白字符
-
+     * 判断字符串是否为 {@code null}、空串或全空白字符。
+     *
+     * @param str 待检查字符串
+     * @return {@code true} 表示为空白
      */
     public static boolean isBlank(CharSequence str) {
         return str == null || str.toString().trim().isEmpty();
     }
 
     /**
-
-     * * 判断字符串非空
-
+     * 判断字符串非空（非 {@code null} 且长度大于 0），即 {@link #isEmpty(CharSequence)} 的取反。
+     *
+     * @param str 待检查字符串
+     * @return {@code true} 表示非空
      */
     public static boolean isNotEmpty(CharSequence str) {
         return !isEmpty(str);
     }
 
     /**
-
-     * * 判断字符串非空白
-
+     * 判断字符串非空白，即 {@link #isBlank(CharSequence)} 的取反。
+     *
+     * @param str 待检查字符串
+     * @return {@code true} 表示含非空白内容
      */
     public static boolean isNotBlank(CharSequence str) {
         return !isBlank(str);
@@ -104,19 +109,21 @@ public abstract class StringUtils {
     // ==================== 常用处理 ====================
 
     /**
-
-     * * 将 null 转为空串
-
+     * 把 {@code null} 转为空串，非 {@code null} 原样返回。
+     *
+     * @param str 待转换字符串
+     * @return {@code null} 时返回 {@code ""}，否则返回原值
      */
     public static String nullToEmpty(String str) {
         return str == null ? "" : str;
     }
 
     /**
-     * 重复字符串 n 次
+     * 把字符串重复指定次数。
      *
-     * @param str   字符串
+     * @param str   待重复字符串
      * @param count 重复次数
+     * @return 重复结果；{@code str} 为 {@code null} 或 {@code count <= 0} 时返回空串
      */
     public static String repeat(String str, int count) {
         if (str == null || count <= 0) return "";
@@ -124,11 +131,11 @@ public abstract class StringUtils {
     }
 
     /**
-     * 将集合按分隔符拼接为字符串
+     * 把集合元素按分隔符拼接为字符串。
      *
-     * @param coll      集合
-     * @param delimiter 分隔符
-     * @return 拼接结果
+     * @param coll      待拼接集合，元素按 {@code toString} 转换
+     * @param delimiter 元素之间的分隔符
+     * @return 拼接结果；集合为 {@code null} 或空时返回空串
      */
     public static String join(Collection<?> coll, String delimiter) {
         if (coll == null || coll.isEmpty()) return "";
@@ -139,11 +146,14 @@ public abstract class StringUtils {
     // 类似 SLF4J: "Hello {}, 我是 {}，今年 {} 岁"
 
     /**
-     * 使用 {} 占位符进行格式化
+     * 使用 SLF4J 风格的 {@code {}} 占位符格式化字符串。
+     * <p>
+     * 占位符按顺序被 {@code args} 替换；参数不足时占位符原样保留，
+     * 多余参数被忽略。
      *
-     * @param template 模板字符串
-     * @param args     参数
-     * @return 格式化结果
+     * @param template 模板字符串，含 {@code {}} 占位符
+     * @param args     依序替换占位符的参数
+     * @return 格式化结果；模板或参数为 {@code null} 时原样返回模板
      */
     public static String format(String template, Object... args) {
         if (template == null || args == null || args.length == 0) {
@@ -162,15 +172,15 @@ public abstract class StringUtils {
     }
 
     /**
-     * 使用 {key} 占位符进行格式化，支持 Map 参数。
+     * 使用 {@code {key}} 占位符格式化字符串，支持 Map 参数。
      * <p>
      * 示例：format("Hello {name}, 你有 {count} 条消息", Map.of("name", "张三", "count", 5))
-     * 返回：Hello 张三, 你有 5 条消息
-     * 若 params 为 null 或 key 不存在，则保留原占位符。
+     * 返回：Hello 张三, 你有 5 条消息。
+     * 值为 {@code null} 时替换为 {@code "null"}；key 不存在时保留原占位符。
      *
-     * @param template 模板字符串，包含 {key} 占位符
+     * @param template 模板字符串，含 {@code {key}} 占位符，支持嵌套大括号
      * @param params   参数 Map，key 为占位符名称，value 为替换值
-     * @return 格式化后的字符串
+     * @return 格式化后的字符串；模板或参数为空时原样返回模板
      */
     public static String format(String template, Map<String, Object> params) {
         if (template == null || template.isEmpty() || params == null || params.isEmpty()) {
@@ -269,9 +279,10 @@ public abstract class StringUtils {
     }
 
     /**
-
-     * * 转换对象为字符串，支持 null
-
+     * 把对象转为字符串，支持 {@code null} 与数组。
+     *
+     * @param obj 待转换对象
+     * @return {@code null} 时返回 {@code "null"}；数组去除外层方括号后返回，其他返回 {@code toString}
      */
     private static String objectToString(Object obj) {
         if (obj == null) return "null";
@@ -285,27 +296,33 @@ public abstract class StringUtils {
     // ==================== 额外方法示例 ====================
 
     /**
-
-     * * 将字符串编码为 UTF-8 字节数组
-
+     * 把字符串编码为 UTF-8 字节数组。
+     *
+     * @param str 待编码字符串
+     * @return UTF-8 字节；{@code str} 为 {@code null} 时返回空数组
      */
     public static byte[] toUtf8Bytes(String str) {
         return str == null ? new byte[0] : str.getBytes(StandardCharsets.UTF_8);
     }
 
     /**
-
-     * * 判断两个字符串相等（忽略大小写）
-
+     * 判断两个字符串相等（忽略大小写）。
+     *
+     * @param a 字符串一，可为 {@code null}
+     * @param b 字符串二，可为 {@code null}
+     * @return 两者同为 {@code null} 或忽略大小写相等时为 {@code true}
      */
     public static boolean equalsIgnoreCase(String a, String b) {
         return a == null ? b == null : a.equalsIgnoreCase(b);
     }
 
     /**
-
-     * * 判断字符串是否是数字
-
+     * 判断字符串是否全为数字字符。
+     * <p>
+     * 使用 {@link Character#isDigit(char)}，含非 ASCII 数字（如全角数字）也会被判为数字。
+     *
+     * @param str 待检查字符串
+     * @return 非 {@code null} / 空白且所有字符均为数字时为 {@code true}
      */
     public static boolean isNumeric(String str) {
         if (isBlank(str)) return false;
@@ -313,17 +330,19 @@ public abstract class StringUtils {
     }
 
     /**
-     * 是否为 ASCII 数字字符
+     * 判断单个字符是否为 ASCII 数字字符（{@code '0'} 到 {@code '9'}）。
      *
-     * @param ch 字符
-     * @return 是否为 ASCII 数字字符
+     * @param ch 待检查字符
+     * @return 是 ASCII 数字时为 {@code true}
      */
     public static boolean isNumeric(final char ch) {
         return ch >= '0' && ch <= '9';
     }
 
     /**
-     * 将驼峰命名转换为下划线命名
+     * 把驼峰命名转换为下划线命名（如 {@code userName} 转为 {@code user_name}）。
+     * <p>
+     * 连续大写按专有名词处理，如 {@code myURL} 转为 {@code my_URL}。
      *
      * @param text 驼峰命名字符串
      * @return 下划线命名字符串
@@ -333,11 +352,14 @@ public abstract class StringUtils {
     }
 
     /**
-     * 将驼峰命名转换为符号分隔命名
+     * 把驼峰命名转换为指定符号分隔的命名。
+     * <p>
+     * 在大写字母处插入 {@code symbol} 并视上下文决定是否转小写；
+     * 连续大写视为专有名词保持原样。
      *
      * @param str    驼峰命名字符串
-     * @param symbol 符号
-     * @return 符号分隔命名字符串
+     * @param symbol 词间分隔符号，如 {@code '_'} 或 {@code '-'}
+     * @return 符号分隔的命名；输入为 {@code null} 时返回 {@code null}
      */
     public static String toSymbolCase(CharSequence str, char symbol) {
         if (str == null) {
@@ -393,10 +415,10 @@ public abstract class StringUtils {
     }
 
     /**
-     * 将 UTF-8 字节数组解码为字符串
+     * 把 UTF-8 字节数组解码为字符串。
      *
-     * @param data 字节数组
-     * @return 字符串
+     * @param data UTF-8 编码的字节数组
+     * @return 解码后的字符串
      */
     public static String utf8Str(byte[] data) {
         return new String(data, StandardCharsets.UTF_8);
@@ -483,10 +505,10 @@ public abstract class StringUtils {
     }
 
     /**
-     * 判断布尔字符串。
+     * 判断字符串是否为可识别的布尔字面量（忽略大小写的 {@code "true"} / {@code "false"}）。
      *
-     * @param text 字符串
-     * @return 判断布尔字符串
+     * @param text 待检查字符串
+     * @return 是布尔字面量时为 {@code true}
      */
     public static boolean isBoolean(String text) {
         return "true".equalsIgnoreCase(text) || "false".equalsIgnoreCase(text);

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.Method;
 
 /**
- * 全局动态请求头实现
+ * 全局动态请求头实现，在 {@code @EnableFlare} 中声明，为所有请求生成随机请求头值。
  * <p>
  * Created on 2025-09-18 14:21
  *
@@ -22,8 +22,8 @@ public class GlobalDynamicHeader implements Header.Dynamic {
     /**
      * 生成请求头。
      *
-     * @param method 方法
-     * @return 处理结果
+     * @param method 被调用的远端接口方法
+     * @return 生成的动态请求头
      */
     @Override
     public HttpHeader header(Method method) {

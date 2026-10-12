@@ -8,7 +8,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * 系统时钟类
+ * 系统时钟。
+ * <p>
+ * 内部以毫秒周期由虚拟线程定时任务把 {@link System#currentTimeMillis()} 缓存到 {@link AtomicLong}，
+ * 读取时间戳时直接返回缓存值，避免高频调用系统时钟的开销。
+ * 默认以单例方式运行，刷新周期为 1 毫秒。
  * <p>
  * Created on 2025-09-10 16:37
  *
@@ -33,9 +37,11 @@ public class SystemClock {
     }
 
     /**
-     * 获取当前时间戳。
+     * 获取当前毫秒时间戳。
+     * <p>
+     * 返回内部缓存值，与 {@link System#currentTimeMillis()} 的偏差不超过一个刷新周期（默认 1 毫秒）。
      *
-     * @return 处理结果
+     * @return 当前毫秒时间戳
      */
     public static long now() {
         return INSTANCE.now.get();
@@ -44,7 +50,7 @@ public class SystemClock {
     /**
      * 获取当前日期。
      *
-     * @return 处理结果
+     * @return 以 {@link #now()} 时间戳构造的 {@link Date}
      */
     public static Date nowDate() {
         return new Date(now());

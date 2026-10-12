@@ -3,7 +3,7 @@ package com.yhy.http.flare.annotation.method;
 import java.lang.annotation.*;
 
 /**
- * options 请求
+ * 标记方法为 OPTIONS 请求。
  * <p>
  * Created on 2025-09-13 15:09
  *
@@ -17,9 +17,11 @@ import java.lang.annotation.*;
 public @interface Options {
 
     /**
-     * api子路径
+     * 请求子路径。
+     * <p>
+     * 相对基础 URL 解析；默认空字符串表示直接使用基础 URL。
      *
-     * @return api子路径
+     * @return 请求子路径，默认空字符串
      */
     String value() default "";
 }

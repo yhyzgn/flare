@@ -1,7 +1,9 @@
 package com.yhy.http.flare.mock.server.model;
 
 /**
- * user
+ * mock 服务的用户信息模型。
+ * <p>
+ * 用于验证 JSON 请求体、表单对象绑定与嵌套对象（{@link Cat}）的往返序列化。
  * <p>
  * Created on 2025-09-16 13:53
  *

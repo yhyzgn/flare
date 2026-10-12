@@ -23,7 +23,10 @@ import java.io.InputStream;
 import java.util.concurrent.TimeoutException;
 
 /**
- * GET 请求远程接口
+ * GET 远端调用接口，通过 {@code @Flare} 声明，指向 {@code ${flare.remote-host}/get} 端点。
+ * <p>
+ * 配置了固定请求头、GET 级动态请求头和 GET 级拦截器，演示路径参数、查询参数、对象参数、
+ * 原始响应体、字节数组、输入流、文件下载等多种 GET 返回类型。
  * <p>
  * Created on 2025-09-18 11:33
  *

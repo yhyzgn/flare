@@ -20,7 +20,11 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 
 /**
- * <a href="https://jsonplaceholder.typicode.com/">测试站点</a>
+ * 指向本地 mock-server {@code /post} 端点的 POST 测试接口。
+ * <p>
+ * 覆盖动态请求头、方法级拦截器、表单提交、请求体、文件上传
+ * （{@code File} / {@code byte[]} / {@code FileInputStream}）、多段表单与二进制上传等场景；
+ * 端口可用系统属性 {@value #MOCK_PORT_PROPERTY} 覆盖，默认 {@code 8080}。
  * <p>
  * Created on 2025-09-15 17:26
  *

@@ -9,7 +9,8 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- *
+ * 多段表单测试模型，验证 {@code @Multipart} 注解字段在 {@code File}、{@code byte[]}
+ * 和 {@code FileInputStream} 类型上的统一处理。
  * <p>
  * Created on 2025-09-16 16:53
  *

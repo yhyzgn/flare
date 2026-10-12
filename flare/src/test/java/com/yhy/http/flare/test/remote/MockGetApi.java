@@ -16,7 +16,11 @@ import java.io.File;
 import java.io.InputStream;
 
 /**
- * <a href="https://jsonplaceholder.typicode.com/">测试站点</a>
+ * 指向本地 mock-server {@code /get} 端点的 GET 测试接口。
+ * <p>
+ * 覆盖动态请求头、方法级拦截器、路径参数、查询参数、对象参数、
+ * 原始响应体、字节数组、输入流、文件与文件下载等场景；
+ * 端口可用系统属性 {@value #MOCK_PORT_PROPERTY} 覆盖，默认 {@code 8080}。
  * <p>
  * Created on 2025-09-15 17:26
  *

@@ -9,7 +9,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * app
+ * 示例应用启动类，通过 {@code @EnableFlare} 注册全局固定请求头、动态请求头和全局拦截器。
+ * <p>
+ * 该类是 flare-spring-boot-sample 的入口，启动后监听 8082 端口，
+ * 通过 {@code flare.remote-host}（默认 {@code http://localhost:8080}）调用 mock-server。
  * <p>
  * Created on 2025-09-16 11:46
  *
@@ -34,7 +37,7 @@ public class Application {
     /**
      * 应用入口。
      *
-     * @param args 字符串
+     * @param args 命令行启动参数
      */
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);

@@ -21,7 +21,15 @@ import javax.net.ssl.X509TrustManager;
 import java.lang.annotation.*;
 
 /**
- * 启用 flare 组件
+ * 启用 Flare 组件。
+ * <p>
+ * 标注在配置类上后导入 {@link FlareAutoRegister}、{@link FlareStarterAutoConfiguration}
+ * 及默认基础设施 Bean（转换器工厂、{@link SpringInstanceFactory}、
+ * {@link SpringMethodAnnotationDelegate}、{@link SpringDispatcherProvider}），
+ * 并在配置的扫描包下查找标注 {@link Flare} 的接口，为每个接口注册代理 Bean。
+ * <p>
+ * 本注解上的全局配置仅作兜底：接口级 {@code @Flare} 的显式配置优先于全局值；
+ * 字符串配置支持 {@code ${...}} 占位符。
  * <p>
  * Created on 2025-09-18 11:11
  *

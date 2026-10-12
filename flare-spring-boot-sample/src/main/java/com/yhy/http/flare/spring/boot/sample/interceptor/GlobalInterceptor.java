@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 /**
- *
+ * 全局拦截器，在 {@code @EnableFlare} 中声明，作用于所有远端请求，演示全局拦截器用法。
  * <p>
  * Created on 2025-09-18 14:50
  *
@@ -24,8 +24,8 @@ public class GlobalInterceptor implements Interceptor {
     /**
      * 拦截请求。
      *
-     * @param chain 值
-     * @return 处理结果
+     * @param chain OkHttp 拦截器链
+     * @return 拦截后的响应
      * @throws IOException IO 异常
      */
     @Override

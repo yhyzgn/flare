@@ -22,7 +22,10 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 
 /**
- * POST 请求远程服务
+ * POST 远端调用接口，通过 {@code @Flare} 声明，指向 {@code ${flare.remote-host}/post} 端点，超时 8000 毫秒。
+ * <p>
+ * 配置了固定请求头、POST 级动态请求头和 POST 级拦截器，演示表单提交、请求体、文件上传
+ * （{@code File} / {@code byte[]} / {@code FileInputStream}）、多段表单和二进制上传等场景。
  * <p>
  * Created on 2025-09-18 14:04
  *

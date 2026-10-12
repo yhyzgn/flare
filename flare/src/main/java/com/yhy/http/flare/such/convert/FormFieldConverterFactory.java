@@ -19,7 +19,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 表单字段转换器工厂
+ * 默认的表单字段转换器工厂。
+ * <p>
+ * 产出的转换器把任意对象递归展开为扁平的 {@link FormField} 列表：
+ * 基本类型与字符串直接取值，数组、集合按 {@code name[下标]} 展开，Map 按 {@code name.key} 展开，
+ * 普通 Java Bean 反射非静态、非 transient 字段并以 {@code name.字段名} 级联；
+ * 带 {@link Multipart} 注解的字段按文件 / 字节数组 / 输入流字段输出。
  * <p>
  * Created on 2025-09-15 15:29
  *
@@ -30,12 +35,12 @@ import java.util.Map;
 public class FormFieldConverterFactory implements FormFieldConverter.Factory {
 
     /**
-     * 获取转换器。
+     * 获取表单字段转换器。
      *
-     * @param type 值
-     * @param annotations 注解
-     * @param flare 值
-     * @return 处理结果
+     * @param type        参数的静态类型
+     * @param annotations 参数上的注解
+     * @param flare        当前 Flare 客户端实例
+     * @return 递归展开对象的表单字段转换器
      */
     @Override
     public FormFieldConverter<?> converter(Type type, Annotation[] annotations, Flare flare) {
@@ -49,13 +54,13 @@ public class FormFieldConverterFactory implements FormFieldConverter.Factory {
         private static final String DEFAULT_VALUE = null;
 
         /**
-         * 转换数据。
+         * 把对象转换为扁平化的表单字段列表。
          *
-         * @param name 字符串
-         * @param value 值
-         * @param encoded 值
-         * @param defaultValue 字符串
-         * @return 处理结果
+         * @param name         字段名，{@code null} 时按空字符串处理
+         * @param value        待转换对象
+         * @param encoded      字段值是否已完成 URL 编码
+         * @param defaultValue 值为 {@code null} 时使用的默认值
+         * @return 递归展开后的表单字段列表
          */
         @Override
         public List<FormField<?>> convert(String name, T value, boolean encoded, String defaultValue) {

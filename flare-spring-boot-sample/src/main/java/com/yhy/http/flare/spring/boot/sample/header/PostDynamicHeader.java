@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.Method;
 
 /**
- * 全局动态请求头实现
+ * POST 接口级动态请求头实现，为每个 POST 请求生成随机请求头值。
  * <p>
  * Created on 2025-09-18 14:21
  *
@@ -22,8 +22,8 @@ public class PostDynamicHeader implements Header.Dynamic {
     /**
      * 生成请求头。
      *
-     * @param method 方法
-     * @return 处理结果
+     * @param method 被调用的远端接口方法
+     * @return 生成的动态请求头
      */
     @Override
     public HttpHeader header(Method method) {

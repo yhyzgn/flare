@@ -1,7 +1,9 @@
 package com.yhy.http.flare.mock.server.model;
 
 /**
- * cat
+ * mock 服务的猫信息模型。
+ * <p>
+ * 作为 {@link User} 的嵌套字段，用于验证嵌套对象 JSON 的序列化与反序列化。
  * <p>
  * Created on 2025-09-16 14:35
  *

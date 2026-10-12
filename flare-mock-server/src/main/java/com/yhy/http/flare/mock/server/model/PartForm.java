@@ -7,7 +7,10 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- *
+ * mock 服务的多段表单模型。
+ * <p>
+ * 用于验证 multipart 表单中普通字段与多种来源文件分片
+ * （{@code MultipartFile}）的绑定；配对端点为 {@code POST /post/partForm}。
  * <p>
  * Created on 2025-09-16 16:53
  *

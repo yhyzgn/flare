@@ -8,7 +8,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * 虚拟线程实现并用 TTL 包装的 Dispatcher
+ * 基于虚拟线程的 {@link DispatcherProvider} 默认实现。
+ * <p>
+ * 使用 {@code Thread.ofVirtual()}（线程名前缀 {@code flare-vt-}）的每任务一线程执行器，
+ * 并经 TTL（TransmittableThreadLocal）包装以保证上下文在异步任务间正确传递。
  * <p>
  * Created on 2025-09-23 10:46
  *
@@ -19,9 +22,9 @@ import java.util.concurrent.Executors;
 public class VirtualThreadDispatcherProvider implements DispatcherProvider {
 
     /**
-     * provide。
+     * 提供基于虚拟线程的 OkHttp {@link Dispatcher}。
      *
-     * @return 处理结果
+     * @return 使用 TTL 包装的虚拟线程分发器
      */
     @Override
     public Dispatcher provide() {

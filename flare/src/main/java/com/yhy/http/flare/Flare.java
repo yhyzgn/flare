@@ -42,7 +42,18 @@ import java.time.Duration;
 import java.util.*;
 
 /**
- * 一个 HTTP 请求客户端
+ * Flare HTTP 请求客户端。
+ * <p>
+ * 通过 {@link #create(Class)} 将使用 Flare 注解声明的 Java 接口转换为 OkHttp 动态代理，
+ * 由代理完成请求构建、发送、响应转换与异常分发。
+ * <p>
+ * 典型用法：
+ * <pre>{@code
+ * Flare flare = new Flare.Builder()
+ *     .baseUrl("https://api.example.com/")
+ *     .build();
+ * Api api = flare.create(Api.class);
+ * }</pre>
  * <p>
  * Created on 2025-09-10 14:05
  *
@@ -96,9 +107,11 @@ public class Flare {
     }
 
     /**
-     * Base URL
+     * 基础 URL。
+     * <p>
+     * 所有相对路径的接口请求都以该 URL 为前缀拼接。
      *
-     * @return Base URL
+     * @return 基础 URL
      */
     @NotNull
     public HttpUrl baseUrl() {
@@ -187,27 +200,33 @@ public class Flare {
     }
 
     /**
-     * sslSocketFactory
+     * SSL Socket 工厂。
+     * <p>
+     * 未显式配置时返回空 {@link Opt}，此时客户端使用默认的信任所有实现。
      *
-     * @return sslSocketFactory
+     * @return SSL Socket 工厂，未配置时为空
      */
     public Opt<SSLSocketFactory> sslSocketFactory() {
         return Opt.ofNullable(sslSocketFactory);
     }
 
     /**
-     * sslTrustManager
+     * SSL 信任管理器。
+     * <p>
+     * 未显式配置时返回空 {@link Opt}，此时客户端使用默认的信任所有实现。
      *
-     * @return sslTrustManager
+     * @return X509 信任管理器，未配置时为空
      */
     public Opt<X509TrustManager> sslTrustManager() {
         return Opt.ofNullable(sslTrustManager);
     }
 
     /**
-     * sslHostnameVerifier
+     * SSL 主机名校验器。
+     * <p>
+     * 未显式配置时返回空 {@link Opt}，此时客户端使用默认的信任所有实现。
      *
-     * @return sslHostnameVerifier
+     * @return 主机名校验器，未配置时为空
      */
     public Opt<HostnameVerifier> sslHostnameVerifier() {
         return Opt.ofNullable(sslHostnameVerifier);
@@ -392,8 +411,10 @@ public class Flare {
     }
 
     /**
-     * Builder类。
-     *
+     * Flare 客户端构建器。
+     * <p>
+     * 以链式调用的方式配置基础 URL、拦截器、分发器、转换器、SSL 组件等，
+     * 最终通过 {@link #build()} 生成不可变的 {@link Flare} 实例。
      */
     public static class Builder {
         private final List<Interceptor> netInterceptors = new ArrayList<>();

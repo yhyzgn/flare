@@ -42,9 +42,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * 自动扫描注册器
+ * Flare 自动扫描注册器基类。
  * <p>
- * 当注册 @EnableFlare 注解后，自动扫描注册器会自动扫描并注册 @Flare 相关 Bean
+ * 配合启用注解（如 {@code @EnableFlare}）使用：注册器会扫描指定基础包下
+ * 标注了 Flare 接口注解（如 {@code @Flare}）的接口，并为每个接口注册一个
+ * {@link FlareFactoryBean} Bean 定义，最终向容器输出对应的代理 Bean。
+ * <p>
+ * 配置优先级遵循"越靠近代理方法越优先"：启用注解只提供全局兜底配置，
+ * 接口级注解的显式配置覆盖全局值；字符串配置支持 {@code ${...}} 占位符，
+ * 经 Spring {@link Environment} 解析；Bean 别名按 qualifier、name、类名依次回退。
  * <p>
  * Created on 2025-09-17 17:56
  *
@@ -55,14 +61,12 @@ import java.util.stream.Stream;
 @Slf4j
 public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware {
     /**
-     * environment。
-     *
+     * Spring 环境上下文，用于解析配置占位符。
      */
     protected Environment environment;
 
     /**
-     * resource Loader。
-     *
+     * 资源加载器，用于类路径扫描。
      */
     protected ResourceLoader resourceLoader;
 
@@ -85,9 +89,12 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
 
     /**
      * 注册 Bean 定义。
+     * <p>
+     * 先从启用注解读取全局配置，再扫描 Flare 接口并逐个注册
+     * {@link FlareFactoryBean} Bean 定义。
      *
-     * @param metadata 注解
-     * @param registry 值
+     * @param metadata 启用注解所在类的元数据
+     * @param registry Bean 定义注册表
      */
     @Override
     public void registerBeanDefinitions(@NotNull AnnotationMetadata metadata, @NotNull BeanDefinitionRegistry registry) {
@@ -283,10 +290,12 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
     }
 
     /**
-     * dynamic Header List。
+     * 解析动态请求头处理器类型列表。
+     * <p>
+     * 接口级配置与全局配置合并（全局在前、局部在后）；接口未配置时返回全局列表。
      *
-     * @param attrs 字符串
-     * @return 处理结果
+     * @param attrs 接口注解的属性映射
+     * @return 动态请求头处理器类型列表，可能为空列表
      */
     public List<Class<? extends Header.Dynamic>> dynamicHeaderList(Map<String, Object> attrs) {
         AnnotationAttributes[] headers = (AnnotationAttributes[]) attrs.get("header");
@@ -306,9 +315,9 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
     }
 
     /**
-     * 设置环境。
+     * 设置 Spring 环境上下文。
      *
-     * @param environment 值
+     * @param environment Spring 环境上下文
      */
     @Override
     public void setEnvironment(@NotNull Environment environment) {
@@ -318,7 +327,7 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
     /**
      * 设置资源加载器。
      *
-     * @param resourceLoader 值
+     * @param resourceLoader 资源加载器
      */
     @Override
     public void setResourceLoader(@NotNull ResourceLoader resourceLoader) {
@@ -363,10 +372,12 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
     private ClassPathScanningCandidateComponentProvider getScanner() {
         return new ClassPathScanningCandidateComponentProvider(false, this.environment) {
             /**
-             * 判断候选组件。
+             * 判断候选组件是否可直接注册。
+             * <p>
+             * 要求候选类是独立类且不是注解类型。
              *
-             * @param beanDefinition 值
-             * @return 判断候选组件
+             * @param beanDefinition 候选 Bean 定义
+             * @return 独立且非注解类型时为 {@code true}
              */
             @Override
             protected boolean isCandidateComponent(@NotNull AnnotatedBeanDefinition beanDefinition) {
@@ -376,23 +387,25 @@ public abstract class AbstractFlareAutoRegister implements ImportBeanDefinitionR
     }
 
     /**
-     * 获取启用注解类型。
+     * 获取启用注解类型（如 {@code @EnableFlare}）。
      *
-     * @return 处理结果
+     * @return 启用注解类型
      */
     public abstract Class<? extends Annotation> enableAnnotation();
 
     /**
-     * 获取 Flare 注解类型。
+     * 获取 Flare 接口注解类型（如 {@code @Flare}）。
      *
-     * @return 处理结果
+     * @return Flare 接口注解类型
      */
     public abstract Class<? extends Annotation> flareAnnotation();
 
     /**
-     * 获取 Flare FactoryBean 类型。
+     * 获取用于注册代理 Bean 的 {@link FlareFactoryBean} 类型。
+     * <p>
+     * 默认返回 {@link FlareFactoryBean}，子类可覆盖以提供扩展实现。
      *
-     * @return 处理结果
+     * @return Flare FactoryBean 类型
      */
     public Class<? extends FlareFactoryBean> flareFactoryBean() {
         return FlareFactoryBean.class;

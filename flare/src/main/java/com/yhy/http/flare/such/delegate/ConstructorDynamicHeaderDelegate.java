@@ -18,11 +18,11 @@ import com.yhy.http.flare.utils.ReflectUtils;
 public class ConstructorDynamicHeaderDelegate implements DynamicHeaderDelegate {
 
     /**
-     * 应用委托。
+     * 通过无参构造方法创建动态请求头实例。
      *
-     * @param clazz 类型
-     * @return 处理结果
-     * @throws Exception 调用异常
+     * @param clazz 目标类型
+     * @return 创建的实例
+     * @throws Exception 构造方法调用失败时抛出
      */
     @Override
     public <T extends Header.Dynamic> T apply(Class<T> clazz) throws Exception {

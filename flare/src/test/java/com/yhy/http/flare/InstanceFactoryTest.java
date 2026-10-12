@@ -17,7 +17,14 @@ import java.lang.reflect.Method;
 import org.junit.jupiter.api.Assertions;
 
 /**
- * 统一实例创建工厂测试。
+ * 统一实例创建工厂（{@code InstanceFactory}）测试。
+ * <p>
+ * 验证自定义统一工厂在请求解析与 Builder 中的实际生效、旧 Delegate 配置的兼容路径、
+ * 旧 Delegate getter 与统一工厂的双向桥接，以及默认 trust-all SSL 组件与部分 SSL 配置快速失败。
+ *
+ * @author Neo
+ * @version 1.0.0
+ * @since 2.0.2
  */
 class InstanceFactoryTest {
 

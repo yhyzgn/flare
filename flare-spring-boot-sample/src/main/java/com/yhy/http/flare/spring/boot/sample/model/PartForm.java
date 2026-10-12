@@ -9,7 +9,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- *
+ * 多段表单模型，演示 {@code @Multipart} 注解对 {@code File}、{@code byte[]} 和 {@code FileInputStream} 的统一处理。
  * <p>
  * Created on 2025-09-16 16:53
  *

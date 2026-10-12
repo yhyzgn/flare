@@ -5,7 +5,10 @@ import com.yhy.http.flare.utils.Assert;
 import lombok.Getter;
 
 /**
- * 网络请求异常
+ * HTTP 请求失败异常。
+ * <p>
+ * 当响应状态码非 2xx、未启用 {@code ignoreHttpStatus} 且方法返回类型不是
+ * {@link InternalResponse} 时抛出；携带状态码与原始响应便于调用方取回错误响应体。
  * <p>
  * Created on 2025-09-11 09:24
  *
@@ -21,7 +24,7 @@ public class HttpException extends RuntimeException {
     /**
      * 创建 HttpException 实例。
      *
-     * @param response 值
+     * @param response 失败的原始响应，不能为 {@code null}
      */
     public HttpException(InternalResponse<?> response) {
         super(parseMessage(response));

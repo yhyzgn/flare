@@ -25,7 +25,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
- * 基于 Gson 实现的 BodyConverter
+ * 基于 Gson 实现的 {@link BodyConverter.Factory} 默认实现。
+ * <p>
+ * 请求方向把对象序列化为 UTF-8 JSON 请求体；响应方向以宽松模式读取 JSON 并转换为声明类型。
  * <p>
  * Created on 2025-09-11 09:41
  *
@@ -37,8 +39,7 @@ public class GsonConverterFactory implements BodyConverter.Factory {
     private final Gson gson;
 
     /**
-     * 创建 GsonConverterFactory 实例。
-     *
+     * 创建使用默认 {@link Gson} 实例的工厂。
      */
     public GsonConverterFactory() {
         this(new Gson());
@@ -47,19 +48,21 @@ public class GsonConverterFactory implements BodyConverter.Factory {
     /**
      * 创建 GsonConverterFactory 实例。
      *
-     * @param gson 值
+     * @param gson 自定义的 Gson 实例
      */
     public GsonConverterFactory(Gson gson) {
         this.gson = gson;
     }
 
     /**
-     * request Body Converter。
+     * 获取请求体转换器。
+     * <p>
+     * 字符串、字节数组与 {@link RequestBody} 原样传递，其余类型序列化为 JSON。
      *
-     * @param type 值
-     * @param annotations 注解
-     * @param flare 值
-     * @return 处理结果
+     * @param type        请求体目标类型
+     * @param annotations 参数上的注解
+     * @param flare        当前 Flare 客户端实例
+     * @return 基于 Gson TypeAdapter 的请求体转换器
      */
     @Override
     public BodyConverter<?, RequestBody> requestBodyConverter(Type type, Annotation[] annotations, Flare flare) {
@@ -68,12 +71,14 @@ public class GsonConverterFactory implements BodyConverter.Factory {
     }
 
     /**
-     * response Body Converter。
+     * 获取响应体转换器。
+     * <p>
+     * 以宽松（LENIENT）模式解析响应 JSON，文档未消费完时抛出异常。
      *
-     * @param type 值
-     * @param annotations 注解
-     * @param flare 值
-     * @return 处理结果
+     * @param type        响应体目标类型
+     * @param annotations 方法上的注解
+     * @param flare        当前 Flare 客户端实例
+     * @return 基于 Gson TypeAdapter 的响应体转换器
      */
     @Override
     public BodyConverter<ResponseBody, ?> responseBodyConverter(Type type, Annotation[] annotations, Flare flare) {
@@ -86,9 +91,9 @@ public class GsonConverterFactory implements BodyConverter.Factory {
         private static final Charset UTF_8 = StandardCharsets.UTF_8;
 
         /**
-         * result Type。
+         * 请求体的原始类型。
          *
-         * @return 处理结果
+         * @return 构造工厂时传入的目标类型
          */
         @Override
         public Class<?> resultType() {
@@ -96,11 +101,14 @@ public class GsonConverterFactory implements BodyConverter.Factory {
         }
 
         /**
-         * 转换数据。
+         * 把请求对象转换为 JSON 请求体。
+         * <p>
+         * {@code null} 转为空请求体；字符串与字节数组按原内容发出；{@link RequestBody} 直接透传；
+         * 其余类型经 Gson 序列化为 UTF-8 JSON。
          *
-         * @param from 值
-         * @return 处理结果
-         * @throws IOException 调用异常
+         * @param from 请求对象
+         * @return JSON 请求体
+         * @throws IOException 序列化写入失败时抛出
          */
         @Override
         public RequestBody convert(T from) throws IOException {
@@ -133,9 +141,9 @@ public class GsonConverterFactory implements BodyConverter.Factory {
     private record GsonResponseBodyBodyConverter<T>(Gson gson, TypeAdapter<T> adapter, Type type, Annotation[] annotations, Flare flare) implements BodyConverter<ResponseBody, T> {
 
         /**
-         * result Type。
+         * 响应体的目标类型。
          *
-         * @return 处理结果
+         * @return 构造工厂时传入的目标类型
          */
         @Override
         public Class<?> resultType() {
@@ -143,11 +151,13 @@ public class GsonConverterFactory implements BodyConverter.Factory {
         }
 
         /**
-         * 转换数据。
+         * 把 JSON 响应体反序列化为声明类型。
+         * <p>
+         * 以宽松模式读取 JSON；文档存在剩余内容时视为非法响应抛出 {@code JsonIOException}。
          *
-         * @param from 响应体
-         * @return 处理结果
-         * @throws IOException 调用异常
+         * @param from 原始响应体
+         * @return 反序列化后的对象，可能为 {@code null}
+         * @throws IOException 读取或解析响应体失败时抛出
          */
         @Nullable
         @Override

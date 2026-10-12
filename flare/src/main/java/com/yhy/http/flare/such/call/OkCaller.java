@@ -26,7 +26,11 @@ import java.time.Duration;
 import java.util.Objects;
 
 /**
- *
+ * 基于 OkHttp 的 {@link Caller} 默认实现。
+ * <p>
+ * 封装一次接口方法调用：由 {@link RequestFactory} 构建 OkHttp 请求，发送后把原始响应
+ * 解析为 {@link InternalResponse}（含响应体转换）。支持同步执行、异步入队、取消与克隆；
+ * 每个实例只能执行一次，重复执行抛出 {@link IllegalStateException}。
  * <p>
  * Created on 2025-09-11 06:29
  *
@@ -51,10 +55,10 @@ public class OkCaller<T> implements Caller<T> {
     /**
      * 创建 OkCaller 实例。
      *
-     * @param requestFactory 值
-     * @param flare 值
-     * @param responseConverter 响应体
-     * @param args 对象
+     * @param requestFactory   请求工厂，负责把方法参数构建为 OkHttp 请求
+     * @param flare            所属 Flare 客户端，提供全局配置
+     * @param responseConverter 响应体转换器，把原始响应体转换为方法声明的返回类型
+     * @param args             代理方法调用参数
      */
     public OkCaller(RequestFactory requestFactory, Flare flare, BodyConverter<ResponseBody, T> responseConverter, Object[] args) {
         this.requestFactory = requestFactory;
@@ -64,10 +68,12 @@ public class OkCaller<T> implements Caller<T> {
     }
 
     /**
-     * execute。
+     * 同步执行请求并解析响应。
+     * <p>
+     * 首次调用时创建底层 {@code okhttp3.Call}；若此前已执行过或创建请求失败过，按失败语义直接抛出。
      *
-     * @return 处理结果
-     * @throws IOException 调用异常
+     * @return 解析后的响应包装
+     * @throws IOException 网络请求或读取响应体时发生 I/O 错误
      */
     @Override
     public InternalResponse<T> execute() throws IOException {
@@ -101,9 +107,11 @@ public class OkCaller<T> implements Caller<T> {
     }
 
     /**
-     * request。
+     * 获取本次调用将发送的 OkHttp 请求。
+     * <p>
+     * 底层 Call 尚未创建时会先构建请求；此前创建请求失败过则抛出当时的失败原因。
      *
-     * @return 处理结果
+     * @return 待发送的 OkHttp 请求
      */
     @Override
     public synchronized Request request() {
@@ -130,9 +138,12 @@ public class OkCaller<T> implements Caller<T> {
     }
 
     /**
-     * enqueue。
+     * 异步执行请求。
+     * <p>
+     * 请求构建失败会直接回调 {@code onFailure}；响应在回调线程中解析，
+     * 解析失败同样以 {@code onFailure} 通知。
      *
-     * @param callback 值
+     * @param callback 结果回调，不允许为 {@code null}
      */
     @Override
     public void enqueue(Callback<T> callback) {
@@ -164,10 +175,10 @@ public class OkCaller<T> implements Caller<T> {
 
         call.enqueue(new okhttp3.Callback() {
             /**
-             * 处理失败。
+             * 网络请求失败时转发给调用方回调。
              *
-             * @param call 值
-             * @param e 值
+             * @param call 底层 OkHttp 调用
+             * @param e    失败原因
              */
             @Override
             public void onFailure(@NotNull okhttp3.Call call, @NotNull IOException e) {
@@ -175,10 +186,11 @@ public class OkCaller<T> implements Caller<T> {
             }
 
             /**
-             * 处理响应。
+             * 原始响应到达时先解析为 {@link InternalResponse} 再回调调用方；
+             * 解析失败按 {@code onFailure} 处理。
              *
-             * @param call 值
-             * @param rawResponse 值
+             * @param call        底层 OkHttp 调用
+             * @param rawResponse OkHttp 原始响应
              */
             @Override
             public void onResponse(@NotNull okhttp3.Call call, @NotNull okhttp3.Response rawResponse) {
@@ -207,9 +219,9 @@ public class OkCaller<T> implements Caller<T> {
     }
 
     /**
-     * is Executed。
+     * 请求是否已执行（同步或异步均计入）。
      *
-     * @return is Executed
+     * @return 已执行返回 {@code true}
      */
     @Override
     public synchronized boolean isExecuted() {
@@ -217,8 +229,9 @@ public class OkCaller<T> implements Caller<T> {
     }
 
     /**
-     * cancel。
-     *
+     * 取消本次调用。
+     * <p>
+     * 底层 Call 尚未创建时先标记取消标志，创建后由执行流程联动取消。
      */
     @Override
     public void cancel() {
@@ -233,9 +246,9 @@ public class OkCaller<T> implements Caller<T> {
     }
 
     /**
-     * is Canceled。
+     * 本次调用是否已取消。
      *
-     * @return is Canceled
+     * @return 已取消返回 {@code true}
      */
     @Override
     public boolean isCanceled() {
@@ -248,9 +261,11 @@ public class OkCaller<T> implements Caller<T> {
     }
 
     /**
-     * clone。
+     * 克隆出可再次执行的调用实例。
+     * <p>
+     * 克隆实例共享请求工厂、客户端配置与转换器，但拥有独立的执行状态。
      *
-     * @return 处理结果
+     * @return 新的 {@link OkCaller} 实例
      */
     @Override
     @SuppressWarnings("MethodDoesntCallSuperMethod")
@@ -349,9 +364,9 @@ public class OkCaller<T> implements Caller<T> {
         }
 
         /**
-         * content Type。
+         * 响应体的 Content-Type。
          *
-         * @return 处理结果
+         * @return 原始响应体的 Content-Type，可能为 {@code null}
          */
         @Override
         public MediaType contentType() {
@@ -359,9 +374,9 @@ public class OkCaller<T> implements Caller<T> {
         }
 
         /**
-         * content Length。
+         * 响应体的内容长度。
          *
-         * @return 处理结果
+         * @return 原始响应体的内容长度
          */
         @Override
         public long contentLength() {
@@ -369,9 +384,11 @@ public class OkCaller<T> implements Caller<T> {
         }
 
         /**
-         * source。
+         * 获取可读取的数据源。
+         * <p>
+         * 该响应体仅承载元信息，不持有实际数据，读取时直接抛出 {@link IllegalStateException}。
          *
-         * @return 处理结果
+         * @return 不支持调用，始终抛出异常
          */
         @Override
         public @NotNull BufferedSource source() {
@@ -389,12 +406,12 @@ public class OkCaller<T> implements Caller<T> {
             this.delegate = delegate;
             this.delegateSource = Okio.buffer(new ForwardingSource(delegate.source()) {
                 /**
-                 * read。
+                 * 读取数据并在发生 {@link IOException} 时记录该异常。
                  *
-                 * @param sink 值
-                 * @param byteCount 值
-                 * @return 处理结果
-                 * @throws IOException 调用异常
+                 * @param sink      目标缓冲区
+                 * @param byteCount 最多读取的字节数
+                 * @return 实际读取的字节数
+                 * @throws IOException 底层读取失败时抛出
                  */
                 @Override
                 public long read(@NotNull Buffer sink, long byteCount) throws IOException {
@@ -409,9 +426,9 @@ public class OkCaller<T> implements Caller<T> {
         }
 
         /**
-         * content Type。
+         * 响应体的 Content-Type。
          *
-         * @return 处理结果
+         * @return 委托响应体的 Content-Type
          */
         @Override
         public MediaType contentType() {
@@ -419,9 +436,9 @@ public class OkCaller<T> implements Caller<T> {
         }
 
         /**
-         * content Length。
+         * 响应体的内容长度。
          *
-         * @return 处理结果
+         * @return 委托响应体的内容长度
          */
         @Override
         public long contentLength() {
@@ -429,9 +446,11 @@ public class OkCaller<T> implements Caller<T> {
         }
 
         /**
-         * source。
+         * 获取包装后的数据源。
+         * <p>
+         * 读取过程中发生的 {@link IOException} 会被记录，供 {@code throwIfCaught()} 重放。
          *
-         * @return 处理结果
+         * @return 捕获读异常的缓冲数据源
          */
         @Override
         public @NotNull BufferedSource source() {
@@ -439,8 +458,7 @@ public class OkCaller<T> implements Caller<T> {
         }
 
         /**
-         * close。
-         *
+         * 关闭底层委托响应体。
          */
         @Override
         public void close() {
